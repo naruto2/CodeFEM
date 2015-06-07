@@ -21,12 +21,10 @@ SRCS =	main.c++ \
 	generate_fN.c++ \
 	arytovec.c++
 
-
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
 
-CPPFLAGS = -Wall -g -O2
-CFLAGS = -fpermissive
+CPPFLAGS = -Wall -g -O3
 LDFLAGS = -lestiva -lm
 
 .PHONY: all clean
@@ -37,7 +35,7 @@ $(PROG) : $(OBJS)
 	c++ $(OBJS) -o $@ $(LDFLAGS)
 
 .c++.o:
-	c++ $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	c++ $(CPPFLAGS) -c $< -o $@
 
 clean :
 	rm -f $(OBJS) $(PROG) kanto.msh1 pt.msh1 test

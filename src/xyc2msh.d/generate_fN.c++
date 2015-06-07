@@ -4,9 +4,6 @@ using namespace std;
 #include "xyc_nde.h"
 #include "ary.h"
 
-
-#define T double
-
 int generate_fN(vector<nde>&N,int*fN)
 {
   int i, n=0;

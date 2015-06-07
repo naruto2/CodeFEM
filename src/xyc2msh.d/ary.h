@@ -2,7 +2,8 @@
 #define _ESTIVA_ARY_H_
 
 extern "C" {
-void    estiva_ary1(void** v,long n_1, size_t o);
+  //void    estiva_ary1(void** v,long n_1, size_t o);
+void    estiva_ary1(void* v,long n_1, size_t o);
 long    estiva_dim1(void* v);
 }
 
