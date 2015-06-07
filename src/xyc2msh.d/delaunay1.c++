@@ -19,9 +19,9 @@ extern int generate_fN(vector<nde>&,int*);
 
 void delaunay1(xyc **Zo, nde **No)
 { int i, n, z; 
-  static int *fN,*fNinv,*fZ,*fZinv;
+  static int *fN,*fNinv,*fZ;
   static xyc *Z0, *Z;
-  static nde *N0, *N;
+  static nde *N0;
   vector<xyc> Zv;
   vector<nde> Nv;
   
@@ -30,50 +30,64 @@ void delaunay1(xyc **Zo, nde **No)
   arytovec_xyc(Z,Zv);
   super_triangle(Zv);
 
-  ary1(N,(Zv.size()-1)*3);
-  arytovec_nde(N,Nv);
+  Nv.resize(Zv.size()*3);
 
   LawsonSwap(Zv,Nv);
   vanish_boundary_triangle(Zv, Nv);
-
+  
   ary1(fN,count_nodes(Nv)+1);
-
+  vector<int> fNv, fNinvv, fZv;
+  vector<nde> N0v;
 
 
   n = generate_fN(Nv,fN);
+  fNv.resize(dim1(fN)+1);
+  for ( i = 0; i<=dim1(fN); i++ ) fNv[i] = fN[i];
 
-  vectoary_xyc(Zv,Z);
-  vectoary_nde(Nv,N);
+  ary1(N0, fNv.size());
+  N0v.resize(fNv.size()+1);
+  for (i=1;i<=dim1(N0); i++) N0[i]=Nv[fNv[i]];
+  arytovec_nde(N0,N0v);
+  for (i=1;i<=dim1(N0); i++) N0v[i]=Nv[fNv[i]];
 
-  
-  ary1(N0, dim1(fN)+1); for (i=1;i<=dim1(N0); i++) N0[i]=N[fN[i]];
   
   ary1(fNinv,n+1); 
-  for (i=1; i<=dim1(fN); i++) fNinv[fN[i]]=i;
+  ary1(fZ,dim1(Z)+1);
+  fNinvv.resize(n);
+  fZv.resize(dim1(Z));
 
-  for (i=1; i<=dim1(N0); i++) {
-    N0[i].A = fNinv[N0[i].A];
-    N0[i].B = fNinv[N0[i].B];
-    N0[i].C = fNinv[N0[i].C];
+  for (i=0; i<(int)fNinvv.size(); i++) fNinvv[i] = fNinv[i];
+  for (i=0; i<(int)fZv.size(); i++)    fZv[i] = fZ[i];
+  for (i=1; i<(int)fNv.size(); i++) fNinv[fNv[i]]=i;
+  for (i=1; i<(int)fNv.size(); i++) fNinvv[fNv[i]]=i;
+
+  for (i=1; i<=(int)N0v.size(); i++) {
+    N0v[i].A = fNinvv[N0v[i].A];
+    N0v[i].B = fNinvv[N0v[i].B];
+    N0v[i].C = fNinvv[N0v[i].C];
   }  
 
-  ary1(fZ,dim1(Z)+1); 
-
-  for(z=0, i=1; i<=dim1(N0); i++) {
-    if (fZ[N0[i].a] == 0) fZ[N0[i].a] = ++z;
-    if (fZ[N0[i].b] == 0) fZ[N0[i].b] = ++z;
-    if (fZ[N0[i].c] == 0) fZ[N0[i].c] = ++z;
+  for(z=0, i=1; i<(int)N0v.size(); i++) {
+    if (fZ[N0v[i].a] == 0) fZ[N0v[i].a] = ++z;
+    if (fZ[N0v[i].b] == 0) fZ[N0v[i].b] = ++z;
+    if (fZ[N0v[i].c] == 0) fZ[N0v[i].c] = ++z;
   }
     
-  for(i=1; i<=dim1(N0); i++) {
-    N0[i].a = fZ[N0[i].a];
-    N0[i].b = fZ[N0[i].b];
-    N0[i].c = fZ[N0[i].c];
+  for(i=1; i<(int)N0v.size(); i++) {
+    N0v[i].a = fZ[N0v[i].a];
+    N0v[i].b = fZ[N0v[i].b];
+    N0v[i].c = fZ[N0v[i].c];
   }  
 
-  ary1(fZinv,z+1); for (i=1; i<=dim1(fZ); i++) fZinv[fZ[i]] = i;
-  ary1(Z0,z+1);    for (i=1; i<=dim1(Z0); i++) Z0[i] = Z[fZinv[i]];
-    
+  vector<int> fZinvv;
+  fZinvv.resize(z+1);
+
+  for (i=1; i<=dim1(fZ); i++) fZinvv[fZ[i]] = i;
+
+  ary1(Z0,z+1);
+  for (i=1; i<=dim1(Z0); i++) Z0[i] = Zv[fZinvv[i]];  
   *Zo = Z0;
+
+  for (i=0;i<(int)N0v.size();i++) N0[i] = N0v[i];
   *No = N0;
 }
