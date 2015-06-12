@@ -24,7 +24,7 @@ SRCS =	main.c++ \
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
 
-CPPFLAGS = -Wall -g -O3
+CPPFLAGS = -Wall -g
 LDFLAGS = -lestiva -lm
 
 .PHONY: all clean
