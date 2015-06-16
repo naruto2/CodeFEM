@@ -17,9 +17,8 @@ extern void vanish_boundary_triangle(vector<xyc>&, vector<nde>&);
 extern int count_nodes(vector<nde>&);
 extern int generate_fN(vector<nde>&, vector<int>&);
 
-void delaunay1(xyc **Zo,vector<xyc>&Zov, vector<nde>&Nov)
+void delaunay1(vector<xyc>&Zov, vector<nde>&Nov)
 { int i, n, z; 
-  static xyc *Z0;
   vector<xyc> Zv;
   vector<nde> Nv, N0v;
   vector<int> fNv, fNinvv, fZv,fZinvv;
@@ -72,6 +71,5 @@ void delaunay1(xyc **Zo,vector<xyc>&Zov, vector<nde>&Nov)
 
   Nov.resize(N0v.size()+1);
   for (i=0;i<(int)N0v.size();i++) Nov[i] = N0v[i];
-
-  *Zo = Z0;
+  
 }

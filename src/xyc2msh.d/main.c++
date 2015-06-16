@@ -8,19 +8,20 @@ using namespace std;
 #define     fprintmesh(fp,Z,N) estiva_fprintmesh(fp,Z,N)
 
 extern "C" {
-void estiva_fp2xyc(void*, xyc**);
-void estiva_fprintmesh(void*, xyc*,nde*);
+  void estiva_fp2xyc(void*, xyc**);
+  void estiva_fprintmesh(void*, xyc*,nde*);
 }
 
 extern void vectoary_xyc(vector<xyc> &, xyc *);
 extern void vectoary_nde(vector<nde> &, nde *);
 extern void arytovec_xyc(xyc *,vector<xyc> &);
 extern void arytovec_nde(nde *,vector<nde> &);
-extern void delaunay1(xyc**,vector<xyc>&, vector<nde>&);
+extern void delaunay1(vector<xyc>&, vector<nde>&);
+extern void fprintmesh1(FILE *, vector<xyc>&, vector<nde>&);
 
 int main(int argc, char **argv)
 { 
-  FILE *fp; static xyc*Z; static nde*N; 
+  FILE *fp; static xyc*Z;
   
   fp = fopen(argv[1],"r");
   fp2xyc(fp,Z); 
@@ -29,14 +30,10 @@ int main(int argc, char **argv)
   vector<xyc> Zov;
   vector<nde> Nov;
   arytovec_xyc(Z,Zov);
-  delaunay1(&Z, Zov, Nov);
-  ary1(Z,Zov.size()-1);
-  ary1(N,Nov.size()-1);
-  vectoary_xyc(Zov, Z);
-  vectoary_nde(Nov, N);
+  delaunay1(Zov, Nov);
 
   fp = stdout;
-  fprintmesh(fp,Z,N);
+  fprintmesh1(fp,Zov,Nov);
   fclose(fp);
   return 0;
 }

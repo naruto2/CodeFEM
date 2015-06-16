@@ -19,12 +19,13 @@ SRCS =	main.c++ \
 	delaunay1.c++ \
 	count_nodes.c++ \
 	generate_fN.c++ \
-	arytovec.c++
+	arytovec.c++ \
+	fprintmesh.c++
 
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
 
-CPPFLAGS = -Wall -g
+CPPFLAGS = -Wall -g -fpermissive
 LDFLAGS = -lestiva -lm
 
 .PHONY: all clean
