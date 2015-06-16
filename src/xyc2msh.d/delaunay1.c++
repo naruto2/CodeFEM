@@ -3,13 +3,6 @@
 #include <vector>
 using namespace std;
 #include "xyc_nde.h"
-#include "ary.h"
-
-
-extern void arytovec_xyc(xyc*, vector<xyc>&);
-extern void arytovec_nde(nde*, vector<nde>&);
-extern void vectoary_xyc(vector<xyc> &, xyc *);
-extern void vectoary_nde(vector<nde> &, nde *);
 
 extern void super_triangle(vector<xyc>&);
 extern void LawsonSwap(vector<xyc>&, vector<nde>&);
@@ -17,59 +10,58 @@ extern void vanish_boundary_triangle(vector<xyc>&, vector<nde>&);
 extern int count_nodes(vector<nde>&);
 extern int generate_fN(vector<nde>&, vector<int>&);
 
-void delaunay1(vector<xyc>&Zov, vector<nde>&Nov)
+void delaunay(vector<xyc>&Zo, vector<nde>&No)
 { int i, n, z; 
-  vector<xyc> Zv;
-  vector<nde> Nv, N0v;
-  vector<int> fNv, fNinvv, fZv,fZinvv;
+  vector<xyc> Z;
+  vector<nde> N, N0;
+  vector<int> fN, fNinv, fZ,fZinv;
   
-  z = Zov.size()-1;
-  Zv.resize(z+1);
-  for ( i=0; i<z; i++) Zv[i] = Zov[i];
+  z = Zo.size()-1;
+  Z.resize(z+1);
+  for ( i=0; i<z; i++) Z[i] = Zo[i];
   
-  super_triangle(Zv);
-  Nv.resize(Zv.size()*3);
-  LawsonSwap(Zv,Nv);
-  vanish_boundary_triangle(Zv, Nv);
+  super_triangle(Z);
+  N.resize(Z.size()*3);
+  LawsonSwap(Z,N);
+  vanish_boundary_triangle(Z, N);
   
-  fNv.resize(count_nodes(Nv)+1);
-  n = generate_fN(Nv,fNv);
+  fN.resize(count_nodes(N)+1);
+  n = generate_fN(N,fN);
   
-  N0v.resize(fNv.size());
-  for (i=1;i<(int)N0v.size(); i++) N0v[i]=Nv[fNv[i]];
+  N0.resize(fN.size());
+  for (i=1;i<(int)N0.size(); i++) N0[i]=N[fN[i]];
   
-  fNinvv.resize(n);
-  fZv.resize(z+1);
+  fNinv.resize(n);
+  fZ.resize(z+1);
 
-  for (i=1; i<(int)fNv.size(); i++) fNinvv[fNv[i]]=i;
+  for (i=1; i<(int)fN.size(); i++) fNinv[fN[i]]=i;
 
-  for (i=1; i<=(int)N0v.size(); i++) {
-    N0v[i].A = fNinvv[N0v[i].A];
-    N0v[i].B = fNinvv[N0v[i].B];
-    N0v[i].C = fNinvv[N0v[i].C];
+  for (i=1; i<=(int)N0.size(); i++) {
+    N0[i].A = fNinv[N0[i].A];
+    N0[i].B = fNinv[N0[i].B];
+    N0[i].C = fNinv[N0[i].C];
   }  
 
-  for(z=0, i=1; i<(int)N0v.size(); i++) {
-    if (fZv[N0v[i].a] == 0) fZv[N0v[i].a] = ++z;
-    if (fZv[N0v[i].b] == 0) fZv[N0v[i].b] = ++z;
-    if (fZv[N0v[i].c] == 0) fZv[N0v[i].c] = ++z;
+  for(z=0, i=1; i<(int)N0.size(); i++) {
+    if (fZ[N0[i].a] == 0) fZ[N0[i].a] = ++z;
+    if (fZ[N0[i].b] == 0) fZ[N0[i].b] = ++z;
+    if (fZ[N0[i].c] == 0) fZ[N0[i].c] = ++z;
   }
     
-  for(i=1; i<(int)N0v.size(); i++) {
-    N0v[i].a = fZv[N0v[i].a];
-    N0v[i].b = fZv[N0v[i].b];
-    N0v[i].c = fZv[N0v[i].c];
+  for(i=1; i<(int)N0.size(); i++) {
+    N0[i].a = fZ[N0[i].a];
+    N0[i].b = fZ[N0[i].b];
+    N0[i].c = fZ[N0[i].c];
   }  
 
-  fZinvv.resize(z+1);
+  fZinv.resize(z+1);
+  for (i=1; i<(int)fZ.size(); i++) fZinv[fZ[i]] = i;
 
-  for (i=1; i<(int)fZv.size(); i++) fZinvv[fZv[i]] = i;
+  Zo.resize(z+2);
+  for (i=1; i<=z; i++) Zo[i]  = Z[fZinv[i]];  
 
-
-  Zov.resize(z+2);
-  for (i=1; i<=z; i++) Zov[i]  = Zv[fZinvv[i]];  
-
-  Nov.resize(N0v.size()+1);
-  for (i=0;i<(int)N0v.size();i++) Nov[i] = N0v[i];
+  No.resize(N0.size()+1);
+  for (i=0;i<(int)N0.size();i++) No[i] = N0[i];
   
 }
+

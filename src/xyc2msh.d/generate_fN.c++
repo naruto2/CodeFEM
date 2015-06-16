@@ -1,15 +1,13 @@
-#include <cstdlib>
 #include <vector>
 using namespace std;
 #include "xyc_nde.h"
-#include "ary.h"
 
-int generate_fN(vector<nde>&N,vector<int>&fNv)
+int generate_fN(vector<nde>&N,vector<int>&fN)
 {
   int i, n=0;
-  for (i=1; i<(int)fNv.size(); i++) {
+  for (i=1; i<(int)fN.size(); i++) {
     while(N[n].a==0) n++;
-    fNv[i] = n++;
+    fN[i] = n++;
   }
   return n;
 }

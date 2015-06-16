@@ -1,11 +1,9 @@
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <vector>
 using namespace std;
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "xyc_nde.h"
-#include "ary.h"
-
 
 
 static char *label(vector<xyc>&Z,int i)
@@ -13,10 +11,8 @@ static char *label(vector<xyc>&Z,int i)
   return Z[i].label==NULL? normal:Z[i].label;
 }
 
-void fprintmesh1(FILE *vfp, vector<xyc>&Zv,vector<nde>&Nv)
+void fprintmesh1(FILE *fp, vector<xyc>&Zv,vector<nde>&Nv)
 {
-  FILE *fp;
-  fp = vfp;
   int i;
   fprintf(fp,"<xyc>\n");
   for(i=1;i<(int)Zv.size()-1;i++)
