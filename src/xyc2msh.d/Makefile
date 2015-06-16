@@ -1,33 +1,23 @@
 PROG =  xyc2msh
 SRCS =	main.c++ \
-	distance2.c++ \
-	sarrus.c++ \
-	fplane.c++ \
-	cramer3.c++ \
 	rotate_right.c++ \
 	rotate_left.c++ \
-	incircle.c++ \
 	N_set.c++ \
-	notLawson.c++ \
-	Lawson.c++ \
 	degeneracy.c++ \
-	min2.c++ \
-	max2.c++ \
 	super_triangle.c++ \
 	LawsonSwap.c++ \
 	vanish_boundary_triangle.c++ \
-	delaunay1.c++ \
+	delaunay.c++ \
 	count_nodes.c++ \
 	generate_fN.c++ \
-	arytovec.c++ \
 	fprintmesh.c++ \
 	fp2xyc.c++
 
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
 
-CPPFLAGS = -Wall -g -fpermissive
-LDFLAGS = -lestiva -lm
+CPPFLAGS = -Wall
+LDFLAGS = 
 
 .PHONY: all clean
 

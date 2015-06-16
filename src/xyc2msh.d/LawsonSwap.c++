@@ -3,11 +3,10 @@
 #include <vector>
 using namespace std;
 #include "xyc_nde.h"
+#include "incircle.hpp"
+#include "Lawson.hpp"
 
-#define T double
-extern int incircle(vector<xyc>&, vector<nde>&, int ,int);
 extern void N_set(vector<nde>&,int ,int ,int ,int ,int ,int ,int );
-extern int Lawson(vector<xyc>&, vector<nde>&,int , T , T );
 extern int degeneracy(vector<xyc>&,vector<nde>&,int ,int );
 
 static int Q[100000], top=0;

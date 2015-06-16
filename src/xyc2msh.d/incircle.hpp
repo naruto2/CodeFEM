@@ -1,14 +1,15 @@
+#ifndef INCIRCLE_HPP_
+#define INCIRCLE_HPP_
+
 #include <vector>
 using namespace std;
 #include "xyc_nde.h"
-
-#define T double
-extern T distance2(T,T,T,T);
-extern void cramer3(T*,T*,T*,T,T,T,T,T,T,T,T,T,T,T,T);
+#include "cramer3.hpp"
+#include "distance2.hpp"
 
 int incircle(vector<xyc>&Z, vector<nde> &N, int p,int e2)
 {
-  T a, b, c, x,y,x0,y0,x1,y1,x2,y2;
+  double a, b, c, x,y,x0,y0,x1,y1,x2,y2;
 
   x=Z[p].x; y=Z[p].y;
   x0=Z[N[e2].a].x;  y0=Z[N[e2].a].y;
@@ -26,3 +27,4 @@ int incircle(vector<xyc>&Z, vector<nde> &N, int p,int e2)
   return distance2(x0,y0,a/2.0,b/2.0)-distance2(x,y,a/2.0,b/2.0)>0.0? 1:0;
 
 }
+#endif

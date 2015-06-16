@@ -11,7 +11,7 @@ static char *label(vector<xyc>&Z,int i)
   return Z[i].label==NULL? normal:Z[i].label;
 }
 
-void fprintmesh1(FILE *fp, vector<xyc>&Zv,vector<nde>&Nv)
+void fprintmesh(FILE *fp, vector<xyc>&Zv,vector<nde>&Nv)
 {
   int i;
   fprintf(fp,"<xyc>\n");

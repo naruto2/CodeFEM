@@ -1,9 +1,9 @@
 #include <vector>
 using namespace std;
 #include "xyc_nde.h"
+#include "distance2.hpp"
 
 #define T double
-extern T distance2(T,T,T,T);
 extern void rotate_right(vector<nde>&,int);
 extern void rotate_left( vector<nde>&,int);
 

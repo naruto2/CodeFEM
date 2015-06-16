@@ -5,7 +5,7 @@ using namespace std;
 
 extern void fp2xyc(FILE *,vector<xyc>&);
 extern void delaunay(vector<xyc>&, vector<nde>&);
-extern void fprintmesh1(FILE *, vector<xyc>&, vector<nde>&);
+extern void fprintmesh(FILE *, vector<xyc>&, vector<nde>&);
 
 int main(int argc, char **argv)
 { 
@@ -13,15 +13,13 @@ int main(int argc, char **argv)
   vector<xyc> Z;
   vector<nde> N;
   
-  fp = fopen(argv[1],"r");
+  if ( NULL == (fp = fopen(argv[1],"r"))) return 0;
   fp2xyc(fp,Z); 
   fclose(fp);
 
   delaunay(Z, N);
 
-  fp = stdout;
-  fprintmesh1(fp,Z,N);
-  fclose(fp);
+  fprintmesh(stdout,Z,N);
 
   return 0;
 }

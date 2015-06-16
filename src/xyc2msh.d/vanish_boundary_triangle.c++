@@ -8,7 +8,7 @@ void vanish_boundary_triangle(vector<xyc>&Z, vector<nde>&N)
 
   int A,B,C,i;
 
-  for (i=1; i<=(int)(N.size()-1); i++) {
+  for (i=1; i<(int)N.size(); i++) {
     if(Z[N[i].a].label==NULL||Z[N[i].b].label==NULL||Z[N[i].c].label==NULL)
       continue;
 

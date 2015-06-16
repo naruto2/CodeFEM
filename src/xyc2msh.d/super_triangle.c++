@@ -2,11 +2,10 @@
 #include <vector>
 using namespace std;
 #include "xyc_nde.h"
+#include "max2.hpp"
+#include "min2.hpp"
 
 #define T double
-
-extern T min2(T,T);
-extern T max2(T,T);
 
 void super_triangle(vector<xyc>&Z)
 {

@@ -1,16 +1,18 @@
+#ifndef LAWSON_HPP_
+#define LAWSON_HPP_
+
 #include <cstdlib>
 #include <vector>
 using namespace std;
 #include "xyc_nde.h"
+#include "fplane.hpp"
+#include "notLawson.hpp"
 
-#define T double
-extern T fplane(T,T,T,T,T,T,T,T,T,T,T,T);
-extern int notLawson(vector<xyc>&,vector<nde>&,T,T);
-  
-int Lawson(vector<xyc>&Z, vector<nde>&N,int e, T x, T y)
+template<class Real>
+int Lawson(vector<xyc>&Z, vector<nde>&N,int e, Real x, Real y)
 { 
   int n, count = 0;
-  int a,b,c; T x0,y0,x1,y1,x2,y2;
+  int a,b,c; Real x0,y0,x1,y1,x2,y2;
   n = N.size()-1;
   while(1){
     a = N[e].a; b = N[e].b; c = N[e].c; 
@@ -24,3 +26,4 @@ int Lawson(vector<xyc>&Z, vector<nde>&N,int e, T x, T y)
     else return e;
   }
 }
+#endif
