@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <vector>
+#include <stack>
 using namespace std;
 #include "xyc_nde.h"
 
@@ -26,28 +27,23 @@ static char *S(int n)
   if(n==0) return S0;
   return NULL;
 }
-static void FILE_cp(FILE *fp,FILE *out)
-{ char c; 
-  while(EOF !=(c=getc(fp))) putc(c,out);
-}     
 
-void fp2xyc(FILE *fp,vector<xyc>&Zv)
-{ int i,z; FILE *tfp;
-
-  FILE_cp(fp,(tfp=tmpfile()));
-  rewind(tfp);
-
-  z=0;
-  while(forFILE(tfp)) if(S(1)!=NULL&&S(2)!=NULL) z++;
-  rewind(tfp);
-
-  Zv.resize(z+4);
-
-  i= 1;
-  while(forFILE(tfp)) if(S(1)!=NULL&&S(2)!=NULL) {
-      Zv[i].x = atof(S(1)); Zv[i].y = atof(S(2));
-      Zv[i].label =  (S(3)==NULL?NULL:strdup(S(3)));
-      i++;
+void fp2xyc(FILE *fp,vector<xyc>&Z)
+{ 
+  stack<xyc> s;
+  xyc x_y_l;
+      
+  while(forFILE(fp)) if(S(1)!=NULL&&S(2)!=NULL) {
+      x_y_l.x     = atof(S(1));
+      x_y_l.y     = atof(S(2));
+      x_y_l.label =  (S(3)==NULL?NULL:strdup(S(3)));
+      s.push(x_y_l);
     }
-  fclose(tfp);
+
+  Z.resize(s.size()+4);
+  
+  while(s.size()!=0) {
+    Z[s.size()] = s.top();
+    s.pop();
+  }
 }
