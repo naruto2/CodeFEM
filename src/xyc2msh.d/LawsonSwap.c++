@@ -1,6 +1,5 @@
-#include <cstdio>
-#include <cstdlib>
 #include <vector>
+#include <stack>
 using namespace std;
 #include "xyc_nde.h"
 #include "incircle.hpp"
@@ -8,21 +7,6 @@ using namespace std;
 
 extern void N_set(vector<nde>&,int ,int ,int ,int ,int ,int ,int );
 extern int degeneracy(vector<xyc>&,vector<nde>&,int ,int );
-
-static int Q[100000], top=0;
-
-void pushq(int e)
-{
-  Q[top++]=e;
-  if ( top > 99997 ) { fprintf(stderr,"LowsonSwap Stack over flow\n");exit(0);}
-}
-
-void *popq(int *e)
-{
-  *e = Q[--top];
-  if (top < 0 ) {top = 0; return NULL;}
-  return e;
-}
 
 void LawsonSwap(vector<xyc>&Z, vector<nde>&N)
 {
@@ -54,12 +38,17 @@ void LawsonSwap(vector<xyc>&Z, vector<nde>&N)
     if(N[C].B==e0) N[C].B=e2;
     if(N[C].C==e0) N[C].C=e2;
     
-    pushq(e0); pushq(e1); pushq(e2); 
+    stack<int> s;
+    s.push(e0); s.push(e1); s.push(e2);
+    
+    while(s.size()!=0){
+      e1 = s.top();
+      s.pop();
 
-    while(popq(&e1)){
-
-      if(incircle(Z,N,i,(e2=(N[e1].a==i?N[e1].A:(N[e1].b==i?N[e1].B:N[e1].C))))){
-	if(!degeneracy(Z,N,e1,e2)){ pushq(e1); pushq(e2);}
+      if(incircle(Z,N,i,(e2= (N[e1].a==i?N[e1].A:
+			     (N[e1].b==i?N[e1].B:
+			      N[e1].C))))){
+	if(!degeneracy(Z,N,e1,e2)){ s.push(e1); s.push(e2);}
       }
     }
   }
