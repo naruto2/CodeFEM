@@ -1,7 +1,6 @@
 #ifndef LAWSON_HPP_
 #define LAWSON_HPP_
 
-#include <cstdlib>
 #include <vector>
 using namespace std;
 #include "xyc_nde.h"

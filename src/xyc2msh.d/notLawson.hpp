@@ -2,7 +2,6 @@
 #define NOTLAWSON_HPP_
 
 #include <vector>
-#include <cstdlib>
 using namespace std;
 #include "xyc_nde.h"
 #include "fplane.hpp"
