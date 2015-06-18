@@ -10,8 +10,8 @@ SRCS =	main.c++ \
 	delaunay.c++ \
 	count_nodes.c++ \
 	generate_fN.c++ \
-	fprintmesh.c++ \
-	ifs2xyc.c++
+	outmesh.c++ \
+	in2xyc.c++
 
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o

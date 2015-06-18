@@ -10,11 +10,11 @@ using namespace std;
 
 static char S1[999], S2[999], S3[999];
 
-static int forFILE(ifstream &ifs)
+static int forFILE(istream &is)
 { 
   string str;
   
-  if (!getline(ifs,str)) return 0;
+  if (!getline(is,str)) return 0;
   if ( str.length() > 990 ) {
     fprintf(stderr,
 	    "Error: In fp2xyc(). The length of the line is too long.\n");
@@ -33,12 +33,12 @@ static char *S(int n)
   return NULL;
 }
 
-void ifs2xyc(ifstream &ifs,vector<xyc>&Z)
+void in2xyc(istream &is,vector<xyc>&Z)
 { 
   stack<xyc> s;
   xyc x_y_l;
 
-  while(forFILE(ifs)) if(S(1)!=NULL&&S(2)!=NULL) {
+  while(forFILE(is)) if(S(1)!=NULL&&S(2)!=NULL) {
       x_y_l.x     = atof(S(1));
       x_y_l.y     = atof(S(2));
       x_y_l.label =  (S(3)==NULL?NULL:strdup(S(3)));

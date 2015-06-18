@@ -1,30 +1,31 @@
 #include <cstdio>
 #include <iostream>
-#include <vector>
 #include <fstream>
+#include <vector>
 using namespace std;
 #include "xyc_nde.h"
 
-extern void ifs2xyc(ifstream &, vector<xyc>&);
+extern void in2xyc(istream &, vector<xyc>&);
 extern void delaunay(vector<xyc>&, vector<nde>&);
-extern void fprintmesh(FILE *, vector<xyc>&, vector<nde>&);
+extern void outmesh(ostream &, vector<xyc>&, vector<nde>&);
 
 int main(int argc, char **argv)
 { 
   vector<xyc> Z;
   vector<nde> N;
   ifstream ifs(argv[1]);
+
   if (!ifs) {
-    cerr << "入力ストリームを開けませんでした" << endl;
+    cerr << "Error: 入力ストリームを開けませんでした(xyc2msh)" << endl;
     return 0;
   }
   
-  ifs2xyc(ifs,Z); 
+  in2xyc(ifs,Z); 
   ifs.close();
   
   delaunay(Z, N);
 
-  fprintmesh(stdout,Z,N);
+  outmesh(cout,Z,N);
 
   return 0;
 }
