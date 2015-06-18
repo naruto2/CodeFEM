@@ -1,15 +1,12 @@
-#include <cstdlib>
 #include <vector>
 using namespace std;
 #include "xyc_nde.h"
 #include "max2.hpp"
 #include "min2.hpp"
 
-#define T double
-
 void super_triangle(vector<xyc>&Z)
 {
-  T xmin,ymin,xmax,ymax,length;
+  double xmin,ymin,xmax,ymax,length;
   int z, i;
   static char super_node[] = "super_node";
   z=Z.size(); z -=4;

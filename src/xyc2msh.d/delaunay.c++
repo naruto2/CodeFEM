@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <vector>
 using namespace std;
 #include "xyc_nde.h"

@@ -3,12 +3,11 @@ using namespace std;
 #include "xyc_nde.h"
 #include "distance2.hpp"
 
-#define T double
 extern void rotate_right(vector<nde>&,int);
 extern void rotate_left( vector<nde>&,int);
 
 int degeneracy(vector<xyc>&Z, vector<nde>&N,int e1,int e2)
-{ int a, d, W, Y; T x1,y1,x2,y2,x3,y3,x4,y4;
+{ int a, d, W, Y; double x1,y1,x2,y2,x3,y3,x4,y4;
 
   if(N[e1].B == e2) rotate_left(N,e1); if(N[e1].C == e2) rotate_right(N,e1);
   if(N[e2].B == e1) rotate_left(N,e2); if(N[e2].C == e1) rotate_right(N,e2);
