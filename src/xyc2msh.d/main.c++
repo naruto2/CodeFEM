@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <iostream>
 #include <vector>
 #include <fstream>
 using namespace std;
@@ -10,15 +11,17 @@ extern void fprintmesh(FILE *, vector<xyc>&, vector<nde>&);
 
 int main(int argc, char **argv)
 { 
-  FILE *fp;
   vector<xyc> Z;
   vector<nde> N;
   ifstream ifs(argv[1]);
+  if (!ifs) {
+    cerr << "入力ストリームを開けませんでした" << endl;
+    return 0;
+  }
   
-  if ( NULL == (fp = fopen(argv[1],"r"))) return 0;
   ifs2xyc(ifs,Z); 
-  fclose(fp);
-
+  ifs.close();
+  
   delaunay(Z, N);
 
   fprintmesh(stdout,Z,N);
