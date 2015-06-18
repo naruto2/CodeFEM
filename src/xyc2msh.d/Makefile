@@ -11,7 +11,7 @@ SRCS =	main.c++ \
 	count_nodes.c++ \
 	generate_fN.c++ \
 	fprintmesh.c++ \
-	fp2xyc.c++
+	ifs2xyc.c++
 
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
