@@ -3,7 +3,8 @@
 #include <iostream>
 #include <vector>
 #include <unistd.h>
-#include "xyc_nde.h"
+#include "est/xyc2msh.hpp"
+
 #define  dim1(N) (long)(N.size()-1)
 
 using namespace std;

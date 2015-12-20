@@ -1,6 +1,6 @@
 #include <vector>
 using namespace std;
-#include "xyc_nde.h"
+#include "xyc2msh.hpp"
 
 void rotate_left(vector<nde>&N,int i)
 { int a,b,c,A,B,C;

@@ -3,7 +3,7 @@
 
 #include <vector>
 using namespace std;
-#include "xyc_nde.h"
+#include "est/xyc2msh.hpp"
 #include "cramer3.hpp"
 #include "distance2.hpp"
 

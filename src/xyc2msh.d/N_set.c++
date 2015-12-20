@@ -1,6 +1,6 @@
 #include <vector>
 using namespace std;
-#include "xyc_nde.h"
+#include "est/xyc2msh.hpp"
 
 void N_set(vector<nde>&N,int n,int i,int j,int k,int I,int J,int K)
 {

@@ -1,6 +1,5 @@
 PROG =  xyc2msh
-SRCS =	main.c++ \
-	rotate_right.c++ \
+SRCS = 	rotate_right.c++ \
 	rotate_left.c++ \
 	N_set.c++ \
 	degeneracy.c++ \
@@ -12,27 +11,33 @@ SRCS =	main.c++ \
 	generate_fN.c++ \
 	outmesh.c++ \
 	plotmesh.c++ \
-	in2xyc.c++ \
-	op.c++
+	in2xyc.c++ 
+
 
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
 
 CPPFLAGS = -Wall
-LDFLAGS = 
+LDFLAGS = lib/*.a
 
 .PHONY: all clean
 
 all: $(PROG)
 
 $(PROG) : $(OBJS)
-	c++ $(OBJS) -o $@ $(LDFLAGS)
+	c++ main.c++ $(OBJS) -o $@ $(LDFLAGS)
+	rm $(OBJS)
 
 .c++.o:
 	c++ $(CPPFLAGS) -c $< -o $@
 
+
+libxyc2msh.a: $(OBJS)
+	ar cr lib/libxyc2msh.a $(OBJS)
+	rm -f $(OBJS)
+
 clean :
-	rm -f $(OBJS) $(PROG) kanto.msh1 pt.msh1 test
+	rm -f $(OBJS) $(PROG) lib/libxyc2msh.a kanto.msh1 pt.msh1 test
 
 test : $(PROG)
 	./xyc2msh kanto.xyc -o> kanto.msh1

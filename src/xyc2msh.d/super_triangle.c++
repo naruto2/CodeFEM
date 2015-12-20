@@ -1,6 +1,6 @@
 #include <vector>
 using namespace std;
-#include "xyc_nde.h"
+#include "est/xyc2msh.hpp"
 #include "max2.hpp"
 #include "min2.hpp"
 

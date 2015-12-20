@@ -1,6 +1,6 @@
 #include <vector>
 using namespace std;
-#include "xyc_nde.h"
+#include "xyc2msh.hpp"
 
 int count_nodes(vector<nde>&N)
 {

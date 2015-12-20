@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 using namespace std;
-#include "xyc_nde.h"
+#include "est/xyc2msh.hpp"
 
 static char *label(vector<xyc>&Z,int i)
 { static char *normal = (char*)"inner";

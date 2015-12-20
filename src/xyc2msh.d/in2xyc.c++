@@ -5,7 +5,7 @@
 #include <iostream>
 #include <fstream>
 using namespace std;
-#include "xyc_nde.h"
+#include "est/xyc2msh.hpp"
 
 static char S1[999], S2[999], S3[999];
 

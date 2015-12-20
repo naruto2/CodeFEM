@@ -1,16 +1,5 @@
-#include <cstdio>
-#include <iostream>
-#include <fstream>
-#include <vector>
-using namespace std;
-#include "op.hpp"
-#include "xyc_nde.h"
-
-
-extern void in2xyc(istream &, vector<xyc>&);
-extern void delaunay(vector<xyc>&, vector<nde>&);
-extern void outmesh(ostream &, vector<xyc>&, vector<nde>&);
-extern void plotmesh(vector<xyc>&, vector<nde>&);
+#include "est/xyc2msh.hpp"
+#include "est/op.hpp"
 
 
 int main(int argc, char **argv)
