@@ -11,7 +11,9 @@ SRCS =	main.c++ \
 	count_nodes.c++ \
 	generate_fN.c++ \
 	outmesh.c++ \
-	in2xyc.c++
+	plotmesh.c++ \
+	in2xyc.c++ \
+	op.c++
 
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
@@ -33,8 +35,8 @@ clean :
 	rm -f $(OBJS) $(PROG) kanto.msh1 pt.msh1 test
 
 test : $(PROG)
-	./xyc2msh kanto.xyc > kanto.msh1
-	./xyc2msh pt.xyc > pt.msh1
+	./xyc2msh kanto.xyc -o> kanto.msh1
+	./xyc2msh pt.xyc -o> pt.msh1
 	diff kanto.msh0 kanto.msh1
 	diff pt.msh0 pt.msh1
 	touch test
