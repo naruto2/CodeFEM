@@ -1,0 +1,34 @@
+#!/bin/sh
+
+BINDIR=`pwd`
+
+for d in ../src/*.d; do
+  echo $d
+  cd $BINDIR/$d
+  rm -rf est; ln -s ../../include/est/
+  rm -rf lib; ln -s ../../lib/
+done
+
+
+cd $BINDIR
+
+for hpp in `cat ../include/est.hpp|\
+		grep "#include"|\
+		sed -e "s/\"est\///g"|\
+		sed -e "s/\"//g"|\
+		awk '{print $2}'`;do
+    echo $hpp
+    (cd ../include/est/; rm -f $hpp)
+    FILE=`find ../ -name $hpp -print`
+    echo $FILE
+    (cd ../include/est/; ln -s ../$FILE)
+done
+
+
+cd $BINDIR
+
+for d in ../src/*.d; do
+    cd $BINDIR/$d
+    make clean
+    make obj
+done

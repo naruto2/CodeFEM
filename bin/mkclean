@@ -1,0 +1,8 @@
+#!/bin/sh
+
+BINDIR=`pwd`
+
+for d in ../src/*.d; do
+    cd $BINDIR/$d
+    make clean
+done

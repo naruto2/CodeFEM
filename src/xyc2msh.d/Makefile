@@ -29,10 +29,9 @@ $(PROG) : $(OBJS)
 	rm $(OBJS)
 
 .c++.o:
-	c++ $(CPPFLAGS) -c $< -o $@
+	c++ $(CPPFLAGS) -c $< 
 
-
-libxyc2msh.a: $(OBJS)
+obj: $(OBJS)
 	ar cr lib/libxyc2msh.a $(OBJS)
 	rm -f $(OBJS)
 
@@ -40,8 +39,8 @@ clean :
 	rm -f $(OBJS) $(PROG) lib/libxyc2msh.a kanto.msh1 pt.msh1 test
 
 test : $(PROG)
-	./xyc2msh kanto.xyc -o> kanto.msh1
-	./xyc2msh pt.xyc -o> pt.msh1
+	./xyc2msh kanto.xyc -o kanto.msh1
+	./xyc2msh pt.xyc -o pt.msh1
 	diff kanto.msh0 kanto.msh1
 	diff pt.msh0 pt.msh1
 	touch test
