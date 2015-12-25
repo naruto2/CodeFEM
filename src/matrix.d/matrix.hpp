@@ -1,6 +1,7 @@
 #ifndef _EST_MATRIX_HPP_
 #define _EST_MATRIX_HPP_
 
+#include <iostream>
 #include <cstdio>
 #include <iomanip>
 #include <vector>
@@ -14,7 +15,6 @@ class internal_map : public map<int, double> {
   double a;
   int K;
 
-public:
   void wmap(int K, double a) {
     this->erase(K);
     if ( a != 0.0 )
@@ -24,9 +24,12 @@ public:
   double rmap( int k) {
     internal_map::iterator it;
     it = this->find(k);
+    if ( it == this->end() ) return 0.0;
     return (*it).second;
   }
-  
+
+public:  
+
   double & operator [](int  k) {
     wmap(K,a);
     K = k;
