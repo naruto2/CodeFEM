@@ -5,6 +5,7 @@
 #include "est/op.hpp"
 #include "est/xyc2msh.hpp"
 #include "est/matrix.hpp"
+#include "est/ViennaCL.hpp"
 
 
 #endif
