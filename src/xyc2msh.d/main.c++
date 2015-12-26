@@ -20,9 +20,14 @@ int main(int argc, char **argv)
   delaunay(Z, N);
 
   if ( defop("-o") ) {
-    ofstream ofs;
-    ofs.open(getop("-o").c_str(), ios::app);
-    outmesh(ofs,Z,N);
+    if ( getop("-o") == "-" ) {
+      outmesh(cout,Z,N);
+    }
+    else {
+      ofstream ofs;
+      ofs.open(getop("-o").c_str(), ios::app);
+      outmesh(ofs,Z,N);
+    }
   }
   else
     plotmesh(Z,N);
