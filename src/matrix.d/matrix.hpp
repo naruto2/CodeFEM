@@ -10,6 +10,7 @@
 using namespace std;
 
 
+
 class internal_map : public map<int, double> {
 
   double a;
@@ -53,8 +54,8 @@ public:
   matrix(int n) : internal_matrix(n){}
 
   friend ostream& operator<<(ostream& os, matrix& A){
-    for ( int i=0; i<A.size(); i++ ) {
-      for ( int j=0; j<A.size(); j++ ) {
+    for ( int i=0; i<(int)A.size(); i++ ) {
+      for ( int j=0; j<(int)A.size(); j++ ) {
 	os << setw(4) << A[i][j] << " ";
       }
       os << endl;
@@ -64,6 +65,9 @@ public:
 
 };
 
+static int dim1(matrix A){
+  return (int)A.size();
+}
 
 
 #endif

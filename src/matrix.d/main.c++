@@ -36,7 +36,7 @@ int main() {
     }
 
   int k;
-  for ( k = 1; k<A.size(); k++) {
+  for ( k = 1; k<dim1(A); k++) {
     A[k][k] = 1.0;
   }
   cout << A << B << C;
