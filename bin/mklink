@@ -1,5 +1,7 @@
 #!/bin/sh
 
+mkdir -p ../lib
+
 BINDIR=`pwd`
 
 for d in ../src/*.d; do
