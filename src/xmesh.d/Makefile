@@ -26,14 +26,14 @@ all: $(PROG)
 
 $(PROG) : $(OBJS)
 	c++ main.c++ $(OBJS) -o $@ $(LDFLAGS)
-	rm $(OBJS)
+
 
 .c++.o:
 	c++ $(CPPFLAGS) -c $< 
 
 obj: $(OBJS)
 	ar cr lib/libxmesh.a $(OBJS)
-	rm -f $(OBJS)
+
 
 clean :
 	rm -f $(OBJS) $(PROG) lib/libxmesh.a kanto.msh pt.msh test
