@@ -32,15 +32,16 @@ $(PROG) : $(OBJS)
 	c++ $(CPPFLAGS) -c $< 
 
 obj: $(OBJS)
-	ar cr lib/libxyc2msh.a $(OBJS)
+	ar cr lib/libxmesh.a $(OBJS)
 	rm -f $(OBJS)
 
 clean :
-	rm -f $(OBJS) $(PROG) lib/libxyc2msh.a kanto.msh1 pt.msh1 test
+	rm -f $(OBJS) $(PROG) lib/libxmesh.a kanto.msh pt.msh test
 
 test : $(PROG)
-	./xmesh kanto.xyc -o kanto.msh1
-	./xmesh pt.xyc -o pt.msh1
-	./xmesh .msh0 kanto.msh1
-	diff pt.msh0 pt.msh1
+	rm -f kanto.msh pt.msh
+	./xmesh kanto.xyc -o kanto.msh
+	./xmesh pt.xyc -o pt.msh
+	diff kanto_org.msh kanto.msh
+	diff pt_org.msh pt.msh
 	touch test
