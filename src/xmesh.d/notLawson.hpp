@@ -3,7 +3,7 @@
 
 #include <vector>
 using namespace std;
-#include "est/xyc2msh.hpp"
+#include "est/xmesh.hpp"
 #include "fplane.hpp"
 
 template<class Real>

@@ -1,6 +1,6 @@
 #include <vector>
 using namespace std;
-#include "est/xyc2msh.hpp"
+#include "est/xmesh.hpp"
 
 extern void super_triangle(vector<xyc>&);
 extern void LawsonSwap(vector<xyc>&, vector<nde>&);

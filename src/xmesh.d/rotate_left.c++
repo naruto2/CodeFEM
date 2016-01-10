@@ -1,6 +1,6 @@
 #include <vector>
 using namespace std;
-#include "xyc2msh.hpp"
+#include "est/xmesh.hpp"
 
 void rotate_left(vector<nde>&N,int i)
 { int a,b,c,A,B,C;

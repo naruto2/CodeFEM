@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <unistd.h>
-#include "est/xyc2msh.hpp"
+#include "est/xmesh.hpp"
 
 #define  dim1(N) (long)(N.size()-1)
 

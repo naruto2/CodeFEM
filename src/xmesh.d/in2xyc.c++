@@ -5,7 +5,7 @@
 #include <iostream>
 #include <fstream>
 using namespace std;
-#include "est/xyc2msh.hpp"
+#include "est/xmesh.hpp"
 
 static char S1[999], S2[999], S3[999];
 

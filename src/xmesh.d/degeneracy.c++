@@ -1,6 +1,6 @@
 #include <vector>
 using namespace std;
-#include "est/xyc2msh.hpp"
+#include "est/xmesh.hpp"
 #include "distance2.hpp"
 
 extern void rotate_right(vector<nde>&,int);

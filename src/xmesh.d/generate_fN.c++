@@ -1,6 +1,6 @@
 #include <vector>
 using namespace std;
-#include "est/xyc2msh.hpp"
+#include "est/xmesh.hpp"
 
 int generate_fN(vector<nde>&N,vector<int>&fN)
 {

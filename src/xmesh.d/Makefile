@@ -1,5 +1,5 @@
-PROG =  xyc2msh
-SRCS = 	rotate_right.c++ \
+PROG =  xmesh
+SRCS =	rotate_right.c++ \
 	rotate_left.c++ \
 	N_set.c++ \
 	degeneracy.c++ \
@@ -39,8 +39,8 @@ clean :
 	rm -f $(OBJS) $(PROG) lib/libxyc2msh.a kanto.msh1 pt.msh1 test
 
 test : $(PROG)
-	./xyc2msh kanto.xyc -o kanto.msh1
-	./xyc2msh pt.xyc -o pt.msh1
-	diff kanto.msh0 kanto.msh1
+	./xmesh kanto.xyc -o kanto.msh1
+	./xmesh pt.xyc -o pt.msh1
+	./xmesh .msh0 kanto.msh1
 	diff pt.msh0 pt.msh1
 	touch test

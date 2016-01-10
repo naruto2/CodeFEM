@@ -1,6 +1,6 @@
 #include <vector>
 using namespace std;
-#include "xyc2msh.hpp"
+#include "est/xmesh.hpp"
 
 int count_nodes(vector<nde>&N)
 {
