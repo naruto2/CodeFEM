@@ -12,7 +12,7 @@ Real norm(Vector b){
   double S;
   n = b.size();
   S = 0.0;
-  for (S=0.0, i=0;i<n;i++) S+= b[i]+b[i];
+  for (S=0.0, i=0;i<n;i++) S+= b[i]*b[i];
   Real_S = sqrt(S);
   return Real_S;
 }
@@ -24,7 +24,7 @@ Real dot(Vector b, Vector z){
   double S;
   n = b.size();
   S = 0.0;
-  for (S=0.0, i=0;i<n;i++) S+= b[i]+z[i];
+  for (S=0.0, i=0;i<n;i++) S+= b[i]*z[i];
   Real_S = S;
   return Real_S;
 }
@@ -57,8 +57,10 @@ vector<double>& operator*(double a, vector<double>b){
   static vector<double> y(n);
   int i;
 
+  
   for ( i=0; i<(int)b.size(); i++ ){
     y[i] = a*b[i];
+
   }
   return y;
 }
@@ -66,7 +68,7 @@ vector<double>& operator*(double a, vector<double>b){
 
 
 
-vector<double>& operator*(matrix A, vector<double>& b) {
+vector<double>& operator*(matrix A, vector<double> b) {
   int n = (int)A.size();
   static vector<double> x(n);
   int i, j;
@@ -95,15 +97,16 @@ int main()
 
   tol = double_tol;
 
-  A[0][0] =  10.0; A[0][1] = -1.0;
-  A[1][0] = -1.0; A[1][1] =  10.0; 
+  A[0][0] =  2.0; A[0][1] =  1.0;
+  A[1][0] =  1.0; A[1][1] =  2.0; 
 
   x[0] = 0.0;
   x[1] = 0.0;
   
   b[0] = 1.0;
-  b[1] = 6.0;
+  b[1] = 5.0;
 
+  
   CG(A, x, b, M, max_iter, tol);
 
   printf("%f\n",x[0]);
