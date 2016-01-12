@@ -1,47 +1,40 @@
 #include <cstdio>
 
+
 #include "matrix.hpp"
+
+
 
 void plotmatrix( matrix A );
 
-int main() {
-  int n = 10;
-  matrix A(n+1);
-  matrix B(2);
-  matrix C(2);
-
-  A[0][0] = 1.1;
-  A[1][0] = 2.1;
-  C[0][1] = 1.2;  C[0][1] = 1.2;
-  B[0][1] = 1.2;
-  A[0][1] = 1.2;
-  A[1][1] = 2.2;
-
-  B[0][0] = 1.1;
-  B[1][0] = 2.1;
-
-  B[1][1] = 2.2;
-
-  C[0][0] = 1.1;
-  C[1][0] = 2.1;
-
-  C[1][1] = 2.2;
+void mulmatrix( vector<double> &x, matrix &A, vector<double> &b)
+{
+  int i, j;
   
-  A[2][2] = 3.3;
-  
-  for(int i=0; i<2; i++ ) for (int j=0; j<2; j++ ) {
-      A[i][j] += 10.0;
-      C[i][j] += 30.0;
-      B[i][j] += 20.0;
+  for ( i = 0; i < dim1(A); i++) {
+    x[i] = 0.0;
+    for ( j = 0; j < dim1(A); j++) {
+      x[i]+=A[i][j]*b[j];
     }
-
-  int k;
-  for ( k = 1; k<dim1(A); k++) {
-    A[k][k] = 1.0;
   }
-  cout << A << B << C;
+}
 
-  plotmatrix(A);
+int main() {
+  matrix A(2);
+  vector<double> b(2), x(2);
+  
+  A[0][0] =  2.0;   A[0][1] = -1.0;
+  A[1][0] = -1.0;   A[1][1] =  2.0;
+
+  b[0] = 2.0;
+  b[1] = 1.0;
+
+  x = A*b;
+  
+  printf("%f %f\n",x[0],x[1]);
+
+  cout << A ;
+
   
   return 0;
 }

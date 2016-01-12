@@ -1,5 +1,5 @@
 a.out: main.cpp
-	c++ -std=c++0x main.cpp libest.a yosen.o
+	c++ -std=c++0x main.cpp 
 
 clean: ;
 	rm -f a.out

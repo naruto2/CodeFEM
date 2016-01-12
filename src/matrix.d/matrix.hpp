@@ -63,9 +63,24 @@ public:
     return os;
   }
 
+#if 0
+  friend vector<double>& operator*(matrix A, vector<double>& b) {
+    int n = (int)A.size();
+    static vector<double> x(n);
+    int i, j;
+    
+    for ( i = 0; i < (int)A.size(); i++) {
+      x[i] = 0.0;
+      for ( j = 0; j < (int)A.size(); j++) {
+	x[i]+=A[i][j]*b[j];
+      }
+    }
+    return x;
+  }
+#endif  
 };
 
-static int dim1(matrix A){
+static int dim1(matrix &A){
   return (int)A.size();
 }
 
