@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     }
     else {
       ofstream ofs;
-      ofs.open(getop("-o").c_str(), ios::app);
+      ofs.open(getop("-o").c_str(), ios::out);
       outmesh(ofs,Z,N);
     }
   }
