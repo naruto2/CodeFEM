@@ -1,5 +1,5 @@
-a.out: main.cpp
-	c++ -std=c++0x -fpermissive main.cpp 
+a.out: main.c++
+	c++ main.c++ yosen.o
 
 clean: ;
 	rm -f a.out

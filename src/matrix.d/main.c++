@@ -29,7 +29,7 @@ int main() {
   b[0] = 2.0;
   b[1] = 1.0;
 
-  x = A*b;
+  mulmatrix(x,A,b);
   
   printf("%f %f\n",x[0],x[1]);
 
