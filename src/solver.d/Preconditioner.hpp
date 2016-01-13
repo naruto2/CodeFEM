@@ -12,5 +12,12 @@ public:
       q[i] = p[i];
     return q;
   }
+  vector<double>& trans_solve(vector<double>& p) const{
+    int nn = p.size();
+    static vector<double> q(nn);
+    for ( int i=0; i<nn; i++ )
+      q[i] = p[i];
+    return q;
+  }
 
 };

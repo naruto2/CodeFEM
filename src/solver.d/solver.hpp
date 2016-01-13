@@ -51,5 +51,3 @@ vector<double>& operator*(const matrix&A, vector<double>&b) {
 typedef double Real;
 typedef matrix Matrix;
 typedef vector<double> Vector;
-
-#include "cg.h"

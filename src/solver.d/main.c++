@@ -1,6 +1,9 @@
 #include "solver.hpp"
+#include "cg.h"
 #include "bicgstab.h"
 #include "cgs.h"
+#include "bicg.h"
+#include "qmr.h"
 
 
 extern "C" {
@@ -34,16 +37,19 @@ int main(int argc, char **argv){
       }
   }
 
-  Preconditioner M;
+  Preconditioner M,M2;
   int max_iter = 100000;
   double double_tol = 0.000001;
   Real tol;
 
   tol = double_tol;
-
-  for ( i = 0; i< A.size(); i++ ) A[i][0]; //sync
   
-  BiCGSTAB(A, x, b, M, max_iter, tol);
+
+  A.sync();
+  A.T();
+  
+  //BiCG(A, x, b, M, max_iter, tol);
+  QMR(A, x, b, M, M2, max_iter, tol);
   
   chkval(stdout,n,&x[0]);
   return 0;
