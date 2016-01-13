@@ -50,8 +50,8 @@ CG(const Matrix &A, Vector &x, const Vector &b,
   
   for (int i = 1; i <= max_iter; i++) {
     printf("i = %d\n",i);
-    //z = M.solve(r);
-    z = r;
+    z = M.solve(r);
+    //z = r;
 
 
     

@@ -4,7 +4,7 @@
 typedef double Real;
 typedef matrix Matrix;
 typedef vector<double> Vector;
-typedef Matrix  Preconditioner;
+
 
 Real norm(Vector b){
   int i, n;
