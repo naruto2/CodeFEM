@@ -4,7 +4,7 @@
 #include "cgs.h"
 #include "bicg.h"
 #include "qmr.h"
-
+#include "jacobi.h"
 
 extern "C" {
   void genmat(int,int*,double*,double*);
@@ -48,8 +48,9 @@ int main(int argc, char **argv){
   A.sync();
   A.T();
   
+  Jacobi(A, x, b, M, max_iter, tol);
   //BiCG(A, x, b, M, max_iter, tol);
-  QMR(A, x, b, M, M2, max_iter, tol);
+  //QMR(A, x, b, M, M2, max_iter, tol);
   
   chkval(stdout,n,&x[0]);
   return 0;
