@@ -1,4 +1,6 @@
 #include "solver.hpp"
+#include "bicgstab.h"
+#include "cgs.h"
 
 
 extern "C" {
@@ -39,11 +41,9 @@ int main(int argc, char **argv){
 
   tol = double_tol;
 
-  for ( i = 0; i< (int)A.size(); i++ ) A[i][0]; //sync
+  for ( i = 0; i< A.size(); i++ ) A[i][0]; //sync
   
-  CG(A, x, b, M, max_iter, tol);
-  
-
+  BiCGSTAB(A, x, b, M, max_iter, tol);
   
   chkval(stdout,n,&x[0]);
   return 0;
