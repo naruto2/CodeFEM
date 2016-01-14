@@ -13,30 +13,31 @@ using namespace std;
 
 class internal_map : public map<int, double> {
 
-  double a;
-  int K;
-
-  void wmap(int K, double a) {
-    this->erase(K);
-    if ( a != 0.0 )
-      this->insert( internal_map::value_type(K,a) );
+  mutable internal_map *m;
+  mutable int K;
+  mutable double a;
+  mutable internal_map::iterator it;
+  
+  void wmap(int Key, double a) const {
+    m = const_cast<internal_map*>(this);
+    m->erase(Key);
+    if ( a != 0.0 ) m->insert( internal_map::value_type(Key,a) );
   }
 
-  double rmap( int k) {
-    internal_map::iterator it;
-    it = this->find(k);
-    if ( it == this->end() ) return 0.0;
-    return (*it).second;
+  double rmap(int k) const {
+    m = const_cast<internal_map*>(this);
+    it = m->find(k);
+    if ( it == m->end() ) return 0.0;
+    return it->second;
   }
 
 public:  
 
-  double & operator [](int  k) {
+  double & operator[](const int  k) const {
     wmap(K,a);
     K = k;
     a = rmap(k);
     return a;
-
   }
 
 };
@@ -83,7 +84,7 @@ public:
 	it++;
       }
     }
-    for ( int i =0; i<AT.size(); i++ ) AT[i][0];
+    for ( int i =0; i<n; i++ ) AT[i][0];
   }
 
   vector<double>& trans_mult( vector<double> &y) const {
