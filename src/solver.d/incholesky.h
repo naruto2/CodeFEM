@@ -90,5 +90,6 @@ int IncompleteCholeskyDecomp2(matrix &A, matrix &L, vector<double> &d, int n)
     d[i] = 1.0/L[i][i];
   }
 
+
   return 1;
 }

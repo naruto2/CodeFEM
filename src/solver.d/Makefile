@@ -1,6 +1,6 @@
 a.out: main.c++ solver.hpp
 	cc -c yosen.c
-	c++ main.c++ yosen.o -std=c++11
+	c++ -g main.c++ yosen.o -std=c++11
 
 clean: ;
 	rm -f a.out yosen.o
