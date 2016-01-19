@@ -70,7 +70,7 @@ int main(int argc, char **argv){
   int max_iter = 100000;
   double tol = 0.000001;
 
-  //M.ic(A);
+  M.ic(A);
   //BiCGSTAB(A, x, b, M, max_iter, tol);
   A.T(); QMR(A, x, b, M, M2, max_iter, tol);
   check(x);

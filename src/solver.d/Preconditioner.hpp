@@ -21,12 +21,6 @@ public:
     return q;
   }
 
-  vector<double>& trans_solve(vector<double>& p) const{
-    int n = p.size();
-    static vector<double> q(n);
-    for ( int i=0; i<n; i++ ) q[i] = p[i];
-    return q;
-  }
 
   void jacobi(matrix& pA) {
     A = pA;
@@ -61,11 +55,9 @@ public:
       }
       x[i] = y[i]-lu/L[i][i];
     }
-
-
-
     return x;
   }
+
 
   vector<double> & solve(vector<double>& b) const {
     switch ( solver ) {
@@ -73,8 +65,11 @@ public:
     }
     return nsolve(b);
   }
-  
 
+  vector<double>& trans_solve(vector<double>& p) const{
+    return solve(p);
+  }
+  
   void ic(matrix& Ap) {
     solver = 1;
     A = Ap;

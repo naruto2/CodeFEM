@@ -104,7 +104,10 @@ public:
     }
     return x;
   }
-  
+
+  internal_matrix & transmatrix(){
+    return this->AT;
+  }
 };
 
 static int dim1(matrix &A){
