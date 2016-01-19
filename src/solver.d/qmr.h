@@ -132,8 +132,15 @@ QMR(const Matrix &A, Vector &x, const Vector &b, const Preconditioner1 &M1,
       (beta[0] * gamma_1[0] * gamma_1[0]);
 
     if (i > 1) {
-      d = eta[0] * p + (theta_1[0] * theta_1[0] * gamma[0] * gamma[0]) * d;
-      s = eta[0] * p_tld + (theta_1[0] * theta_1[0] * gamma[0] * gamma[0]) * s;
+      vector<double> d1, d2, s1, s2;
+      d1 = eta[0] * p;
+      d2 = (theta_1[0] * theta_1[0] * gamma[0] * gamma[0]) * d;
+      d = d1 + d2;
+      //d = eta[0] * p + (theta_1[0] * theta_1[0] * gamma[0] * gamma[0]) * d;
+      s1 = eta[0] * p_tld;
+      s2 = (theta_1[0] * theta_1[0] * gamma[0] * gamma[0]) * s;
+      s = s1 + s2;
+      //s = eta[0] * p_tld + (theta_1[0] * theta_1[0] * gamma[0] * gamma[0]) * s;
     } else {
       d = eta[0] * p;
       s = eta[0] * p_tld;

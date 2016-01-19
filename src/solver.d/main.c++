@@ -71,12 +71,8 @@ int main(int argc, char **argv){
   double tol = 0.000001;
 
   //M.ic(A);
-  BiCGSTAB(A, x, b, M, max_iter, tol);
-
-  vector<double> c = b - A*x;
-
-  //for ( int i = 0; i<n; i++ ) printf("%f\n",c[i]);
-  //A.T(); QMR(A, x, b, M, M2, max_iter, tol);
+  //BiCGSTAB(A, x, b, M, max_iter, tol);
+  A.T(); QMR(A, x, b, M, M2, max_iter, tol);
   check(x);
   return 0;
 }
