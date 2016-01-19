@@ -9,8 +9,8 @@
 
 using namespace std;
 
-
-
+typedef map<int, double> internal_map;
+#if 0
 class internal_map : public map<int, double> {
 
   mutable internal_map *m;
@@ -21,7 +21,8 @@ class internal_map : public map<int, double> {
   void wmap(int Key, double a) const {
     m = const_cast<internal_map*>(this);
     m->erase(Key);
-    if ( a != 0.0 ) m->insert( internal_map::value_type(Key,a) );
+    if ( a != 0.0 ) 
+      m->insert( internal_map::value_type(Key,a) );
   }
 
   double rmap(int k) const {
@@ -41,9 +42,13 @@ public:
   }
 
 };
+#endif
+
+
 
 
 typedef vector< internal_map > internal_matrix;
+
 
 
 class matrix : public internal_matrix {

@@ -67,9 +67,17 @@ BiCGSTAB(const Matrix &A, Vector &x, const Vector &b,
     shat = M.solve(s);
     t = A * shat;
     omega[0] = dot(t,s) / dot(t,t);
-    x = x + alpha[0] * phat + omega[0] * shat;
-    r = s - omega[0] * t;
 
+
+    Vector x1, x2;
+    x1 = alpha[0] * phat;
+    x2 = omega[0] * shat;
+    x = x + x1;
+    x = x + x2;
+    //x = x + alpha[0] * phat + omega[0] * shat;
+
+
+    r = s - omega[0] * t;
     rho_2[0] = rho_1[0];
     if ((resid = norm(r) / normb) < tol) {
       tol = resid;
