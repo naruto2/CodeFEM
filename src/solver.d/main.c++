@@ -5,6 +5,7 @@
 #include "cgs.h"
 #include "bicg.h"
 #include "qmr.h"
+#include "gmres.h"
 #include "jacobi.h"
 #include "incholesky.h"
 #include "Preconditioner.hpp"
@@ -70,9 +71,13 @@ int main(int argc, char **argv){
   int max_iter = 100000;
   double tol = 0.000001;
 
-  M.ic(A);
+  //M.ic(A);
   //BiCGSTAB(A, x, b, M, max_iter, tol);
-  A.T(); QMR(A, x, b, M, M2, max_iter, tol);
+  //M2.ic(A); A.T(); QMR(A, x, b, M, M2, max_iter, tol);
+  matrix H;
+  H.resize(n);
+  int m = 1000;
+  GMRES(A, x, b, M, H, m, max_iter, tol);
   check(x);
   return 0;
 }
