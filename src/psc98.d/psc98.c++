@@ -1,3 +1,5 @@
+#include "est/matrix.hpp"
+
 extern "C" {
   void genmat(int,int*,double*,double*);
   void chkval(FILE*,int,double*);

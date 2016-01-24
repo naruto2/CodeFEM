@@ -6,6 +6,8 @@
 #include "est/xmesh.hpp"
 #include "est/matrix.hpp"
 #include "est/ViennaCL.hpp"
+#include "est/solver.hpp"
+#include "est/psc98.hpp"
 
 
 #endif

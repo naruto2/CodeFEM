@@ -1,20 +1,8 @@
 #include <cstdlib>
 #include "est/solver.hpp"
-#include "cg.h"
-#include "bicgstab.h"
-#include "cgs.h"
-#include "bicg.h"
-#include "qmr.h"
-#include "gmres.h"
-#include "ir.h"
-#include "jacobi.h"
-#include "incholesky.h"
-#include "lu.h"
-#include "Preconditioner.hpp"
-#include "est/psc98.hpp"
+#include "psc98.hpp"
 #include "est/matrix.hpp"
 
-void blockmatrix(matrix &A, matrix &B);
 
 int main(int argc, char **argv){
   
@@ -32,11 +20,13 @@ int main(int argc, char **argv){
   getprob(A,b);
   int n = A.size();
   vector<double> x(n);
-  Preconditioner M, M2;
+
   int max_iter = 100000;
   double tol = 0.000001;
+  plotmatrix(A);
 
-#if 1
+  
+#if 0
   matrix H;
   H.resize(n);
   int m = 1000;
