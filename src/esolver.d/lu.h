@@ -1,3 +1,17 @@
+int halfbw(Matrix& a)
+{
+  int n, i, j, w ;
+
+  n = a.size();
+  for( i=0; i<n; i++ )
+    for( auto it : a[i] ) {
+      j = it.first;
+      if ( a[i][j] != 0.0 ) if( w < abs(i-j) ) w = abs(i-j);
+    }
+  return w;
+}
+
+
 /*!
  * LU分解(ピボット交換なし)
  *  - 行列A(n×n)を下三角行列(L:Lower triangular matrix)と上三角行列(U:Upper triangular matrix)に分\\
@@ -17,8 +31,9 @@ int ge(int m, int n) {
 }
 
 
-int LUDecomp(matrix &A, int n)
+int LUDecomp(matrix &A)
 {
+  int n = A.size();
   if(n <= 0) return 0;
   int w = halfbw(A);
   int k;
@@ -47,6 +62,41 @@ int LUDecomp(matrix &A, int n)
       }
       A[i][j] = lu/A[i][i];
     }
+  }
+
+  return 1;
+}
+
+
+int LUSolver(matrix &A, vector<double> &b, vector<double> &x)
+{
+  int n = A.size();
+  if(n <= 0) return 0;
+  int j;
+  // 前進代入(forward substitution)
+  //  LY=bからYを計算
+  for(int i = 0; i < n; ++i){
+    double bly = b[i];
+    //for(int j = 0; j < i; ++j){
+    for ( auto it : A[i] ) {
+      j = it.first;
+      if ( j < i )
+	bly -= A[i][j]*x[j];
+    }
+    x[i] = bly/A[i][i];
+  }
+
+  // 後退代入(back substitution)
+  //  UX=YからXを計算
+  for(int i = n-1; i >= 0; --i){
+    double yux = x[i];
+    //for(int j = i+1; j < n; ++j){
+    for ( auto it : A[i] ) {
+      j = it.first;
+      if ( i < j && j < n )
+	yux -= A[i][j]*x[j];
+    }
+    x[i] = yux;
   }
 
   return 1;

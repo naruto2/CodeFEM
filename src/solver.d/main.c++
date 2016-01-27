@@ -7,6 +7,7 @@
 #include "qmr.h"
 #include "gmres.h"
 #include "ir.h"
+#include "cheby.h"
 #include "jacobi.h"
 #include "incholesky.h"
 #include "lu.h"
@@ -41,8 +42,9 @@ int main(int argc, char **argv){
   H.resize(n);
   int m = 1000;
   M.ic(A);
-  GMRES(A, x, b, M, H, m, max_iter, tol);
-  //IR(A, x, b, M, max_iter, tol);
+  //GMRES(A, x, b, M, H, m, max_iter, tol);
+  CHEBY(A,x,b,M,max_iter, tol, 19.738218,129105.765540);
+  //CG(A, x, b, M, max_iter, tol);
   //M2.ic(A); A.T(); QMR(A, x, b, M, M2, max_iter, tol);
 #endif
   check(x);
