@@ -2,7 +2,7 @@ a.out: main.c++
 	c++ -g maxesolver.c++ main.c++ -std=c++11 lib/libmatrix.a lib/libsolver.a lib/libpsc98.a
 
 clean: ;
-	rm -f a.out *.o lib/libsolver.a
+	rm -f a.out *.o 
 
 obj: ;
 	c++ -c blockmatrix.c++ -std=c++11
