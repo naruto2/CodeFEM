@@ -27,20 +27,23 @@ int LUDecomp(matrix &A, int n)
   for(int i = 0; i < n; ++i){
     printf("i = %d\n",i);
     // l_ijの計算(i >= j)
-    for(int j = ge(0,i-w); j <= i; ++j){
+    for(int j = ge(0,i-w-1); j <= i; ++j){
       double lu = A[i][j];
-      for(int k = ge(0,j-w); k < j; ++k){
+      for(int k = ge(0,i-w-1); k < j; ++k){
 	  lu -= A[i][k]*A[k][j];    // l_ik * u_kj
       }
       A[i][j] = lu;
       //if (A[i][j] != 0.0 ) printf("%f\n",A[i][j]);
     }
     // u_ijの計算(i < j)
-    for(int j = i+1; j < le(n,w+i); ++j){
+    for(int j = i+1; j < le(i+w+1,n); ++j){
       double lu = A[i][j];
 
-      for(int k = ge(0,j-w); k < i; ++k){
-	lu -= A[i][k]*A[k][j];    // l_ik * u_kj
+      //for(int k = 0; k < i; ++k){
+      for ( auto it: A[i] ) {
+	k = it.first;
+	if ( k < i )
+	  lu -= A[i][k]*A[k][j];    // l_ik * u_kj
       }
       A[i][j] = lu/A[i][i];
     }
