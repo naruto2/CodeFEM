@@ -21,13 +21,16 @@ static int halfbw(Matrix& a)
 int LUSolver(matrix &A, vector<double> &b, vector<double> &x, int n)
 {
   if(n <= 0) return 0;
-
+  int j;
   // 前進代入(forward substitution)
   //  LY=bからYを計算
   for(int i = 0; i < n; ++i){
     double bly = b[i];
-    for(int j = 0; j < i; ++j){
-      bly -= A[i][j]*x[j];
+    //for(int j = 0; j < i; ++j){
+    for ( auto it : A[i] ) {
+      j = it.first;
+      if ( j < i )
+	bly -= A[i][j]*x[j];
     }
     x[i] = bly/A[i][i];
   }
@@ -36,8 +39,11 @@ int LUSolver(matrix &A, vector<double> &b, vector<double> &x, int n)
   //  UX=YからXを計算
   for(int i = n-1; i >= 0; --i){
     double yux = x[i];
-    for(int j = i+1; j < n; ++j){
-      yux -= A[i][j]*x[j];
+    //for(int j = i+1; j < n; ++j){
+    for ( auto it : A[i] ) {
+      j = it.first;
+      if ( i < j && j < n )
+	yux -= A[i][j]*x[j];
     }
     x[i] = yux;
   }
