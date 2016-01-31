@@ -56,7 +56,6 @@ typedef vector<double> Vector;
 #include "Preconditioner.hpp"
 #include "cg.h"
 
-
 vector<double> cg(Preconditioner& M, matrix& A, vector<double>& b){
   static vector<double>x(b.size());
   int max_iter = 1000000;
@@ -64,3 +63,26 @@ vector<double> cg(Preconditioner& M, matrix& A, vector<double>& b){
   CG(A, x, b, M, max_iter, tol);
   return x;
 }
+
+
+#include "ir.h"
+
+vector<double> ir(Preconditioner& M, matrix& A, vector<double>& b){
+  static vector<double>x(b.size());
+  int max_iter = 1000000;
+  double tol = 0.0000001;
+  IR(A, x, b, M, max_iter, tol);
+  return x;
+}
+
+#include "cgs.h"
+
+vector<double> cgs(Preconditioner& M, matrix& A, vector<double>& b){
+  static vector<double>x(b.size());
+  int max_iter = 1000000;
+  double tol = 0.0000001;
+  CGS(A, x, b, M, max_iter, tol);
+  return x;
+}
+
+
