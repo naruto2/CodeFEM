@@ -21,7 +21,7 @@
 
 template < class Matrix, class Vector, class Preconditioner, class Real >
 int 
-Jacobi(const Matrix &A, Vector &x, const Vector &b,
+Jacobi(Matrix &A, Vector &x, const Vector &b,
    const Preconditioner &M, int &max_iter, Real &tol)
 {
   Real resid;

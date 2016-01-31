@@ -86,3 +86,74 @@ vector<double> cgs(Preconditioner& M, matrix& A, vector<double>& b){
 }
 
 
+#include "bicgstab.h"
+
+vector<double> bicgstab(Preconditioner& M, matrix& A, vector<double>& b){
+  static vector<double>x(b.size());
+  int max_iter = 1000000;
+  double tol = 0.0000001;
+  BiCGSTAB(A, x, b, M, max_iter, tol);
+  return x;
+}
+
+
+
+#include "bicg.h"
+
+vector<double> bicg(Preconditioner& M, matrix& A, vector<double>& b){
+  static vector<double>x(b.size());
+  int max_iter = 1000000;
+  double tol = 0.0000001;
+  A.T();
+  BiCG(A, x, b, M, max_iter, tol);
+  return x;
+}
+
+
+#include "qmr.h"
+
+vector<double> qmr(Preconditioner& M, Preconditioner& M2, matrix& A, vector<double>& b){
+  static vector<double>x(b.size());
+  int max_iter = 1000000;
+  double tol = 0.0000001;
+  A.T();
+  QMR(A, x, b, M, M2, max_iter, tol);
+  return x;
+}
+
+#include "gmres.h"
+
+vector<double> gmres(Preconditioner& M, matrix& A, vector<double>& b){
+  static vector<double>x(b.size());
+  int max_iter = 1000000;
+  double tol = 0.0000001;
+  int m = 1000;
+  matrix H;
+  H.resize(A.size());
+  GMRES(A, x, b, M, H, m, max_iter, tol);
+  return x;
+}
+
+
+#include "cheby.h"
+
+vector<double> cheby(Preconditioner& M, matrix& A, vector<double>& b, double mine, double maxe){
+  static vector<double>x(b.size());
+  int max_iter = 1000000;
+  double tol = 0.0000001;
+  CHEBY(A, x, b, M, max_iter, tol, mine, maxe);
+  return x;
+}
+
+
+
+#include "jacobi.h"
+
+vector<double> jacobi(Preconditioner& M, matrix& A, vector<double>& b){
+  static vector<double>x(b.size());
+  int max_iter = 1000000;
+  double tol = 0.0000001;
+  Jacobi(A, x, b, M, max_iter, tol);
+  return x;
+}
+

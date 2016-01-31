@@ -2,15 +2,9 @@
 #include "est/esolver.hpp"
 #include "est/psc98.hpp"
 
-//#include "../solver.d/cg.h"
-//#include "../solver.d/incholesky.h"
-//#include "../solver.d/Preconditioner.hpp"
-
 int main(int argc, char ** argv) {
-  matrix A;
-  vector<double> b,x;
+  matrix A, A1, A2; vector<double> b, b1, b2, x;
   getprob(A,b);
-
 #if 0
   A.resize(3);
   b.resize(A.size());
@@ -22,17 +16,16 @@ int main(int argc, char ** argv) {
   b[1] = 3.0;
   b[2] = 2.0;
 #endif
-  //Preconditioner M;
-  int max_iter = 100000;
-  double tol = 0.000001;
+  Preconditioner M;
+  A1 = A; b1 = b;
+  A2 = A; b2 = b;
+  double mine = minesolver(A1,b1);
+  double maxe = maxesolver(A2,b2);
+  printf("mine = %f maxe = %f\n", mine, maxe);
+  x = cheby(M,A,b,mine,maxe);
 
-  x.resize(b.size());  
-  printf("%f\n",minesolver(A,b)); return 0;
-  //LUDecomp(A); LUSolver(A,b,x);
-  //CG(A, x, b, M, max_iter, tol);
-  //for ( int i=0; i< x.size(); i++) printf("%f\n",x[i]);
+  //for ( int i=0; i< x.size(); i++) printf("%f\n",x[i]); return 0;
   check(x);
-  //printf("%f\n",maxesolver(A,x));
   return 0;
 }
 
