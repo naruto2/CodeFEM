@@ -8,6 +8,6 @@
 #include "est/ViennaCL.hpp"
 #include "est/solver.hpp"
 #include "est/psc98.hpp"
-
+#include "est/esolver.hpp"
 
 #endif

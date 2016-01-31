@@ -51,3 +51,16 @@ vector<double>& operator*(const matrix&A, vector<double>&b) {
 typedef double Real;
 typedef matrix Matrix;
 typedef vector<double> Vector;
+
+#include "incholesky.h"
+#include "Preconditioner.hpp"
+#include "cg.h"
+
+
+vector<double> cg(Preconditioner& M, matrix& A, vector<double>& b){
+  static vector<double>x(b.size());
+  int max_iter = 1000000;
+  double tol = 0.0000001;
+  CG(A, x, b, M, max_iter, tol);
+  return x;
+}

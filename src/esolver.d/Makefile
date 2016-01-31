@@ -1,10 +1,10 @@
-a.out: main.c++ 
-	c++ -g maxesolver.c++ main.c++ -std=c++11 lib/libmatrix.a lib/libsolver.a lib/libpsc98.a
+a.out: main.c++  obj
+	c++  main.c++ -std=c++11 lib/*.a
 
 clean: ;
-	rm -f a.out *.o 
+	rm -f a.out *.o lib/libesolver.a
 
 obj: ;
-	c++ -c blockmatrix.c++ -std=c++11
-	c++ -c solver.c++ -std=c++11
-	ar cr lib/libsolver.a blockmatrix.o solver.o
+	c++ -c -std=c++11 minesolver.c++ maxesolver.c++
+	ar cr lib/libesolver.a *.o
+	rm *.o
