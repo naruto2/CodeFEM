@@ -1,6 +1,5 @@
 a.out: main.c++
-	cc -c yosen.c
-	c++ -Wall main.c++ yosen.o -lOpenCL -lm
+	c++ -Wall --std=c++11 main.c++ -lOpenCL -lm lib/libpsc98.a
 
 run: a.out
 	export PSC98=1; time ./a.out

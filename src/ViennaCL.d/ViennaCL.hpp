@@ -23,8 +23,8 @@ using viennacl::linalg::jacobi_tag;
 using viennacl::linalg::row_scaling_tag;
 
 typedef compressed_matrix<double>  SparseMatrix;
-typedef std::vector< std::map< unsigned int, double> > matrix;
-typedef std::vector<double> vector;
+typedef std::vector< std::map< unsigned int, double> > cpumatrix;
+//typedef std::vector<double> vector;
 typedef viennacl::compressed_matrix<double> gpumatrix;
 typedef viennacl::vector<double> gpuvector;
 typedef ilut_precond< SparseMatrix >  ILU;
@@ -32,13 +32,22 @@ typedef row_scaling< SparseMatrix > Scaling;
 typedef jacobi_precond< SparseMatrix > Jacobi;
 
 
-vector gpusolver( matrix A, vector b)
+vector<double> gpusolver(matrix& A, vector<double>& b)
 {
   int n = A.size();
-  vector x(n);
+  vector<double> x(n);
   gpumatrix Agpu(n,0); gpuvector bgpu(n), xgpu(n);
+  cpumatrix Acpu(n);
 
-  copy(A, Agpu); copy(b.begin(), b.end(), bgpu.begin());
+  for (unsigned int i=0; i<A.size(); i++) {
+    for ( auto it : A[i] ){
+      int j = it.first;
+      Acpu[i][j] = A[i][j];
+    }
+  }
+  
+  copy(Acpu, Agpu);
+  copy(b.begin(), b.end(), bgpu.begin());
 
   ILU     vcl_ilut(Agpu, ilut_tag(8,1e-3));
   Scaling vcl_row_scaling(Agpu, row_scaling_tag(2));
