@@ -2,9 +2,13 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <sys/types.h>
-
-
 #include "est/matrix.hpp"
+
+
+extern "C" {
+  FILE *popen(const char *s, const char *mode);
+  int pclose(FILE *f);
+}
 
 
 void plotmatrix(matrix A) {

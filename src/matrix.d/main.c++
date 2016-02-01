@@ -35,7 +35,7 @@ int main() {
 
   cout << A ;
 
-  
+  plotmatrix(A);
   return 0;
 }
 
