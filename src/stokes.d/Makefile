@@ -25,7 +25,7 @@ obj: $(OBJS)
 	rm *.o
 
 clean :
-	rm -f $(OBJS) $(PROG) 
+	rm -f $(OBJS) $(PROG) lib/libstokes.a
 
 test : $(PROG)
 	./a.out 10x10.xyc
