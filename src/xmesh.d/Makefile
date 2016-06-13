@@ -33,7 +33,7 @@ $(PROG) : $(OBJS)
 
 obj: $(OBJS)
 	ar cr lib/libxmesh.a $(OBJS)
-
+	rm *.o
 
 clean :
 	rm -f $(OBJS) $(PROG) lib/libxmesh.a kanto.msh pt.msh test

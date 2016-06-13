@@ -9,4 +9,4 @@ obj: ;
 	cc -c honsen.c
 	c++ -c psc98.c++
 	ar cr lib/libpsc98.a yosen.o honsen.o psc98.o
-
+	rm *.o

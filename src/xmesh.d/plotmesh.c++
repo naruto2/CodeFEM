@@ -13,9 +13,21 @@ using namespace std;
 void plotmesh(vector<xyc>&Z,vector<nde>&N)
 {
   FILE *fp = stdout;
-  long e, a, b, c;
+  long e, v, a, b, c;
 
   fp = popen("gnuplot","w");
+
+  for(e=1;e<dim1(N);e++){
+    fprintf(fp,"set label \"%ld\" at %f, %f;\n",e,
+	    (Z[N[e].a].x+Z[N[e].b].x+Z[N[e].c].x)/3.0,
+	    (Z[N[e].a].y+Z[N[e].b].y+Z[N[e].c].y)/3.0);
+  }
+
+  for(v=1;v<dim1(Z);v++){
+    fprintf(fp,"set label \"%ld\" at %f, %f;\n",e,
+	    Z[v].x,
+	    Z[v].y);
+  }
 
   fprintf(fp,"plot '-' title \"\" with lines\n");
   
@@ -27,6 +39,7 @@ void plotmesh(vector<xyc>&Z,vector<nde>&N)
     fprintf(fp,"%f %f\n",Z[a].x,Z[a].y);
     fprintf(fp,"\n\n");
   }
+
   fprintf(fp,"e\n");
   fflush(fp);
   sleep(65535);
