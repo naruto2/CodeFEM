@@ -6,7 +6,7 @@
 #include "est/xmesh.hpp"
 using namespace std;
 
-extern vector<xyc> ncpolynomial1(vector<xyc> Z, vector<nde> N );
+extern vector<xyc> ncpolynomial1(vector<xyc> Z, vector<nde> &N );
 
 
 int main(int argc, char ** argv)
@@ -31,6 +31,10 @@ int main(int argc, char ** argv)
   for ( unsigned long i=1; i< Mid.size(); i++ ) {
     printf("%d %f %f %s\n",i, Mid[i].x, Mid[i].y, Mid[i].label );
   }
-  
+  printf("-------------------------------------\n");
+
+  for ( unsigned long e=1; e<N.size()-1; e++ ) {
+    printf("%d %d %d %d %d %d %d\n",e,N[e].a,N[e].b,N[e].c,N[e].A,N[e].B,N[e].C);
+  }    
   return 0;
 }

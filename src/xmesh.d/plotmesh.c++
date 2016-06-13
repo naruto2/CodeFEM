@@ -24,7 +24,7 @@ void plotmesh(vector<xyc>&Z,vector<nde>&N)
   }
 
   for(v=1;v<dim1(Z);v++){
-    fprintf(fp,"set label \"%ld\" at %f, %f;\n",e,
+    fprintf(fp,"set label \"%ld\" at %f, %f;\n",v,
 	    Z[v].x,
 	    Z[v].y);
   }

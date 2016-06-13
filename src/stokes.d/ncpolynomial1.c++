@@ -73,7 +73,7 @@ static vector<xyc> makeM(vector<xyc> Z, vector<nde> &N)
   return makeMV(Z,N);
 }
 
-vector<xyc> ncpolynomial1(vector<xyc> Z, vector<nde> N)
+vector<xyc> ncpolynomial1(vector<xyc> Z, vector<nde> &N)
 {
   vector<xyc> Mid;
   Mid = makeM(Z,N);
