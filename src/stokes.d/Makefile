@@ -7,7 +7,7 @@ SRCS =	Rf.c++ \
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
 
-CPPFLAGS = -Wall -fpermissive
+CPPFLAGS = -Wall -fpermissive -I.
 LDFLAGS = lib/*.a
 
 .PHONY: all clean
