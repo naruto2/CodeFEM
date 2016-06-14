@@ -39,7 +39,8 @@ static vector<xyc> makeMV(vector<xyc> Z, vector<nde> &N)
 {
   
   int i, e, m, k;
-  e = N.size()-2;
+  // tsukud-y e = N.size()-2;
+  e = N.size()-1;
   
   m = 1;
   for(i=1;i<=e;i++)
