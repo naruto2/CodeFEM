@@ -56,14 +56,12 @@ void delaunay(vector<xyc>&Zo, vector<nde>&No)
   fZinv.resize(z+1);
   for (i=1; i<(int)fZ.size(); i++) fZinv[fZ[i]] = i;
 
-  // tsukud-y Zo.resize(z+2);
   Zo.resize(z+1);
   for (i=1; i<=z; i++) Zo[i]  = Z[fZinv[i]];  
 
-  // tsukud-y No.resize(N0.size()+1);
   No.resize(N0.size());
   for (i=0;i<(int)N0.size();i++) No[i] = N0[i];
 
-  // tsukud-y printf("Z = %ld  N = %ld\n", Zo.size(), No.size());
 }
+
 

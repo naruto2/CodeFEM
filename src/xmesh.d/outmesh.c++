@@ -15,14 +15,14 @@ void outmesh(ostream &os, vector<xyc>&Zv,vector<nde>&Nv)
   int i;
 
   os << "<xyc>" << endl;
-  // tsukud-y for(i=1;i<(int)Zv.size()-1;i++) {
+
   for(i=1;i<(int)Zv.size();i++) { 
     snprintf(ss,990,"%4d %.9f %.9f %s",i,Zv[i].x,Zv[i].y,label(Zv,i));
     os << ss << endl;
   }
 
   os << "<nde>" << endl;
-  // tsukud-y for(i=1;i<(int)Nv.size()-1;i++){
+
   for(i=1;i<(int)Nv.size();i++){
     snprintf(ss,990,"%4d  %4d %4d %4d  %4d %4d %4d",
             i, Nv[i].a,Nv[i].b,Nv[i].c,Nv[i].A,Nv[i].B,Nv[i].C);
