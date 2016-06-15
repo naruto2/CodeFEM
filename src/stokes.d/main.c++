@@ -127,7 +127,26 @@ static matrix Hy__(vector<xyc> Mid, vector<xyc> Z, vector<nde> N)
 }
 
 
+static void A__(matrix &A, vector<xyc> &Mid, vector<nde> &N, matrix &M, double tau, matrix &K, matrix &Hx, matrix &Hy)
+{
+  long   i, j, NUM, m, n;
 
+  m   = Mid.size()-1;
+  n   = N.size()-1;
+  NUM = m*2+n;
+  A.resize(NUM+1);
+
+  for ( i = 1; i <= m; i++ ) for ( j = 1; j <= m; j++ ) {
+      A[  i][  j] = M[i][j] + tau*K[i][j];
+      A[m+i][m+j] = M[i][j] + tau*K[i][j];
+    }
+  for ( i = 1; i <= m; i++ ) for ( j = 1; j <= n; j++ ) {
+      A[    i][2*m+j] = -tau*Hx[i][j];
+      A[2*m+j][    i] = -tau*Hx[i][j];
+      A[  m+i][2*m+j] = -tau*Hy[i][j];
+      A[2*m+j][  m+i] = -tau*Hy[i][j];
+    }
+}
 
 
 int main(int argc, char ** argv)
@@ -176,7 +195,11 @@ int main(int argc, char ** argv)
   matrix K = K__(Mid, Z, N, S);
   matrix Hx= Hx__(Mid, Z, N);
   matrix Hy= Hy__(Mid, Z, N);
+  double t = 0.01;
+  matrix A;
+  A__(A, Mid, N, M,t,K,Hx,Hy);
+
   printf("m = %ld  n = %ld\n",m,n);
-  plotmatrix(Hy);
+  plotmatrix(A);
   return 0;
 }
