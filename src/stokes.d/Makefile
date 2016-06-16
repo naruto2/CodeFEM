@@ -2,7 +2,8 @@ PROG =  a.out
 SRCS =	Rf.c++ \
 	ary.c++ \
 	foreach.c++ \
-	ncpolynomial1.c++
+	ncpolynomial1.c++ \
+	forgammap1.c++
 
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o

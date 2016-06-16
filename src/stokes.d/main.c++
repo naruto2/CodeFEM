@@ -5,10 +5,13 @@
 #include "est/op.hpp"
 #include "est/xmesh.hpp"
 #include "est/matrix.hpp"
+
 using namespace std;
 
 extern vector<xyc> ncpolynomial1(vector<xyc> Z, vector<nde> &N );
-
+extern void estiva_forgammap1(long *x);
+extern int estiva_forgammap1_loop(long *x, const char *name, vector<xyc> &Z);
+  
 
 #define length(a,b) \
   ((Z[b].x-Z[a].x)*(Z[b].x-Z[a].x)+(Z[b].y-Z[a].y)*(Z[b].y-Z[a].y))
@@ -148,6 +151,90 @@ static void A__(matrix &A, vector<xyc> &Mid, vector<nde> &N, matrix &M, double t
     }
 }
 
+void Rhs(vector<double> &b, vector<xyc> &Mid, vector<nde> &N,matrix &M,double t,vector<double> &Fx,vector<double> &Fy,
+	 vector<double> &Ux, vector<double> &Uy, vector<double> &x)
+{
+  long   i, j, NUM, m, n;
+
+  m = Mid.size()-1;
+  n = N.size()-1;
+
+  NUM = m*2+n;
+
+  for( i = 1; i <= NUM; i++ ) b[i] = 0.0;
+
+  for( i = 1; i <= m; i++ ) for ( j = 1; j <= m; j++ ) {
+      b[  i] += M[i][j]*x[  j];
+      b[m+i] += M[i][j]*x[m+j];
+    }
+
+}
+
+#define forgammap1(i,NAME,Z)                                            \
+  for ( estiva_forgammap1(&(i));      estiva_forgammap1_loop(&(i),NAME,Z);)
+
+
+static void zerofillrow(matrix &A, unsigned long i)
+{
+  unsigned long j;
+
+  for ( j = 0; j < A.size(); j++ ) {
+    A[i][j] = 0.0;
+  }
+}
+
+static void boundary_condition(vector<nde> &N, vector<xyc> &Mid, matrix &A, vector<double> &b)
+{
+  long NUM, i, j, m, n;
+  m = Mid.size()-1;
+  n = N.size()-1;
+  NUM = 2*m+n;
+
+  printf ("\n---------- e0 ------------\n");
+  forgammap1(i,"e0",Mid){
+    zerofillrow(A,i+m);
+    A[i+m][i+m] = 1.0;
+    b[i+m] = 0.0;
+    printf("%ld ",i);
+  }
+
+  printf ("\n---------- e1 ------------\n");
+  forgammap1(i,"e1",Mid){
+    zerofillrow(A,i);
+    A[i][i] = 1.0;
+    b[i] = 0.0;
+    printf("%ld ",i);
+  }
+
+  printf ("\n---------- e2 ------------\n");
+
+  forgammap1(i,"e2",Mid){
+    zerofillrow(A,i);
+    A[i][i] = 1.0;
+    b[i]   = 0.1;
+    zerofillrow(A,i+m);
+    A[i+m][i+m] = 1.0;
+    b[i+m]     = 0.0;
+    printf("%ld ",i);
+  }
+
+  printf ("\n---------- e3 ------------\n");
+
+  forgammap1(i,"e3",Mid){
+    zerofillrow(A,i);
+    A[i][i] = 1.0;
+    b[i] = 0.0;
+    printf("%ld ",i);
+  }
+
+  printf ("\n--------------------------\n");
+
+  zerofillrow(A,NUM-1);
+  A[NUM-1][NUM-1] = 1.0;
+  b[NUM-1] = 0.0001;
+}
+
+
 
 int main(int argc, char ** argv)
 {
@@ -189,8 +276,6 @@ int main(int argc, char ** argv)
   unsigned long n = S.size()-1;
   unsigned long NUM = 2*m+n;
 
-
-
   matrix M = M__(Mid, N, S);
   matrix K = K__(Mid, Z, N, S);
   matrix Hx= Hx__(Mid, Z, N);
@@ -198,8 +283,14 @@ int main(int argc, char ** argv)
   double t = 0.01;
   matrix A;
   A__(A, Mid, N, M,t,K,Hx,Hy);
+  vector<double> Fx(m+1), Fy(m+1), Ux(m+1), Uy(m+1), x(NUM+1), b(NUM+1);
+  Rhs(b, Mid, N, M, t, Fx, Fy, Ux, Uy, x);
+
+  boundary_condition(N,Mid,A,b);
 
   printf("m = %ld  n = %ld\n",m,n);
   plotmatrix(A);
+  printf("------------------------- b ---------------------------\n");
+  //for ( unsigned long i=1; i<b.size()-1; i++ ) printf("%ld %f\n",i,b[i]);
   return 0;
 }
