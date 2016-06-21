@@ -247,7 +247,7 @@ int main(int argc, char ** argv)
   ifstream ifs(argv[1]);
 
   if (!ifs) {
-    cerr << "Error: 入力ストリームを開けませんでした(xmesh)" << endl;
+    cerr << "Error: 入力ストリームを開けませんでした" << endl;
     return 0;
   }
 

@@ -11,9 +11,9 @@ void mulmatrix( vector<double> &x, matrix &A, vector<double> &b)
 {
   int i, j;
   
-  for ( i = 0; i < dim1(A); i++) {
+  for ( i = 0; i < (int)A.size(); i++) {
     x[i] = 0.0;
-    for ( j = 0; j < dim1(A); j++) {
+    for ( j = 0; j < (int)A.size(); j++) {
       x[i]+=A[i][j]*b[j];
     }
   }

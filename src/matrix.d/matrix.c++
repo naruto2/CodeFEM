@@ -11,6 +11,10 @@ extern "C" {
 }
 
 
+static int dim1(matrix &A){
+  return (int)A.size();
+}
+
 void plotmatrix(matrix A) {
   int i, j;
 

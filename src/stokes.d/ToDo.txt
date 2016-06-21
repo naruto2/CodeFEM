@@ -1,1 +1,3 @@
-dim1() nonuse 問題をどうにかする。
+mknxnxyc.c++ を関数化する。
+
+stokes.d main.c++ のprintf()嵐をどうにかする。
