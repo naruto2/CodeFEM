@@ -1,3 +1,1 @@
 dim1() nonuse 問題をどうにかする。
-
-plotncpolynomial1()をアニメーション対応する。

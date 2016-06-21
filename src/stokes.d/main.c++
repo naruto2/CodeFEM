@@ -14,7 +14,7 @@ extern void estiva_forgammap1(long *x);
 extern int estiva_forgammap1_loop(long *x, const char *name, vector<xyc> &Z);
 extern void printmatrix(matrix &A, const char *name);  
 extern void printvector(vector<double> &b, const char *name);
-extern void plotncpolynomial1(FILE *fp, vector<xyc> Mid, vector<double> u, vector<double> v);
+extern void plotncpolynomial1(vector<xyc> Mid, vector<double> x);
 
 #define length(a,b) \
   ((Z[b].x-Z[a].x)*(Z[b].x-Z[a].x)+(Z[b].y-Z[a].y)*(Z[b].y-Z[a].y))
@@ -296,10 +296,8 @@ int main(int argc, char ** argv)
     x = solve(A,b);
     for(i=1;i<=m;i++){ Ux[i] = x[i]; Uy[i] = x[i+m];}
     printf("k = %ld\n",k);
-    if ( k == 1000 ) {
-      plotncpolynomial1(fopen("foo","w"), Mid, Ux, Uy);
-      exit(0);
-    }
+    plotncpolynomial1(Mid, x);
+
   }
   return 0;
 }

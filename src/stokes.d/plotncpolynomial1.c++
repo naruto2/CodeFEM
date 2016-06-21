@@ -27,7 +27,7 @@ static void arrow(FILE *fp,double x0,double y0,double x, double y)
 
 
 
-void plotncpolynomial1(FILE *fp, vector<xyc> Mid, vector<double> u, vector<double> v)
+static void plotncpolynomial1_internal(FILE *fp, vector<xyc> Mid, vector<double> u, vector<double> v)
 {
   double t, x0,y0,x,y;
   long i,m;
@@ -48,3 +48,21 @@ void plotncpolynomial1(FILE *fp, vector<xyc> Mid, vector<double> u, vector<doubl
   }
   fflush(fp);
 }
+
+
+void plotncpolynomial1(vector<xyc> Mid, vector<double> x)
+{
+  static FILE *pp = NULL;
+
+  if ( pp == NULL ) pp = popen("gnuplot","w");
+
+  unsigned long i, m = Mid.size()-1;
+  vector<double> u(m+1), v(m+1);
+  for(i=1;i<=m;i++){ u[i] = x[i]; v[i] = x[i+m];}
+
+  fprintf(pp,"plot '-' title \"\" with lines\n");
+  plotncpolynomial1_internal(pp, Mid, u, v);
+  fprintf(pp,"e\n\n");
+  fflush(pp);
+}
+
