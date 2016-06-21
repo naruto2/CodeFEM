@@ -4,7 +4,8 @@ SRCS =	Rf.c++ \
 	foreach.c++ \
 	ncpolynomial1.c++ \
 	forgammap1.c++ \
-	printmatrix.c++
+	printmatrix.c++ \
+	plotncpolynomial1.c++
 
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
