@@ -7,5 +7,6 @@ clean: ;
 obj: ;
 	c++ -c blockmatrix.c++ -std=c++11
 	c++ -c solver.c++ -std=c++11
-	ar cr lib/libsolver.a blockmatrix.o solver.o
+	c++ -c solve.c++
+	ar cr lib/libsolver.a blockmatrix.o solver.o solve.o
 	rm *.o

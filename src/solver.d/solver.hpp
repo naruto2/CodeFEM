@@ -54,4 +54,7 @@ vector<double> jacobi(Preconditioner& M, matrix& A, vector<double>& b);
 
 void blockmatrix(matrix &A, matrix &B);
 
+vector<double> solve(matrix &A, vector<double> &b);
+
 #endif
+

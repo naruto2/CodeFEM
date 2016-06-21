@@ -30,9 +30,17 @@ static void makeMid(vector<nde> &N)
 
 static char *bound(char *s1, char *s2)
 {
-
-  if(s1 == NULL || s2 == NULL) return strdup("");
-  return strcmp(s1,s2)<0?s1:s2;
+  char *s3;
+  printf("bound %s %s\n",s1,s2);
+  
+  if(s1 == NULL) s1=strdup("");
+  if(s2 == NULL) s2=strdup("");
+  s3 = strcmp(s1,s2)<0?s1:s2;
+  if ( !strcmp(s3,"") ) {
+    if ( !strcmp(s2,"") ) return s1;
+    else return s2;
+  }
+  return s3;
 }
 
 static vector<xyc> makeMV(vector<xyc> Z, vector<nde> &N)
@@ -52,9 +60,14 @@ static vector<xyc> makeMV(vector<xyc> Z, vector<nde> &N)
 
   for(i=1;i<=e;i++){
     MV[N[i].A].label = bound(Z[N[i].b].label,Z[N[i].c].label);
-    MV[N[i].B].label = bound(Z[N[i].c].label,Z[N[i].a].label);
-    MV[N[i].C].label = bound(Z[N[i].a].label,Z[N[i].b].label);
+    printf("bound2 %d = %s, (%s %s)\n",N[i].A,bound(Z[N[i].b].label,Z[N[i].c].label),Z[N[i].b].label,Z[N[i].c].label);
 
+    MV[N[i].B].label = bound(Z[N[i].c].label,Z[N[i].a].label);
+    printf("bound2 %d = %s, (%s %s)\n",N[i].B,bound(Z[N[i].c].label,Z[N[i].a].label),Z[N[i].c].label,Z[N[i].a].label);
+
+    MV[N[i].C].label = bound(Z[N[i].a].label,Z[N[i].b].label);
+    printf("bound2 %d = %s, (%s %s)\n",N[i].C,bound(Z[N[i].a].label,Z[N[i].b].label),Z[N[i].a].label,Z[N[i].b].label);
+    
     MV[N[i].A].x = (Z[N[i].b].x + Z[N[i].c].x)/2.0;
     MV[N[i].B].x = (Z[N[i].c].x + Z[N[i].a].x)/2.0;
     MV[N[i].C].x = (Z[N[i].a].x + Z[N[i].b].x)/2.0;

@@ -5,13 +5,15 @@
 #include "est/op.hpp"
 #include "est/xmesh.hpp"
 #include "est/matrix.hpp"
+#include "est/solver.hpp"
 
 using namespace std;
 
 extern vector<xyc> ncpolynomial1(vector<xyc> Z, vector<nde> &N );
 extern void estiva_forgammap1(long *x);
 extern int estiva_forgammap1_loop(long *x, const char *name, vector<xyc> &Z);
-  
+extern void printmatrix(matrix &A, const char *name);  
+extern void printvector(vector<double> &b, const char *name);
 
 #define length(a,b) \
   ((Z[b].x-Z[a].x)*(Z[b].x-Z[a].x)+(Z[b].y-Z[a].y)*(Z[b].y-Z[a].y))
@@ -264,7 +266,7 @@ int main(int argc, char ** argv)
   for ( unsigned long e=1; e<N.size(); e++ ) {
     printf("%d %d %d %d %d %d %d\n",e,N[e].a,N[e].b,N[e].c,N[e].A,N[e].B,N[e].C);
   }    
-  printf("-------------------------------------\n");
+  printf("-------------- N -----------------------\n");
   
   vector<double> S = S_(Z,N);
   
@@ -280,17 +282,19 @@ int main(int argc, char ** argv)
   matrix K = K__(Mid, Z, N, S);
   matrix Hx= Hx__(Mid, Z, N);
   matrix Hy= Hy__(Mid, Z, N);
-  double t = 0.01;
+  double t = 0.001;
   matrix A;
-  A__(A, Mid, N, M,t,K,Hx,Hy);
   vector<double> Fx(m+1), Fy(m+1), Ux(m+1), Uy(m+1), x(NUM+1), b(NUM+1);
-  Rhs(b, Mid, N, M, t, Fx, Fy, Ux, Uy, x);
-
-  boundary_condition(N,Mid,A,b);
-
-  printf("m = %ld  n = %ld\n",m,n);
-  plotmatrix(A);
-  printf("------------------------- b ---------------------------\n");
-  //for ( unsigned long i=1; i<b.size()-1; i++ ) printf("%ld %f\n",i,b[i]);
+  
+  unsigned long i, k;
+  for ( k = 1; k<=1000; k++ ) {
+    A__(A, Mid, N, M,t,K,Hx,Hy);
+    Rhs(b, Mid, N, M, t, Fx, Fy, Ux, Uy, x);
+    boundary_condition(N,Mid,A,b);
+    A[0][0] = 1.0;
+    x = solve(A,b);
+    for(i=1;i<=m;i++){ Ux[i] = x[i]; Uy[i] = x[i+m];}
+    printf("k = %ld\n",k);
+  }
   return 0;
 }
