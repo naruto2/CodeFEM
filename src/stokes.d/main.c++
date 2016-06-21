@@ -293,6 +293,7 @@ int main(int argc, char ** argv)
     Rhs(b, Mid, N, M, t, Fx, Fy, Ux, Uy, x);
     boundary_condition(N,Mid,A,b);
     A[0][0] = 1.0;
+    fprintf(stderr," ");
     x = solve(A,b);
     for(i=1;i<=m;i++){ Ux[i] = x[i]; Uy[i] = x[i+m];}
     printf("k = %ld\n",k);

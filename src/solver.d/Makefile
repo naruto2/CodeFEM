@@ -8,5 +8,6 @@ obj: ;
 	c++ -c blockmatrix.c++ -std=c++11
 	c++ -c solver.c++ -std=c++11
 	c++ -c solve.c++
-	ar cr lib/libsolver.a blockmatrix.o solver.o solve.o
+	c++ -c baton.c++	
+	ar cr lib/libsolver.a blockmatrix.o solver.o solve.o baton.o
 	rm *.o
