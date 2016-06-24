@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -15,6 +16,7 @@ extern int estiva_forgammap1_loop(long *x, const char *name, vector<xyc> &Z);
 extern void printmatrix(matrix &A, const char *name);  
 extern void printvector(vector<double> &b, const char *name);
 extern void plotncpolynomial1(vector<xyc> Mid, vector<double> x);
+extern void setanimefilename(const char *fname);
 
 #define length(a,b) \
   ((Z[b].x-Z[a].x)*(Z[b].x-Z[a].x)+(Z[b].y-Z[a].y)*(Z[b].y-Z[a].y))
@@ -214,7 +216,7 @@ static void boundary_condition(vector<nde> &N, vector<xyc> &Mid, matrix &A, vect
   forgammap1(i,"e2",Mid){
     zerofillrow(A,i);
     A[i][i] = 1.0;
-    b[i]   = 0.1;
+    b[i]   = 0.5;
     zerofillrow(A,i+m);
     A[i+m][i+m] = 1.0;
     b[i+m]     = 0.0;
@@ -284,11 +286,12 @@ int main(int argc, char ** argv)
   matrix Hx= Hx__(Mid, Z, N);
   matrix Hy= Hy__(Mid, Z, N);
   double t = 0.001;
+  if ( defop("-t") ) t = atof(getop("-t").c_str());
   matrix A;
   vector<double> Fx(m+1), Fy(m+1), Ux(m+1), Uy(m+1), x(NUM+1), b(NUM+1);
   
   unsigned long i, k;
-  for ( k = 1; k<=1000; k++ ) {
+  for ( k = 1; k<=60; k++ ) {
     A__(A, Mid, N, M,t,K,Hx,Hy);
     Rhs(b, Mid, N, M, t, Fx, Fy, Ux, Uy, x);
     boundary_condition(N,Mid,A,b);
@@ -297,6 +300,7 @@ int main(int argc, char ** argv)
     x = solve(A,b);
     for(i=1;i<=m;i++){ Ux[i] = x[i]; Uy[i] = x[i+m];}
     printf("k = %ld\n",k);
+    setanimefilename("bar");
     plotncpolynomial1(Mid, x);
 
   }

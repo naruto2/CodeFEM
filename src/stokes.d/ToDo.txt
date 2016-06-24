@@ -1,3 +1,7 @@
 mknxnxyc.c++ を関数化する。
 
 stokes.d main.c++ のprintf()嵐をどうにかする。
+
+start_baton(), end_baton()を実装する。(forkバージョン)
+
+

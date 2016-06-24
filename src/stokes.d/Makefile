@@ -11,7 +11,7 @@ OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
 
 CPPFLAGS = -Wall -fpermissive -I.
-LDFLAGS = lib/*.a
+LDFLAGS = lib/*.a -lOpenCL
 
 .PHONY: all clean
 

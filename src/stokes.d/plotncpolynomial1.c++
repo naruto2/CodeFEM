@@ -49,10 +49,21 @@ static void plotncpolynomial1_internal(FILE *fp, vector<xyc> Mid, vector<double>
   fflush(fp);
 }
 
+static const char *filename;
+void setanimefilename(const char *fname)
+{
+  filename=fname;
+}
 
 void plotncpolynomial1(vector<xyc> Mid, vector<double> x)
 {
   static FILE *pp = NULL;
+
+  if ( filename != NULL && pp == NULL ) {
+    char command[512];
+    snprintf(command,500,"gzip>%s.gnuplot.gz",filename);
+    pp = popen(command,"w");
+  }
 
   if ( pp == NULL ) pp = popen("gnuplot","w");
 
@@ -63,6 +74,7 @@ void plotncpolynomial1(vector<xyc> Mid, vector<double> x)
   fprintf(pp,"plot '-' title \"\" with lines\n");
   plotncpolynomial1_internal(pp, Mid, u, v);
   fprintf(pp,"e\n\n");
+  fprintf(pp,"pause 1\n\n");
   fflush(pp);
 }
 
