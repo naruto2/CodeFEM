@@ -1,24 +1,35 @@
+#include <iostream>
 #include "est/xmesh.hpp"
 #include "est/op.hpp"
 
+using namespace std;
 
 int main(int argc, char **argv)
 { 
   initop(argc,argv);
   vector<xyc> Z;
   vector<nde> N;
-  ifstream ifs(argv[1]);
-
-  if (!ifs) {
-    cerr << "Error: 入力ストリームを開けませんでした(xmesh)" << endl;
-    return 0;
+  ifstream ifs;
+  
+  if ( defop("-f") ) {
+    if (getop("-f") == "-" ) {
+      in2xyc(cin,Z);
+    }
+    else {
+      ifs.open(getop("-f"));
+      if (!ifs) {
+	cerr << "Error: 入力ストリームを開けませんでした(xmesh)" << endl;
+	return 0;
+      }
+      in2xyc(ifs,Z); 
+      ifs.close();
+    }
+  } else {
+    in2xyc(cin,Z);
   }
 
-  in2xyc(ifs,Z); 
-  ifs.close();
-
   delaunay(Z, N);
-
+ 
   if ( defop("-o") ) {
     if ( getop("-o") == "-" ) {
       outmesh(cout,Z,N);
