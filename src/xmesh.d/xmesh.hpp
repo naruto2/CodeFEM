@@ -14,6 +14,6 @@ extern void in2xyc( istream &, vector<xyc>& );
 extern void delaunay( vector<xyc>&, vector<nde>& );
 extern void outmesh( ostream &, vector<xyc>&, vector<nde>& );
 extern void plotmesh( vector<xyc>&, vector<nde>& );
-
+extern void sortmesh( vector<xyc>&, vector<nde>& );
 
 #endif

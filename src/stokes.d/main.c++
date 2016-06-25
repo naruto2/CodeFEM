@@ -257,6 +257,9 @@ int main(int argc, char ** argv)
   ifs.close();
 
   delaunay(Z, N);
+  sortmesh(Z,N);
+  //outmesh(cout,Z,N);
+  //exit(0);
   printf("N.size()-1 = %ld\n",N.size()-1);
   
   vector<xyc> Mid = ncpolynomial1(Z,N);

@@ -11,7 +11,8 @@ SRCS =	rotate_right.c++ \
 	generate_fN.c++ \
 	outmesh.c++ \
 	plotmesh.c++ \
-	in2xyc.c++ 
+	in2xyc.c++ \
+	sortmesh.c++
 
 
 OBJS = $(SRCS:.c++=.o)

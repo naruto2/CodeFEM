@@ -32,3 +32,6 @@ clean :
 
 test : $(PROG)
 	./a.out 10x10.xyc
+
+world: ;
+	(cd ../../bin; ./mklink)
