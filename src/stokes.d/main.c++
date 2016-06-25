@@ -300,7 +300,7 @@ int main(int argc, char ** argv)
     x = solve(A,b);
     for(i=1;i<=m;i++){ Ux[i] = x[i]; Uy[i] = x[i+m];}
     printf("k = %ld\n",k);
-    setanimefilename("bar");
+    if (defop("-o"))setanimefilename(getop("-o").c_str());
     plotncpolynomial1(Mid, x);
 
   }

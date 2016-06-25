@@ -80,9 +80,13 @@ vector<double> gpubicgstab(matrix& A, vector<double>& b)
 
   copy(Acpu, Agpu);
   copy(b.begin(), b.end(), bgpu.begin());
+  //ILU          vcl_ilut(Agpu, ilut_tag(256,1e-14));
+  bicgstab_tag custom_bicgstab(1e-6,1000000);
 
-  bicgstab_tag custom_bicgstab(1e-7,1000000);
-
+  //viennacl::linalg::ilu0_tag ilu0_config;
+  //viennacl::linalg::ilu0_precond< SparseMatrix > vcl_ilut(Agpu, ilu0_config);
+  
+  printf("gpubicgstab\n");
   xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_bicgstab);
 
   copy(xgpu.begin(), xgpu.end(), x.begin());
