@@ -18,7 +18,7 @@ SRCS =	rotate_right.c++ \
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
 
-CPPFLAGS = -Wall
+CPPFLAGS = -Wall -g
 LDFLAGS = lib/*.a
 
 .PHONY: all clean
