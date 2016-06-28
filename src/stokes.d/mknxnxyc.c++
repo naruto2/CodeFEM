@@ -52,12 +52,10 @@ void squaremesh(int n, vector<xyc> &Z)
 int main(){
   vector<xyc> Z;
   vector<nde> N;
-  squaremesh(32,Z);
-  for (unsigned long i=0; i<Z.size(); i++) printf("%ld %f %f %s\n",i,Z[i].x,Z[i].y, Z[i].label);
-  int s = Z.size();
-  Z.resize(s+3);
+  squaremesh(4,Z);
   delaunay(Z,N);
   sortmesh(Z,N);
+  outmesh(cout,Z,N);
   plotmesh(Z,N);
   return 0;
 }

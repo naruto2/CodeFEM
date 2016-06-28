@@ -44,7 +44,7 @@ void in2xyc(istream &is,vector<xyc>&Z)
       s.push(x_y_l);
     }
 
-  Z.resize(s.size()+4);
+  Z.resize(s.size()+1);
   
   while(s.size()!=0) {
     Z[s.size()] = s.top();

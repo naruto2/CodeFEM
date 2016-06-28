@@ -256,10 +256,14 @@ int main(int argc, char ** argv)
   in2xyc(ifs,Z);
   ifs.close();
 
+  for ( unsigned long i=0; i<Z.size(); i++) {
+    printf("%ld %f %f %s\n",i,Z[i].x,Z[i].y,Z[i].label);
+  }
+  //Z.resize(Z.size()-3);
   delaunay(Z, N);
   sortmesh(Z,N);
-  //outmesh(cout,Z,N);
-  //exit(0);
+  plotmesh(Z,N);
+  exit(0);
   printf("N.size()-1 = %ld\n",N.size()-1);
   
   vector<xyc> Mid = ncpolynomial1(Z,N);

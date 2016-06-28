@@ -14,6 +14,7 @@ void delaunay(vector<xyc>&Zo, vector<nde>&No)
   vector<xyc> Z;
   vector<nde> N, N0;
   vector<int> fN, fNinv, fZ,fZinv;
+  Zo.resize(Zo.size()+3);
   
   z = Zo.size()-1;
   Z.resize(z+1);
