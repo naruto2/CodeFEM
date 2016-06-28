@@ -49,6 +49,7 @@ void squaremesh(int n, vector<xyc> &Z)
 }
 
 
+#if 0
 int main(){
   vector<xyc> Z;
   vector<nde> N;
@@ -59,3 +60,4 @@ int main(){
   plotmesh(Z,N);
   return 0;
 }
+#endif

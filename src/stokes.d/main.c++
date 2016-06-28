@@ -17,6 +17,7 @@ extern void printmatrix(matrix &A, const char *name);
 extern void printvector(vector<double> &b, const char *name);
 extern void plotncpolynomial1(vector<xyc> Mid, vector<double> x);
 extern void setanimefilename(const char *fname);
+extern void squaremesh(int n, vector<xyc> &Z);
 
 #define length(a,b) \
   ((Z[b].x-Z[a].x)*(Z[b].x-Z[a].x)+(Z[b].y-Z[a].y)*(Z[b].y-Z[a].y))
@@ -25,7 +26,7 @@ extern void setanimefilename(const char *fname);
   ((Z[c].x-Z[a].x)*(Z[b].x-Z[c].x)+(Z[c].y-Z[a].y)*(Z[b].y-Z[c].y))
 
 
-static vector<double> S_(vector<xyc> Z, vector<nde> N)
+static vector<double> S_(vector<xyc> &Z, vector<nde> &N)
 {
 
   long i, e;
@@ -49,7 +50,7 @@ static vector<double> S_(vector<xyc> Z, vector<nde> N)
 }
 
 
-static matrix M__(vector<xyc> Mid, vector<nde> N, vector<double> S)
+static matrix M__(vector<xyc> &Mid, vector<nde> &N, vector<double> &S)
 {
   matrix M;
   long  e, a, b, c, A, B, C, m, n;
@@ -69,7 +70,7 @@ static matrix M__(vector<xyc> Mid, vector<nde> N, vector<double> S)
   return M;
 }
 
-static matrix K__(vector<xyc> Mid, vector<xyc> Z, vector<nde> N, vector<double> S)
+static matrix K__(vector<xyc> &Mid, vector<xyc> &Z, vector<nde> &N, vector<double> &S)
 {
   matrix K;
   long e, a, b, c, A, B, C, m, n;
@@ -92,7 +93,7 @@ static matrix K__(vector<xyc> Mid, vector<xyc> Z, vector<nde> N, vector<double> 
   return K;
 }
 
-static matrix Hx__(vector<xyc> Mid, vector<xyc> Z, vector<nde> N)
+static matrix Hx__(vector<xyc> &Mid, vector<xyc> &Z, vector<nde> &N)
 {
   matrix Hx;
   long e, a, b, c, A, B, C, m, n;
@@ -113,7 +114,7 @@ static matrix Hx__(vector<xyc> Mid, vector<xyc> Z, vector<nde> N)
 }
 
 
-static matrix Hy__(vector<xyc> Mid, vector<xyc> Z, vector<nde> N)
+static matrix Hy__(vector<xyc> &Mid, vector<xyc> &Z, vector<nde> &N)
 {
   matrix Hy;
   long e, a, b, c, A, B, C, m, n;
@@ -172,11 +173,10 @@ void Rhs(vector<double> &b, vector<xyc> &Mid, vector<nde> &N,matrix &M,double t,
       b[  i] += M[i][j]*x[  j];
       b[m+i] += M[i][j]*x[m+j];
     }
-
 }
 
 #define forgammap1(i,NAME,Z)                                            \
-  for ( estiva_forgammap1(&(i));      estiva_forgammap1_loop(&(i),NAME,Z);)
+  for ( estiva_forgammap1(&(i)); estiva_forgammap1_loop(&(i),NAME,Z);)
 
 
 static void zerofillrow(matrix &A, unsigned long i)
@@ -195,24 +195,16 @@ static void boundary_condition(vector<nde> &N, vector<xyc> &Mid, matrix &A, vect
   n = N.size()-1;
   NUM = 2*m+n;
 
-  printf ("\n---------- e0 ------------\n");
   forgammap1(i,"e0",Mid){
     zerofillrow(A,i+m);
     A[i+m][i+m] = 1.0;
     b[i+m] = 0.0;
-    printf("%ld ",i);
   }
-
-  printf ("\n---------- e1 ------------\n");
   forgammap1(i,"e1",Mid){
     zerofillrow(A,i);
     A[i][i] = 1.0;
     b[i] = 0.0;
-    printf("%ld ",i);
   }
-
-  printf ("\n---------- e2 ------------\n");
-
   forgammap1(i,"e2",Mid){
     zerofillrow(A,i);
     A[i][i] = 1.0;
@@ -220,20 +212,12 @@ static void boundary_condition(vector<nde> &N, vector<xyc> &Mid, matrix &A, vect
     zerofillrow(A,i+m);
     A[i+m][i+m] = 1.0;
     b[i+m]     = 0.0;
-    printf("%ld ",i);
   }
-
-  printf ("\n---------- e3 ------------\n");
-
   forgammap1(i,"e3",Mid){
     zerofillrow(A,i);
     A[i][i] = 1.0;
     b[i] = 0.0;
-    printf("%ld ",i);
   }
-
-  printf ("\n--------------------------\n");
-
   zerofillrow(A,NUM-1);
   A[NUM-1][NUM-1] = 1.0;
   b[NUM-1] = 0.0001;
@@ -246,46 +230,18 @@ int main(int argc, char ** argv)
   initop(argc,argv);
   vector<xyc> Z;
   vector<nde> N;
-  ifstream ifs(argv[1]);
-
-  if (!ifs) {
-    cerr << "Error: 入力ストリームを開けませんでした" << endl;
-    return 0;
+  {
+    unsigned long n = 4;
+    if ( defop("-n") ) n = atoi(getop("-n").c_str());
+    squaremesh(n,Z);  
   }
-
-  in2xyc(ifs,Z);
-  ifs.close();
-
-  for ( unsigned long i=0; i<Z.size(); i++) {
-    printf("%ld %f %f %s\n",i,Z[i].x,Z[i].y,Z[i].label);
-  }
-  //Z.resize(Z.size()-3);
   delaunay(Z, N);
   sortmesh(Z,N);
-  plotmesh(Z,N);
-  exit(0);
-  printf("N.size()-1 = %ld\n",N.size()-1);
   
-  vector<xyc> Mid = ncpolynomial1(Z,N);
-
-  for ( unsigned long i=1; i< Mid.size(); i++ ) {
-    printf("%d %f %f %s\n",i, Mid[i].x, Mid[i].y, Mid[i].label );
-  }
-  printf("-------------------------------------\n");
-
-  for ( unsigned long e=1; e<N.size(); e++ ) {
-    printf("%d %d %d %d %d %d %d\n",e,N[e].a,N[e].b,N[e].c,N[e].A,N[e].B,N[e].C);
-  }    
-  printf("-------------- N -----------------------\n");
-  
-  vector<double> S = S_(Z,N);
-  
-  for ( unsigned long e=1; e<N.size(); e++ ) {
-    printf("%ld %f\n",e,S[e]);
-  }
-
-  unsigned long m = Mid.size()-1;
-  unsigned long n = S.size()-1;
+  vector<xyc>   Mid = ncpolynomial1(Z,N);
+  vector<double>  S = S_(Z,N);
+  unsigned long   m = Mid.size()-1;
+  unsigned long   n = S.size()-1;
   unsigned long NUM = 2*m+n;
 
   matrix M = M__(Mid, N, S);
@@ -294,9 +250,8 @@ int main(int argc, char ** argv)
   matrix Hy= Hy__(Mid, Z, N);
   double t = 0.001;
   if ( defop("-t") ) t = atof(getop("-t").c_str());
-  matrix A;
   vector<double> Fx(m+1), Fy(m+1), Ux(m+1), Uy(m+1), x(NUM+1), b(NUM+1);
-  
+  matrix A;  
   unsigned long i, k;
   for ( k = 1; k<=60; k++ ) {
     A__(A, Mid, N, M,t,K,Hx,Hy);
@@ -307,9 +262,8 @@ int main(int argc, char ** argv)
     x = solve(A,b);
     for(i=1;i<=m;i++){ Ux[i] = x[i]; Uy[i] = x[i+m];}
     printf("k = %ld\n",k);
-    if (defop("-o"))setanimefilename(getop("-o").c_str());
+    if (defop("-o")) setanimefilename(getop("-o").c_str());
     plotncpolynomial1(Mid, x);
-
   }
   return 0;
 }

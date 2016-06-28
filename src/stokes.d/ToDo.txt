@@ -1,8 +1,1 @@
-mknxnxyc.c++ を関数化する。
-
-stokes.d main.c++ のprintf()嵐をどうにかする。
-
 start_baton(), end_baton()を実装する。(forkバージョン)
-
-クリティカルなバグを発見。 mxnxnxyc.c++ の関数化に伴い、in2xyc(), delaunay()に, Zのサイズを適当に
-合わせなければならない内部密約が存在する。

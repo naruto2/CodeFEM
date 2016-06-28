@@ -5,7 +5,8 @@ SRCS =	Rf.c++ \
 	ncpolynomial1.c++ \
 	forgammap1.c++ \
 	printmatrix.c++ \
-	plotncpolynomial1.c++
+	plotncpolynomial1.c++ \
+	squaremesh.c++
 
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
