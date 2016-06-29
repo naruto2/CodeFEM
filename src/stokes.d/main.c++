@@ -181,11 +181,7 @@ void Rhs(vector<double> &b, vector<xyc> &Mid, vector<nde> &N,matrix &M,double t,
 
 static void zerofillrow(matrix &A, unsigned long i)
 {
-  unsigned long j;
-
-  for ( j = 0; j < A.size(); j++ ) {
-    A[i][j] = 0.0;
-  }
+  A[i].clear();
 }
 
 static void boundary_condition(vector<nde> &N, vector<xyc> &Mid, matrix &A, vector<double> &b)
