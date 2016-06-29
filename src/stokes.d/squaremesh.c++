@@ -26,7 +26,7 @@ void squaremesh(int n, vector<xyc> &Z)
   
   xyc z;
 
-  z.x=0.0,     z.y=0.0,      z.label=(char*)nullptr; Z.push_back(z);
+  z.x=0.0,     z.y=0.0,      z.label=(char*)NULL; Z.push_back(z);
   for ( x = 0.0; x < 1.0+h/2.0; x += h )
     for ( y = 0.0; y < 1.0+h/2.0; y += h ) {
       if ( eq(x , 0.0) && eq(y , 0.0) ) { z.x=x, z.y=y, z.label=(char*)"v0"; Z.push_back(z); continue; }
@@ -39,11 +39,11 @@ void squaremesh(int n, vector<xyc> &Z)
       if ( eq(y , 1.0) ) { z.x=x, z.y=y, z.label=(char*)"e2"; Z.push_back(z); continue; }
       if ( eq(x , 0.0) ) { z.x=x, z.y=y, z.label=(char*)"e3"; Z.push_back(z); continue; }
 
-      z.x=x, z.y=y, z.label=(char*)nullptr; Z.push_back(z);
+      z.x=x, z.y=y, z.label=(char*)NULL; Z.push_back(z);
    }
 
-  z.x=h/2.0,     z.y=h/2.0,      z.label=(char*)nullptr; Z.push_back(z);
-  z.x=1.0-h/2.0, z.y= 1.0-h/2.0, z.label=(char*)nullptr; Z.push_back(z);
+  z.x=h/2.0,     z.y=h/2.0,      z.label=(char*)NULL; Z.push_back(z);
+  z.x=1.0-h/2.0, z.y= 1.0-h/2.0, z.label=(char*)NULL; Z.push_back(z);
 
 
 }
