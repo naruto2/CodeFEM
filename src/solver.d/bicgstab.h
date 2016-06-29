@@ -19,8 +19,6 @@
 //  
 //*****************************************************************
 
-extern void baton(void);
-
 template < class Matrix, class Vector, class Preconditioner, class Real >
 int 
 BiCGSTAB(const Matrix &A, Vector &x, const Vector &b,
@@ -44,8 +42,6 @@ BiCGSTAB(const Matrix &A, Vector &x, const Vector &b,
   }
 
   for (int i = 1; i <= max_iter; i++) {
-    //printf("i = %d\n",i);
-    baton();
     rho_1[0] = dot(rtilde, r);
     if (rho_1[0] == 0) {
       tol = norm(r) / normb;

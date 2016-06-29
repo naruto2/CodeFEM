@@ -6,7 +6,8 @@ SRCS =	Rf.c++ \
 	forgammap1.c++ \
 	printmatrix.c++ \
 	plotncpolynomial1.c++ \
-	squaremesh.c++
+	squaremesh.c++ \
+	batonth.c++
 
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
@@ -19,7 +20,7 @@ LDFLAGS = lib/*.a -lOpenCL
 all: $(PROG)
 
 $(PROG) : $(OBJS) main.c++
-	c++ main.c++ -std=c++11 $(OBJS) -o $@ $(LDFLAGS) 
+	c++ main.c++ -std=c++11 $(OBJS) -o $@ $(LDFLAGS) -pthread
 
 .c++.o:
 	c++ $(CPPFLAGS) -c $< 

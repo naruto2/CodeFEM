@@ -18,6 +18,9 @@ extern void printvector(vector<double> &b, const char *name);
 extern void plotncpolynomial1(vector<xyc> Mid, vector<double> x);
 extern void setanimefilename(const char *fname);
 extern void squaremesh(int n, vector<xyc> &Z);
+extern void start_baton(void);
+extern int end_baton(void);
+#define batonth() for(start_baton();end_baton();)
 
 #define length(a,b) \
   ((Z[b].x-Z[a].x)*(Z[b].x-Z[a].x)+(Z[b].y-Z[a].y)*(Z[b].y-Z[a].y))
@@ -254,10 +257,11 @@ int main(int argc, char ** argv)
     Rhs(b, Mid, N, M, t, Fx, Fy, Ux, Uy, x);
     boundary_condition(N,Mid,A,b);
     A[0][0] = 1.0;
-    fprintf(stderr," ");
-    x = solve(A,b);
+
+    printf("\nk = %ld  ",k);
+    batonth() { x = solve(A,b);}
     for(i=1;i<=m;i++){ Ux[i] = x[i]; Uy[i] = x[i+m];}
-    printf("k = %ld\n",k);
+
     if (defop("-o")) setanimefilename(getop("-o").c_str());
     plotncpolynomial1(Mid, x);
   }

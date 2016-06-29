@@ -86,7 +86,6 @@ vector<double> gpubicgstab(matrix& A, vector<double>& b)
   //viennacl::linalg::ilu0_tag ilu0_config;
   //viennacl::linalg::ilu0_precond< SparseMatrix > vcl_ilut(Agpu, ilu0_config);
   
-  printf("gpubicgstab\n");
   xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_bicgstab);
 
   copy(xgpu.begin(), xgpu.end(), x.begin());
