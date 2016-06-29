@@ -31,10 +31,11 @@ static void makeMid(vector<nde> &N)
 static char *bound(char *s1, char *s2)
 {
   char *s3;
-
+  static char *blank=(char*)"";
   
-  if(s1 == NULL) s1=strdup("");
-  if(s2 == NULL) s2=strdup("");
+  
+  if(s1 == NULL) s1=(char*)blank;
+  if(s2 == NULL) s2=(char*)blank;
   s3 = strcmp(s1,s2)<0?s1:s2;
   if ( !strcmp(s3,"") ) {
     if ( !strcmp(s2,"") ) return s1;

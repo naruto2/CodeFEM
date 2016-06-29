@@ -11,7 +11,7 @@ SRCS =	Rf.c++ \
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
 
-CPPFLAGS = -Wall -fpermissive -I. 
+CPPFLAGS = -std=gnu++11 -Wall -fpermissive -I. 
 LDFLAGS = lib/*.a -lOpenCL
 
 .PHONY: all clean
