@@ -252,6 +252,7 @@ int main(int argc, char ** argv)
   vector<double> Fx(m+1), Fy(m+1), Ux(m+1), Uy(m+1), x(NUM+1), b(NUM+1);
   matrix A;  
   unsigned long i, k;
+  setbuf(stdout,NULL);
   for ( k = 1; k<=60; k++ ) {
     A__(A, Mid, N, M,t,K,Hx,Hy);
     Rhs(b, Mid, N, M, t, Fx, Fy, Ux, Uy, x);

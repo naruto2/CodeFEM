@@ -13,35 +13,41 @@ extern int end_baton(void);
 
 using namespace std;
 
-void baton2(long i)
+static int exit_flag=0;
+static int flag = -1;
+
+void baton2(void)
 {
   static char* s[4];
-  if ( i == 0 ) {
-    setbuf(stdout,NULL);
-    s[0] = (char*)"|";
-    s[1] = (char*)"/";
-    s[2] = (char*)"-";
-    s[3] = (char*)"\\";
+  setbuf(stdout,NULL);
+  s[0] = (char*)"|";
+  s[1] = (char*)"/";
+  s[2] = (char*)"-";
+  s[3] = (char*)"\\";
+
+
+  for ( int i=0; ; i++, i %= 4){
+    printf("\b%s",s[ i ]);
+    usleep(80000);
+    if ( exit_flag==0 ) continue;
+    break;
   }
-  i %= 4;
-  printf("\b%s",s[ i ]);
-  usleep(8000000);
 }
 
-static thread t;
-static int flag = 1;
+
 void start_baton(void)
 {
-  flag = 1;
-  thread t1([]() { for(int i=0; i<=10000000; i++) {baton2(i);}});
+  exit_flag=0;
+  flag = -1;
+  thread t1([]() {baton2();});
   t1.detach();
-  t = move(t1);
 }
 
 int end_baton(void)
 {
-  t.~thread();
-  return flag--;
+  if (flag==0){ exit_flag=1; return 0;}
+  flag =  0;
+  return 1;
 }
 
 #if 0

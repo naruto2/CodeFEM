@@ -1,1 +1,2 @@
-start_baton(), end_baton()を実装する。(forkバージョン)
+batonth() に list, push, pop, cont　機能をつける
+
