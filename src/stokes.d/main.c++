@@ -1,8 +1,12 @@
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <future>
+#include <thread>
+#include <unistd.h>
 #include "est/op.hpp"
 #include "est/xmesh.hpp"
 #include "est/matrix.hpp"
@@ -223,6 +227,36 @@ static void boundary_condition(vector<nde> &N, vector<xyc> &Mid, matrix &A, vect
 }
 
 
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+int kbhit(void)
+{
+  struct termios oldt, newt;
+  int ch;
+  int oldf;
+
+  tcgetattr(STDIN_FILENO, &oldt);
+  newt = oldt;
+  newt.c_lflag &= ~(ICANON | ECHO);
+  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+
+  ch = getchar();
+
+  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+  fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+  if (ch != EOF) {
+    ungetc(ch, stdin);
+    return 1;
+  }
+
+  return 0;
+}
+
 
 int main(int argc, char ** argv)
 {
@@ -260,7 +294,16 @@ int main(int argc, char ** argv)
     A[0][0] = 1.0;
 
     printf("\nk = %ld  ",k);
-    batonth() { x = solve(A,b);}
+    /* batonth() */{
+      auto f = async(launch::async, [&A,&b] { return solve(A,b); });
+      
+      while (1) {
+	if(kbhit()) {printf("hello"); system("/bin/bash");getchar(); break;}
+	auto result = f.wait_for(chrono::seconds(1));
+	if ( result != future_status::timeout) break;
+      }
+      x = f.get();
+    }
     for(i=1;i<=m;i++){ Ux[i] = x[i]; Uy[i] = x[i+m];}
 
     if (defop("-o")) setanimefilename(getop("-o").c_str());
