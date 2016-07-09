@@ -257,6 +257,8 @@ int kbhit(void)
   return 0;
 }
 
+void mkcont(int argc, char**argv);
+void contop(int &argc0, char** &argv0);
 
 int main(int argc, char ** argv)
 {
@@ -295,10 +297,11 @@ int main(int argc, char ** argv)
 
     printf("\nk = %ld  ",k);
     /* batonth() */{
+    LOOP:
       auto f = async(launch::async, [&A,&b] { return solve(A,b); });
       
       while (1) {
-	if(kbhit()) {printf("hello"); system("/bin/bash");getchar(); break;}
+	if(kbhit()) {mkcont(argc,argv);system("/bin/bash");getchar();contop(argc,argv);goto LOOP;}
 	auto result = f.wait_for(chrono::seconds(1));
 	if ( result != future_status::timeout) break;
       }

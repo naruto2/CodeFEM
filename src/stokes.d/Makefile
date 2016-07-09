@@ -7,7 +7,9 @@ SRCS =	Rf.c++ \
 	printmatrix.c++ \
 	plotncpolynomial1.c++ \
 	squaremesh.c++ \
-	batonth.c++
+	batonth.c++ \
+	cont.c++
+
 
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
