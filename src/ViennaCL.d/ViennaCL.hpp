@@ -3,6 +3,7 @@
 #ifndef _EST_VIENNACL_HPP_
 #define _EST_VIENNACL_HPP_
 
+#define VIENNACL_WITH_OPENCL
 #include <iostream>
 #include <viennacl/scalar.hpp>
 #include <viennacl/vector.hpp>

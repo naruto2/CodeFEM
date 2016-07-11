@@ -152,13 +152,27 @@ static void A__(matrix &A, vector<xyc> &Mid, vector<nde> &N, matrix &M, double t
   NUM = m*2+n;
   A.resize(NUM+1);
 
+#if 0
   for ( i = 1; i <= m; i++ ) for ( j = 1; j <= m; j++ ) {
       A[  i][  j] = M[i][j] + tau*K[i][j];
       A[m+i][m+j] = M[i][j] + tau*K[i][j];
     }
-  for ( i = 1; i <= m; i++ ) for ( j = 1; j <= n; j++ ) {
+#endif
+  for ( i = 1; i <= m; i++ ) for ( auto it : M[i] ) { int j = it.first;
+      A[  i][  j] = M[i][j];
+      A[m+i][m+j] = M[i][j];
+    }
+  for ( i = 1; i <= m; i++ ) for ( auto it : K[i] ) { int j = it.first;
+      A[  i][  j] += tau*K[i][j];
+      A[m+i][m+j] += tau*K[i][j];
+    }
+  for ( i = 1; i <= m; i++ ) for ( auto it : Hx[i] ) { int j = it.first;
       A[    i][2*m+j] = -tau*Hx[i][j];
       A[2*m+j][    i] = -tau*Hx[i][j];
+      //A[  m+i][2*m+j] = -tau*Hy[i][j];
+      //A[2*m+j][  m+i] = -tau*Hy[i][j];
+    }
+  for ( i = 1; i <= m; i++ ) for ( auto it : Hy[i] ) { int j = it.first;
       A[  m+i][2*m+j] = -tau*Hy[i][j];
       A[2*m+j][  m+i] = -tau*Hy[i][j];
     }
