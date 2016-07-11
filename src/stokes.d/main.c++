@@ -150,14 +150,9 @@ static void A__(matrix &A, vector<xyc> &Mid, vector<nde> &N, matrix &M, double t
   m   = Mid.size()-1;
   n   = N.size()-1;
   NUM = m*2+n;
+  A.clear();
   A.resize(NUM+1);
 
-#if 0
-  for ( i = 1; i <= m; i++ ) for ( j = 1; j <= m; j++ ) {
-      A[  i][  j] = M[i][j] + tau*K[i][j];
-      A[m+i][m+j] = M[i][j] + tau*K[i][j];
-    }
-#endif
   for ( i = 1; i <= m; i++ ) for ( auto it : M[i] ) { int j = it.first;
       A[  i][  j] = M[i][j];
       A[m+i][m+j] = M[i][j];
@@ -169,8 +164,6 @@ static void A__(matrix &A, vector<xyc> &Mid, vector<nde> &N, matrix &M, double t
   for ( i = 1; i <= m; i++ ) for ( auto it : Hx[i] ) { int j = it.first;
       A[    i][2*m+j] = -tau*Hx[i][j];
       A[2*m+j][    i] = -tau*Hx[i][j];
-      //A[  m+i][2*m+j] = -tau*Hy[i][j];
-      //A[2*m+j][  m+i] = -tau*Hy[i][j];
     }
   for ( i = 1; i <= m; i++ ) for ( auto it : Hy[i] ) { int j = it.first;
       A[  m+i][2*m+j] = -tau*Hy[i][j];
@@ -190,7 +183,7 @@ void Rhs(vector<double> &b, vector<xyc> &Mid, vector<nde> &N,matrix &M,double t,
 
   for( i = 1; i <= NUM; i++ ) b[i] = 0.0;
 
-  for( i = 1; i <= m; i++ ) for ( j = 1; j <= m; j++ ) {
+  for( i = 1; i <= m; i++ )  for ( auto it : M[i] ) { int j = it.first;
       b[  i] += M[i][j]*x[  j];
       b[m+i] += M[i][j]*x[m+j];
     }

@@ -72,6 +72,10 @@ vector<double> gpubicgstab(matrix& A, vector<double>& b)
   gpumatrix Agpu(n,0); gpuvector bgpu(n), xgpu(n);
   cpumatrix Acpu(n);
 
+  Acpu.clear();
+  Acpu.resize(n);
+
+  
   for (unsigned int i=0; i<A.size(); i++) {
     for ( auto it : A[i] ){
       int j = it.first;
