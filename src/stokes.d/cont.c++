@@ -14,7 +14,7 @@ void contop(int &argc0, char** &argv0){
   stringstream ss(in_str);
   char delim = ' ';
   string str;
-  vector<string> v;
+  static vector<string> v;
   while(getline(ss, str, delim)){
     v.push_back(str);
   };
