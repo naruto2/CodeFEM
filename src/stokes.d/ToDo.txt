@@ -1,2 +1,12 @@
-batonth() に list, push, pop, cont　機能をつける
+kbhit()	まわりを整理する。
+
+.cont が残る問題をなんとかする。
+
+./a.out -n 10 動かない謎を解く。
+
+gpusolver()まわりを整理する。
+
+マトリックス生成部分をmain()から追い出す。
+
+
 
