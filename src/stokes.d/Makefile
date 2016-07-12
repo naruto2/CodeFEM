@@ -14,7 +14,7 @@ SRCS =	Rf.c++ \
 OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
 
-CPPFLAGS = -std=gnu++11 -Wall -fpermissive -I. 
+CPPFLAGS = -std=gnu++11
 LDFLAGS = lib/*.a -lOpenCL
 
 .PHONY: all clean
@@ -22,7 +22,7 @@ LDFLAGS = lib/*.a -lOpenCL
 all: $(PROG)
 
 $(PROG) : $(OBJS) main.c++
-	c++ main.c++ -std=c++11 $(OBJS) -o $@ $(LDFLAGS) -pthread
+	c++ main.c++ -std=gnu++11 $(OBJS) -o $@ $(LDFLAGS) -pthread
 
 .c++.o:
 	c++ $(CPPFLAGS) -c $< 

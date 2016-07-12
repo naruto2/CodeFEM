@@ -231,6 +231,8 @@ static void boundary_condition(vector<nde> &N, vector<xyc> &Mid, matrix &A, vect
   zerofillrow(A,NUM-1);
   A[NUM-1][NUM-1] = 1.0;
   b[NUM-1] = 0.0001;
+
+  A[0][0] = 1.0;
 }
 
 
@@ -300,15 +302,14 @@ int main(int argc, char ** argv)
     A__(A, Mid, N, M,t,K,Hx,Hy);
     Rhs(b, Mid, N, M, t, Fx, Fy, Ux, Uy, x);
     boundary_condition(N,Mid,A,b);
-    A[0][0] = 1.0;
 
     printf("\nk = %ld  ",k);
     /* batonth() */{
-    LOOP:
+
       auto f = async(launch::async, [&A,&b] { return solve(A,b); });
       
       while (1) {
-	if(kbhit()) {mkcont(argc,argv);system("/bin/bash");getchar();contop(argc,argv);goto LOOP;}
+	if(kbhit() && getchar()==27){ printf("\b\bcontsh");mkcont(argc,argv);system("bash");contop(argc,argv);system("rm .cont");}
 	auto result = f.wait_for(chrono::seconds(1));
 	if ( result != future_status::timeout) break;
       }
