@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#include "estiva/foreach.h"
-#include "estiva/ary.h"
 #include "estiva/std.h"
 
 #define n static_bind(int,x)

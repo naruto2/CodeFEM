@@ -1,9 +1,5 @@
 PROG =  a.out
-SRCS =	Rf.c++ \
-	ary.c++ \
-	foreach.c++ \
-	ncpolynomial1.c++ \
-	forgammap1.c++ \
+SRCS =	ncpolynomial1.c++ \
 	printmatrix.c++ \
 	plotncpolynomial1.c++ \
 	squaremesh.c++ \

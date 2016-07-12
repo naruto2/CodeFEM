@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "est/xmesh.hpp"
-#include "estiva/ary.h"
 #include "estiva/std.h"
 
 #define n static_bind(long,x)

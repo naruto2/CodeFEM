@@ -9,5 +9,6 @@
 #include "est/solver.hpp"
 #include "est/psc98.hpp"
 #include "est/esolver.hpp"
+#include "est/foreach.hpp"
 
 #endif
