@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <estiva/ary.h>
+#include "estiva/ary.h"
 
 typedef struct{
   size_t dim0;
