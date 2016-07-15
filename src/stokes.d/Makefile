@@ -4,7 +4,8 @@ SRCS =	ncpolynomial1.c++ \
 	plotncpolynomial1.c++ \
 	squaremesh.c++ \
 	batonth.c++ \
-	cont.c++
+	cont.c++ \
+	stokes.c++
 
 
 OBJS = $(SRCS:.c++=.o)
