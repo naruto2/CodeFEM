@@ -5,7 +5,8 @@ SRCS =	ncpolynomial1.c++ \
 	squaremesh.c++ \
 	batonth.c++ \
 	cont.c++ \
-	stokes.c++
+	stokes.c++ \
+	kbhit.c++
 
 
 OBJS = $(SRCS:.c++=.o)
