@@ -14,29 +14,22 @@
 
 using namespace std;
 
-extern vector<xyc> ncpolynomial1(vector<xyc> Z, vector<nde> &N );
-extern void estiva_forgammap1(long *x);
-extern int estiva_forgammap1_loop(long *x, const char *name, vector<xyc> &Z);
-extern void printmatrix(matrix &A, const char *name);  
-extern void printvector(vector<double> &b, const char *name);
-extern void plotncpolynomial1(vector<xyc> Mid, vector<double> x);
-extern void setanimefilename(const char *fname);
-extern void squaremesh(int n, vector<xyc> &Z);
-extern void start_baton(void);
-extern int end_baton(void);
+vector<xyc> ncpolynomial1(vector<xyc> Z, vector<nde> &N );
+void estiva_forgammap1(long *x);
+int estiva_forgammap1_loop(long *x, const char *name, vector<xyc> &Z);
+void printmatrix(matrix &A, const char *name);  
+void printvector(vector<double> &b, const char *name);
+void plotncpolynomial1(vector<xyc> Mid, vector<double> x);
+void setanimefilename(const char *fname);
+void squaremesh(int n, vector<xyc> &Z);
+
+void start_baton(void);
+int end_baton(void);
 #define batonth() for(start_baton();end_baton();)
-
-#define length(a,b) \
-  ((Z[b].x-Z[a].x)*(Z[b].x-Z[a].x)+(Z[b].y-Z[a].y)*(Z[b].y-Z[a].y))
-
-#define inner(a,b,c) \
-  ((Z[c].x-Z[a].x)*(Z[b].x-Z[c].x)+(Z[c].y-Z[a].y)*(Z[b].y-Z[c].y))
-
-#define forgammap1(i,NAME,Z)                                            \
-  for ( estiva_forgammap1(&(i)); estiva_forgammap1_loop(&(i),NAME,Z);)
 
 void mkcont(int argc, char**argv);
 void contop(int &argc0, char** &argv0);
+int kbhit(void);
 
 vector<double> S_(vector<xyc> &Z, vector<nde> &N);
 matrix M__(vector<xyc> &Mid, vector<nde> &N, vector<double> &S);
@@ -47,7 +40,7 @@ void A__(matrix &A, vector<xyc> &Mid, vector<nde> &N, matrix &M, double tau, mat
 void Rhs(vector<double> &b, vector<xyc> &Mid, vector<nde> &N,matrix &M,double t,vector<double> &Fx,vector<double> &Fy,
 	 vector<double> &Ux, vector<double> &Uy, vector<double> &x);
 void boundary_condition(vector<nde> &N, vector<xyc> &Mid, matrix &A, vector<double> &b);
-int kbhit(void);
+
   
 	 
 
