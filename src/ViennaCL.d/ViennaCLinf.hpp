@@ -3,6 +3,8 @@
 #define VIENNACL_WITH_OPENCL
 
 #include <viennacl/linalg/jacobi_precond.hpp>
+#include <viennacl/linalg/ichol.hpp>
+#include <viennacl/linalg/detail/ilu/chow_patel_ilu.hpp>
 #include "cginf.hpp"
 #include "bicgstabinf.hpp"
 #include "gmresinf.hpp"
@@ -22,6 +24,36 @@ vector<double> gpucg(matrix& A, vector<double>& b)
   viennacl::linalg::cg_tag  custom_cg(1e-5,1000000);
 
   xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_cg, vcl_jacobi);
+
+  gpuvector2vector(xgpu,x);
+
+  return x;
+}
+
+
+vector<double> gpucgilut(matrix& A, vector<double>& b)
+{
+  int n = A.size();
+  vector<double> x(n);
+  viennacl::compressed_matrix<double> Agpu(n,0);
+  viennacl::vector<double>     bgpu(n), xgpu(n);
+
+  matrix2gpumatrix(A,Agpu);
+  vector2gpuvector(b,bgpu);
+  viennacl::linalg::cg_tag  custom_cg(1e-5,1000000);
+  
+  // viennacl::linalg::ichol0_tag ichol0_conf;
+  // typedef viennacl::linalg::ichol0_precond<
+  // viennacl::compressed_matrix<double> >  vcl_ilut_t;
+  // vcl_ilut_t vcl_ilut(Agpu,ichol0_conf);
+  // viennacl::linalg::jacobi_precond< gpumatrix >  vcl_jacobi(Agpu,viennacl::linalg::jacobi_tag());
+
+  viennacl::linalg::chow_patel_tag icc_conf;
+  typedef viennacl::linalg::chow_patel_icc_precond<
+    viennacl::compressed_matrix<double> > vcl_icc_t;
+  vcl_icc_t vcl_icc(Agpu,icc_conf);
+  
+  xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_cg,vcl_icc);
 
   gpuvector2vector(xgpu,x);
 
