@@ -8,7 +8,7 @@ int main(int argc, char **argv){
   matrix A; vector<double> x, b;
   getprob(A,b);
 
-  x = gpubicgstab(A,b);
+  x = gpugmres(A,b);
   
   check(x);
 
