@@ -1,0 +1,24 @@
+IsSymmetric()の高速化
+
+ogita()を導入
+
+ViennaCLのLU分解ルーチン
+
+反復法 Templates より gmres()をポーティング
+
+honsen.c のマージ
+
+MatrixID(n,A,b)の実装
+
+MatrixMarketより使えそうなものをダウンロード
+
+時間の計測
+
+グローバルシンボルリストの生成
+
+Makefileの作成
+
+GitHubへのコミット
+
+前処理付きソルバーのテスト
+

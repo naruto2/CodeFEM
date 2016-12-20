@@ -1,10 +1,10 @@
 //*****************************************************************
-// Iterative template routine -- BiCGSTAB
+// Iterative template routine -- BiCG
 //
-// BiCGSTAB solves the unsymmetric linear system Ax = b 
-// using the Preconditioned BiConjugate Gradient Stabilized method
+// BiCG solves the unsymmetric linear system Ax = b 
+// using the Preconditioned BiConjugate Gradient method
 //
-// BiCGSTAB follows the algorithm described on p. 27 of the 
+// BiCG follows the algorithm described on p. 22 of the 
 // SIAM Templates book.
 //
 // The return value indicates convergence within max_iter (input)
@@ -19,14 +19,15 @@
 //  
 //*****************************************************************
 
+
 template < class Matrix, class Vector, class Preconditioner, class Real >
 int 
-DBiCGSTAB(const Matrix &A, Vector &x, const Vector &b,
-         const Preconditioner &M, int &max_iter, Real &tol)
+BiCG(const Matrix &A, Vector &x, const Vector &b,
+     const Preconditioner &M, int &max_iter, Real &tol)
 {
   Real resid;
-  Vector rho_1(1), rho_2(1), alpha(1), beta(1), omega(1);
-  Vector p, phat, s, shat, t, v;
+  Vector rho_1(1), rho_2(1), alpha(1), beta(1);
+  Vector z, ztilde, p, ptilde, q, qtilde;
 
   Real normb = norm(b);
   Vector r = b - A * x;
@@ -42,63 +43,49 @@ DBiCGSTAB(const Matrix &A, Vector &x, const Vector &b,
   }
 
   for (int i = 1; i <= max_iter; i++) {
-    rho_1[0] = dot(rtilde, r);
-    if (rho_1[0] == 0) {
+
+    z = M.solve(r);
+    ztilde = M.trans_solve(rtilde);
+    rho_1[0] = dot(z, rtilde);
+    if (rho_1[0] == 0) { 
       tol = norm(r) / normb;
+      max_iter = i;
       return 2;
     }
-    if (i == 1)
-      p = r;
-    else {
-      beta[0] = (rho_1[0]/rho_2[0]) * (alpha[0]/omega[0]);
-      p = r + beta[0] * (p - omega[0] * v);
+    if (i == 1) {
+      p = z;
+      ptilde = ztilde;
+    } else {
+      beta[0] = rho_1[0] / rho_2[0];
+      p = z + beta[0] * p;
+      ptilde = ztilde + beta[0] * ptilde;
     }
-    phat = M.solve(p);
-    v = A * phat;
-    alpha[0] = rho_1[0] / dot(rtilde, v);
-    s = r - alpha[0] * v;
-    if ((resid = norm(s)/normb) < tol) {
-      x = x + alpha[0] * phat;
-      tol = resid;
-      return 0;
-    }
-    shat = M.solve(s);
-    t = A * shat;
-    omega[0] = dot(t,s) / dot(t,t);
+    q = A * p;
+    qtilde = A.transpose() * ptilde;
+    alpha[0] = rho_1[0] / dot(ptilde, q);
+    x = x + alpha[0] * p;
+    r = r - alpha[0] * q;
+    rtilde = rtilde - alpha[0] * qtilde;
 
-
-    Vector x1, x2;
-    x1 = alpha[0] * phat;
-    x2 = omega[0] * shat;
-    x = x + x1;
-    x = x + x2;
-    //x = x + alpha[0] * phat + omega[0] * shat;
-
-
-    r = s - omega[0] * t;
     rho_2[0] = rho_1[0];
     if ((resid = norm(r) / normb) < tol) {
       tol = resid;
       max_iter = i;
       return 0;
     }
-    if (omega[0] == 0) {
-      tol = norm(r) / normb;
-      return 3;
-    }
   }
 
   tol = resid;
   return 1;
 }
+  
 
 /****************************************************************************/
-Vector bicgstab(Smatrix &A, Vector &b){
+Vector bicg(Smatrix &A, Vector &b){
   Preconditioner M;
   Vector x = b;
   int max_iter = 1000000;
   double tol = 0.0000001;
-  DBiCGSTAB(A, x, b, M, max_iter, tol);
+  BiCG(A, x, b, M, max_iter, tol);
   return x;
 }
-
