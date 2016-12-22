@@ -1,3 +1,5 @@
+分割コンパイルへの対応
+
 IsSymmetric()の高速化
 
 ogita()を導入
@@ -8,7 +10,9 @@ ViennaCLのLU分解ルーチン
 
 honsen.c のマージ
 
-MatrixID(n,A,b)の実装
+mtx(path,A,b)の実装
+
+printmtx(path,A,b)の実装
 
 MatrixMarketより使えそうなものをダウンロード
 
@@ -21,4 +25,27 @@ Makefileの作成
 GitHubへのコミット
 
 前処理付きソルバーのテスト
+
+サニタリーチェックルーチンの実装
+
+rhsベクトル自動生成機能の実装
+
+sample matrixの mtx化
+
+max iteration の設定
+
+psc98 の mtx化
+
+psc98y0.mtx.gz
+psc98y1.mtx.gz
+psc98y2.mtx.gz
+psc98y3.mtx.gz
+psc98y4.mtx.gz
+psc98y5.mtx.gz
+psc98h0.mtx.gz
+psc98h1.mtx.gz
+psc98h2.mtx.gz
+psc98h3.mtx.gz
+psc98h4.mtx.gz
+psc98h5.mtx.gz
 

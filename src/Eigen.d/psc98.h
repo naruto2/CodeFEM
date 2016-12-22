@@ -1,9 +1,3 @@
-
-extern "C" {
-  void genmat(int,int*,double*,double*);
-  void chkval(FILE*,int,double*);
-}
-
 void psc98(Smatrix &A, Vector &b) {
   Vector AA(10);
   double B;

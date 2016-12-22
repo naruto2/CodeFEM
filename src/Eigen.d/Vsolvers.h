@@ -1,17 +1,3 @@
-#define VIENNACL_WITH_OPENCL
-#include <viennacl/scalar.hpp>
-#include <viennacl/vector.hpp>
-#include <viennacl/matrix.hpp>
-#include <viennacl/compressed_matrix.hpp>
-#include <viennacl/linalg/bicgstab.hpp>
-#include <viennacl/linalg/cg.hpp>
-#include <viennacl/linalg/gmres.hpp>
-typedef viennacl::compressed_matrix<double> gpumatrix;
-typedef viennacl::vector<double> gpuvector;
-typedef std::vector< std::map< unsigned int, double> > cpumatrix;
-using namespace viennacl::linalg;
-
-
 gpuvector btogpu(Vector &b) {
   int n = b.size();
   gpuvector bgpu(n);

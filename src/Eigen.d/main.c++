@@ -1,25 +1,33 @@
-#include <iostream>
-#include <time.h>
-#include <eigen3/Eigen/SparseLU>
-#include <eigen3/Eigen/IterativeLinearSolvers>
+#include "solvers.h"
 
-using namespace std;
-using namespace Eigen;
+void fprintmtx(string file, Smatrix &A) {
+  FILE *fp;
+  if ( file == "stdout" ) fp = stdout;
+  else {
+    fp = fopen(file.c_str(),"w");
+    if( fp == NULL ) return;
+  }
+  fprintf(fp,"%%%%MatrixMarket matrix coordinate real general\n");
 
-#include "EigenTools.h"
-#include "bicgstab.h"
-#include "cg.h"
-#include "ogita.h"
-#include "cgs.h"
-#include "bicg.h"
-#include "qmr.h"
-#include "Vsolvers.h"
-#include "psc98.h"
+  int n = 0;
+  for(int i=0;i<A.outerSize();++i)
+    for(Smatrix::InnerIterator it(A,i);it;++it) n++;
+
+  fprintf(fp,"%d %d %d\n", A.rows(), A.cols(), n);
+
+  for(int i=0;i<A.outerSize();++i)
+    for(Smatrix::InnerIterator it(A,i);it;++it)
+      fprintf(fp,"%d %d %le\n",it.row()+1,it.col()+1,it.value());
+  if ( file == "stdout" ) return;
+  fclose(fp);
+}
 
 
 int main(void){
+#if 1
   Smatrix A; Vector b;
   psc98(A,b);
+
   printf("n = %d\n",b.size());
 
   Count(Vcg);  
@@ -33,8 +41,9 @@ int main(void){
   Count(Elu);
   Count(Ecg);
   Count(Ebicgstab);
-  return 0;
 
+  return 0;
+#endif
 #if 0
   const double s=19, u=21, p=16, e=5, r=18, l=12;
   Tri(0,0, s);
@@ -52,6 +61,9 @@ int main(void){
   Smatrix A   = MapSmatrix(5,5);
   double  B[] = {1,1,1,1,1};
   Vector  b   = MapVector(B, 5);
+
+  printmtx("sample0.mtx",A,b);
+
   Count(ogita);
 #endif
   return 0;
