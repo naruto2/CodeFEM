@@ -41,7 +41,9 @@ Vector Vbicgstab(Smatrix &A, Vector &b) {
 // CG法による求解
 Vector Vcg(Smatrix &A, Vector &b) {
   cg_tag tag(1e-8,1000000);
-  return fromgpu(solve(Atogpu(A), btogpu(b), tag));
+  if ( IsSymmetric(A) )
+    return fromgpu(solve(Atogpu(A), btogpu(b), tag));
+  return b;
 }
 
 

@@ -83,3 +83,4 @@ void checkpsc98(Vector &x);
 #include "Vsolvers.h"
 #include "Dsolvers.h"
 #include "psc98.h"
+#include "MatrixMarket.h"

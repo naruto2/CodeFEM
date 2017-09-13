@@ -274,7 +274,8 @@ Vector cg(Smatrix &A, Vector &b){
   Vector x = b;
   int max_iter = 1000000;
   double tol = 0.0000001;
-  CG(A, x, b, M, max_iter, tol);
+  if ( IsSymmetric(A) )
+    CG(A, x, b, M, max_iter, tol);
   return x;
 }
 

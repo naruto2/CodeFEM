@@ -1,5 +1,5 @@
 a.out: main.c++
-	c++ -Wall --std=c++11 main.c++ -lOpenCL -lm lib/libpsc98.a
+	c++ -Wall --std=c++11 main.c++  -lm lib/libpsc98.a -lOpenCL
 
 run: a.out
 	export PSC98=1; time ./a.out

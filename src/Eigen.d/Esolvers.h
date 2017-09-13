@@ -92,12 +92,20 @@ Vector halfVector(Vector xx) {
 
 // IsSymmetric 行列が対称か否か
 int IsSymmetric(Smatrix &A) {
+
+  for(int i=0;i<A.outerSize();++i)
+    for(Smatrix::InnerIterator it(A,i);it;++it)
+      if ( A.coeffRef(it.col(),it.row()) != it.value() ) return 0;
+  return 1;
+  
+#if 0
   int n = A.cols();
   for(int i=0; i<n; i++)
     for(int j=i+1; j<n; j++)
       if ( A.coeffRef(i,j) != A.coeffRef(j,i) )
 	return 0;
   return 1;
+#endif
 }
 
 
@@ -155,9 +163,12 @@ Vector Ebicgstab(Smatrix &A, Vector &b) {
 
 // Ecg  CG法による連立一次方程式の求解
 Vector Ecg(Smatrix &A, Vector &b) {
-  ConjugateGradient<Smatrix> solver;
-  solver.compute(A);
-  return solver.solve(b);
+  if ( IsSymmetric(A) ) {
+    ConjugateGradient<Smatrix> solver;
+    solver.compute(A);
+    return solver.solve(b);
+  }
+  return b;
 }
 
 
