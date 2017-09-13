@@ -29,7 +29,9 @@ int main(int argc, char **argv)
   }
 
   delaunay(Z, N);
- 
+  sortmesh(Z, N);
+  p2(Z, N);
+  
   if ( defop("-o") ) {
     if ( getop("-o") == "-" ) {
       outmesh(cout,Z,N);
