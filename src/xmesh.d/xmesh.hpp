@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <cstdio>
 
 using namespace std;
 
@@ -16,5 +17,6 @@ extern void outmesh( ostream &, vector<xyc>&, vector<nde>& );
 extern void plotmesh( vector<xyc>&, vector<nde>& );
 extern void sortmesh( vector<xyc>&, vector<nde>& );
 extern void p2( vector<xyc>&, vector<nde>& );
+extern void f2mesh(FILE*, vector<xyc>&, vector<nde>&);
 
 #endif

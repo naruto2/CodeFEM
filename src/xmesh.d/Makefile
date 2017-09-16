@@ -13,7 +13,8 @@ SRCS =	rotate_right.c++ \
 	plotmesh.c++ \
 	in2xyc.c++ \
 	sortmesh.c++ \
-	p2.c++
+	p2.c++ \
+	f2mesh.c++
 
 
 OBJS = $(SRCS:.c++=.o)
@@ -38,6 +39,9 @@ obj: $(OBJS)
 
 clean :
 	rm -f $(OBJS) $(PROG) lib/libxmesh.a kanto.msh pt.msh test
+
+install: $(PROG)
+	mv $(PROG) /usr/bin
 
 test : $(PROG)
 	rm -f kanto.msh pt.msh
