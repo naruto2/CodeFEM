@@ -9,6 +9,10 @@ using namespace std;
 namespace sparse {
   template<typename T>
   class matrix : public vector< map<long, T> > {
+
+  public:
+    matrix(){}
+    matrix(long n) : vector< map<long, T> >(n){};
   };
 
   template<typename T>
