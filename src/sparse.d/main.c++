@@ -6,8 +6,8 @@ int main(){
   matrix<double> A;
 
   A.resize(3);
-  A[1][1] = 10.1;
-  A[2][2] = 20.1;
+  A[1][1] = 1.1;
+  A[2][2] = 2.2;
   printmatrix(A);
   return 0;
 }
