@@ -11,6 +11,7 @@
 #include "est/sparse.hpp"
 #include "est/xmesh.hpp"
 
+extern long dimp2(vector<nde>&N);
 
 using namespace sparse;
 
@@ -20,7 +21,7 @@ int main(){
   
   f2mesh(fopen("kanto.mesh","r"),Z,N);
 
-
+  printf("%d\n",dimp2(N));
 
   
   mij(1,1);
