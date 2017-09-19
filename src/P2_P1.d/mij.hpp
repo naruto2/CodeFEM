@@ -1,6 +1,6 @@
-static double mij(long i, long j)
+static double mij(long i, long j, double delta)
 {
-return  (Delta/180.0)*
+return  (delta/180.0)*
 (
 180.0  * (  a(i)*a(j)                                                             )
 +60.0  * (  a(i)*b(j) + b(i)*a(j) + a(i)*c(j) + c(i)*a(j)                         )

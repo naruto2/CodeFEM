@@ -1,5 +1,5 @@
 static double B1=0.0, B2=0.0, C1=0.0, C2=0.0;
-static double Delta=0.0;
+static double Delta=1.0;
 
 static double a(long i){
   switch(i) {
