@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
-#include "P2-P1.hpp"
+#include "P2_P1.hpp"
 #include "mij.hpp"
 #include "axij.hpp"
 #include "ayij.hpp"
