@@ -37,19 +37,54 @@ void makeM(matrix<double>&M,vector<xyc>&Z,vector<nde>&N)
   }
 }
 
+
+void makeAx(matrix<double>&Ax,vector<double>&U,vector<xyc>&Z,vector<nde>&N){
+  double del, B1, B2, B3, u[7];
+  int e, m, n, i, j, I, J, a, b, c, A, B, C;
+  n = N.size();
+  m = dimp2(N);
+  Ax.resize(m+1);
+  
+  for (e=1; e<n; e++) {
+    a = N[e].a; b = N[e].b; c = N[e].c; A = N[e].A; B = N[e].B; C = N[e].C;
+
+    del = delta(e,Z,N);
+    i = 0;
+    foreach(I, &a, &b, &c, &A, &B, &C){
+      ++i; j=0;
+      foreach(J, &a, &b, &c, &A, &B, &C) {
+	B1 = Z[b].y - Z[c].y; B1 /= 2.0*del;
+	B2 = Z[c].y - Z[a].y; B2 /= 2.0*del;
+	B3 = Z[a].y - Z[b].y; B3 /= 2.0*del;
+	u[1] = U[a];
+	u[2] = U[b];
+	u[3] = U[c];
+	u[4] = U[A];
+	u[5] = U[B];
+	u[6] = U[C];
+	Ax[I][J] += del*axij(i,++j, u, B1, B2, B3);
+      }
+    }
+  }
+}
+
+
 int main(){
-  matrix<double> M;
+  matrix<double> M, Ax;
+  vector<double> U;
   vector<xyc>Z; vector<nde>N;
+
   
   f2mesh(fopen("kanto.mesh","r"),Z,N);
 
+  U.resize(2*dimp2(N)+Z.size());
+  int i, m = dimp2(N);
+  for (i=1; i<m; i++) U[i] = 1.0;
   makeM(M,Z,N);
-  plotmatrix(M);
+  makeAx(Ax,U,Z,N);
+  plotmatrix(Ax);
+
   
-
-
-
-
   double u[7],v[7];
   axij(1,1,u,1.0,1.0,1.0);
   ayij(1,1,v,1.0,1.0,1.0);
