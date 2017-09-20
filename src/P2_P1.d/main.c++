@@ -20,6 +20,7 @@ void makeM(matrix<double>&M,vector<xyc>&Z,vector<nde>&N)
   int a, b, c, A, B, C;
   double s;
   
+  M.clear();
   M.resize(m+1);
   
   for (e=1; e<n; e++) {
@@ -43,6 +44,8 @@ void makeAx(matrix<double>&Ax,vector<double>&U,vector<xyc>&Z,vector<nde>&N){
   int e, m, n, i, j, I, J, a, b, c, A, B, C;
   n = N.size();
   m = dimp2(N);
+
+  Ax.clear();
   Ax.resize(m+1);
   
   for (e=1; e<n; e++) {
@@ -69,25 +72,52 @@ void makeAx(matrix<double>&Ax,vector<double>&U,vector<xyc>&Z,vector<nde>&N){
 }
 
 
+void makeAy(matrix<double>&Ay,vector<double>&V,vector<xyc>&Z,vector<nde>&N){
+  double del, C1, C2, C3, v[7];
+  int e, m, n, i, j, I, J, a, b, c, A, B, C;
+  n = N.size();
+  m = dimp2(N);
+
+  Ay.clear();
+  Ay.resize(m+1);
+  
+  for (e=1; e<n; e++) {
+    a = N[e].a; b = N[e].b; c = N[e].c; A = N[e].A; B = N[e].B; C = N[e].C;
+    del = delta(e,Z,N);
+    i = 0;
+    foreach(I, &a, &b, &c, &A, &B, &C) {
+      ++i; j=0;
+      foreach(J, &a, &b, &c, &A, &B, &C) {
+        C1 = Z[c].x - Z[b].x; C1 /= 2.0*del;
+        C2 = Z[a].x - Z[c].x; C2 /= 2.0*del;
+        C3 = Z[b].x - Z[a].x; C3 /= 2.0*del;
+        v[1] = V[a+m];
+        v[2] = V[b+m];
+        v[3] = V[c+m];
+        v[4] = V[A+m];
+        v[5] = V[B+m];
+        v[6] = V[C+m];
+        Ay[I][J] += del*ayij(i,++j, v, C1, C2, C3);
+      }
+    }
+  }
+}
+
 int main(){
-  matrix<double> M, Ax;
+  matrix<double> M, Ax, Ay;
   vector<double> U;
   vector<xyc>Z; vector<nde>N;
-
   
   f2mesh(fopen("kanto.mesh","r"),Z,N);
-
-  U.resize(2*dimp2(N)+Z.size());
   int i, m = dimp2(N);
-  for (i=1; i<m; i++) U[i] = 1.0;
+  
+  U.resize(2*m+Z.size());
+  for (i=1; i<=2*m; i++) U[i] = 1.0;
   makeM(M,Z,N);
   makeAx(Ax,U,Z,N);
-  plotmatrix(Ax);
-
+  makeAy(Ay,U,Z,N);
+  plotmatrix(Ay);
   
-  double u[7],v[7];
-  axij(1,1,u,1.0,1.0,1.0);
-  ayij(1,1,v,1.0,1.0,1.0);
   dij(1,1);
   hxij(1,1);
   hyij(1,1);
