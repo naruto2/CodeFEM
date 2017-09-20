@@ -196,11 +196,67 @@ void makeHy(matrix<double>&Hy,vector<xyc>&Z,vector<nde>&N)
   }
 }
 
+double tau(void) {
+  return 0.01;
+}
 
+double Re(void) {
+  return 10.0;
+}
+
+
+void makeA(matrix<double>&A,vector<double>&U,vector<xyc>&Z,vector<nde>&N)
+{
+  matrix<double> M, Ax, Ay, D, Hx, Hy;
+  int m;
+  
+  makeM(M,Z,N);
+  makeAx(Ax,U,Z,N);
+  makeAy(Ay,U,Z,N);
+  makeD(D,Z,N);
+  makeHx(Hx,Z,N);
+  makeHy(Hy,Z,N);
+
+  A.clear();
+  m = dimp2(N);
+  A.resize(2*m+N.size());
+  
+  int i, j;
+
+  for (i=1; i<=m; i++) for (auto it : M[i]) { j = it.first;
+      A[  i][  j] = M[i][j]/tau();
+      A[m+i][m+j] = M[i][j]/tau();
+    }
+
+  for (i=1; i<=m; i++) for (auto it : Ax[i]) { j = it.first;
+      A[  i][  j] += Ax[i][j];
+      A[m+i][m+j] += Ax[i][j];
+    }
+
+  for (i=1; i<=m; i++) for (auto it : Ay[i]) { j = it.first;
+      A[  i][  j] += Ay[i][j];
+      A[m+i][m+j] += Ay[i][j];
+    }
+
+  for (i=1; i<=m; i++) for (auto it : D[i]) { j = it.first;
+      A[  i][  j] += D[i][j]/Re();
+      A[m+i][m+j] += D[i][j]/Re();
+    }
+
+  for (i=1; i<=m; i++) for (auto it : Hx[i]) { j = it.first;
+      A[    i][2*m+j] = -Hx[i][j];
+      A[2*m+j][    i] = -Hx[i][j];
+    }
+
+  for (i=1; i<=m; i++) for (auto it : Hy[i]) { j = it.first;
+      A[  m+i][2*m+j] = -Hy[i][j];
+      A[2*m+j][  m+i] = -Hy[i][j];
+    }
+}
 
 
 int main(){
-  matrix<double> M, Ax, Ay, D, Hx, Hy;
+  matrix<double> A;
   vector<double> U;
   vector<xyc>Z; vector<nde>N;
   
@@ -209,12 +265,10 @@ int main(){
   
   U.resize(2*m+Z.size());
   for (i=1; i<=2*m; i++) U[i] = 1.0;
-  makeM(M,Z,N);
-  makeAx(Ax,U,Z,N);
-  makeAy(Ay,U,Z,N);
-  makeD(D,Z,N);
-  makeHx(Hx,Z,N);
-  makeHy(Hy,Z,N);
 
+  makeA(A,U,Z,N);
+
+  system("date");
+  //plotmatrix(A);
   return 0;
 }
