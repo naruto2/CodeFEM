@@ -1,5 +1,9 @@
 static double B1=0.0, B2=0.0, C1=0.0, C2=0.0;
-static double Delta=1.0;
+
+void setB1B2C1C2(double b1, double b2, double c1, double c2) {
+  B1 = b1; B2 = b2; C1 = c1; C2 = c2;
+}
+
 
 static double a(long i){
   switch(i) {

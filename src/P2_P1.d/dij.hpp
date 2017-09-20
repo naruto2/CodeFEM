@@ -1,6 +1,6 @@
 static double dij(long i, long j)
 {
-  return (Delta/12.0) * (
+  return (1.0/12.0) * (
   12.0  *(alphaB(i)*alphaB(j) + alphaC(i)*alphaC(j))
   + 4.0 *(alphaB(i)* betaB(j) +  betaB(i)*alphaB(j))
   + 4.0 *(alphaB(i)*gammaB(j) + gammaB(i)*alphaB(j))
