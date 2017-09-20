@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
+#include <cstring>
 #include "P2_P1.hpp"
 #include "mij.hpp"
 #include "axij.hpp"
@@ -204,6 +205,35 @@ double Re(void) {
   return 10.0;
 }
 
+static char* border(char *s, char *t)
+{
+  return (strcmp(s,t)<0?s:t);
+}
+
+void makeMid(vector<xyc>&Mid,vector<xyc>&Z,vector<nde>&N) {
+  int e, n=N.size();
+
+  Mid.clear();
+  Mid.resize(dimp2(N)+1);
+  
+  for(e=1; e<n; e++) {
+    Mid[N[e].A].x = (Z[N[e].b].x + Z[N[e].c].x)/2.0;
+    Mid[N[e].A].y = (Z[N[e].b].y + Z[N[e].c].y)/2.0;
+    Mid[N[e].A].label = border(Z[N[e].b].label,Z[N[e].c].label);
+
+    Mid[N[e].B].x = (Z[N[e].c].x + Z[N[e].a].x)/2.0;
+    Mid[N[e].B].y = (Z[N[e].c].y + Z[N[e].a].y)/2.0;
+    Mid[N[e].B].label = border(Z[N[e].c].label,Z[N[e].a].label);
+
+    Mid[N[e].C].x = (Z[N[e].a].x + Z[N[e].b].x)/2.0;
+    Mid[N[e].C].y = (Z[N[e].a].y + Z[N[e].b].y)/2.0;
+    Mid[N[e].C].label = border(Z[N[e].a].label,Z[N[e].b].label);
+  }
+
+  for(int i=1;i<Z.size();i++){
+    Mid[i].label = Z[i].label;
+  }
+}  
 
 void makeA(matrix<double>&A,vector<double>&U,vector<xyc>&Z,vector<nde>&N)
 {
@@ -219,7 +249,7 @@ void makeA(matrix<double>&A,vector<double>&U,vector<xyc>&Z,vector<nde>&N)
 
   A.clear();
   m = dimp2(N);
-  A.resize(2*m+N.size());
+  A.resize(2*m+Z.size());
   
   int i, j;
 
@@ -252,6 +282,21 @@ void makeA(matrix<double>&A,vector<double>&U,vector<xyc>&Z,vector<nde>&N)
       A[  m+i][2*m+j] = -Hy[i][j];
       A[2*m+j][  m+i] = -Hy[i][j];
     }
+
+
+  vector<double> b;
+
+  b.clear();
+  b.resize(2*m+Z.size());
+
+  for (i=1; i<=m; i++) for (auto it : M[i]) { j = it.first;
+      b[  i] += M[i][j]*U[  j];
+      b[m+i] += M[i][j]*U[m+j];
+    }
+  
+  vector<xyc> Mid;
+  makeMid(Mid,Z,N);
+  for(i=1;i<Mid.size();i++)printf("%s\n",Mid[i].label);
 }
 
 
@@ -269,6 +314,6 @@ int main(){
   makeA(A,U,Z,N);
 
   system("date");
-  plotmatrix(A);
+  //plotmatrix(A);
   return 0;
 }
