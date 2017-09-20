@@ -260,7 +260,7 @@ int main(){
   vector<double> U;
   vector<xyc>Z; vector<nde>N;
   
-  f2mesh(fopen("kanto.mesh","r"),Z,N);
+  f2mesh(fopen("cavity.mesh","r"),Z,N);
   int i, m = dimp2(N);
   
   U.resize(2*m+Z.size());
@@ -269,6 +269,6 @@ int main(){
   makeA(A,U,Z,N);
 
   system("date");
-  //plotmatrix(A);
+  plotmatrix(A);
   return 0;
 }
