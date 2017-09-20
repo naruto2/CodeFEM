@@ -135,10 +135,72 @@ void makeD(matrix<double>&D,vector<xyc>&Z,vector<nde>&N)
 }
 
 
+void makeHx(matrix<double>&Hx,vector<xyc>&Z,vector<nde>&N)
+{
+  int e, m, n, i, j, I, J;
+  int a, b, c, A, B, C;
+  double del;
+  
+  m = dimp2(N);
+  n = N.size();
+
+  Hx.clear();
+  Hx.resize(m+1);
+  
+  for (e=1; e<n; e++) {
+    a=N[e].a; b=N[e].b; c=N[e].c; A=N[e].A; B=N[e].B; C=N[e].C;
+    del = delta(e,Z,N);
+    setB1B2C1C2((Z[b].y-Z[c].y)/(2.0*del), (Z[c].y-Z[a].y)/(2.0*del),
+		(Z[c].x-Z[b].x)/(2.0*del), (Z[a].x-Z[c].x)/(2.0*del));
+
+    i=1;
+    foreach(I,&a,&b,&c,&A,&B,&C) {
+      j=1;
+      foreach(J,&a,&b,&c) {
+        Hx[I][J] += del*hxij(i,j);
+        j++;
+      }
+      i++;
+    }
+  }
+}
+
+
+void makeHy(matrix<double>&Hy,vector<xyc>&Z,vector<nde>&N)
+{
+  int e, m, n, i, j, I, J;
+  int a, b, c, A, B, C;
+  double del;
+  
+  m = dimp2(N);
+  n = N.size();
+
+  Hy.clear();
+  Hy.resize(m+1);
+  
+  for (e=1; e<n; e++) {
+    a=N[e].a; b=N[e].b; c=N[e].c; A=N[e].A; B=N[e].B; C=N[e].C;
+    del = delta(e,Z,N);
+    setB1B2C1C2((Z[b].y-Z[c].y)/(2.0*del), (Z[c].y-Z[a].y)/(2.0*del),
+		(Z[c].x-Z[b].x)/(2.0*del), (Z[a].x-Z[c].x)/(2.0*del));
+
+    i=1;
+    foreach(I,&a,&b,&c,&A,&B,&C) {
+      j=1;
+      foreach(J,&a,&b,&c) {
+        Hy[I][J] += del*hyij(i,j);
+        j++;
+      }
+      i++;
+    }
+  }
+}
+
+
 
 
 int main(){
-  matrix<double> M, Ax, Ay, D;
+  matrix<double> M, Ax, Ay, D, Hx, Hy;
   vector<double> U;
   vector<xyc>Z; vector<nde>N;
   
@@ -151,10 +213,8 @@ int main(){
   makeAx(Ax,U,Z,N);
   makeAy(Ay,U,Z,N);
   makeD(D,Z,N);
-  plotmatrix(D);
-  
-  dij(1,1);
-  hxij(1,1);
-  hyij(1,1);
+  makeHx(Hx,Z,N);
+  makeHy(Hy,Z,N);
+
   return 0;
 }
