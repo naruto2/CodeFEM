@@ -197,11 +197,11 @@ void makeHy(sparse::matrix<double>&Hy,vector<xyc>&Z,vector<nde>&N)
 }
 
 double tau(void) {
-  return 0.01;
+  return 0.1;
 }
 
 double Re(void) {
-  return 10.0;
+  return 500.0;
 }
 
 static char* border(char *s, char *t)
@@ -230,6 +230,8 @@ void makeMid(vector<xyc>&Mid,vector<xyc>&Z,vector<nde>&N) {
   }
 
   for(int i=1;i<Z.size();i++){
+    Mid[i].x = Z[i].x;
+    Mid[i].y = Z[i].y;
     Mid[i].label = Z[i].label;
   }
 }  
@@ -288,6 +290,12 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
       b[  i] += M[i][j]*U[  j];
       b[m+i] += M[i][j]*U[m+j];
     }
+  for ( i=1; i<=m;i++){
+    b[i] = b[i]/tau();
+    b[i+m] = b[i+m]/tau();
+  }
+    
+  //for (i=m+1;i<b.size();i++) b[i] = U[i];
   
   vector<xyc> Mid;
   makeMid(Mid,Z,N);
@@ -356,7 +364,46 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
   
 }
 
+void plotuv(vector<double>&U,vector<xyc>&Mid){
+
+  double scale=0.8;
+  long arrow =1 ;
+  int i, m=Mid.size()-1;
+  
+  for (i=1; i<=m; i++)
+    printf("set arrow %ld from %f,%f to %f,%f\n",
+	   arrow++,Mid[i].x,Mid[i].y,Mid[i].x+U[i]*scale,Mid[i].y+U[i+m]*scale);
+}
+
 #include "est/solver.hpp"
+#include "est/matrix.hpp"
+
+
+void sparse__solve(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
+{
+  int i, j;
+  matrix AA(A.size()-1);
+  vector<double> x(A.size()-1), bb(A.size()-1);
+  Preconditioner M;
+      
+  for ( i=1; i<A.size(); i++) for (auto it: A[i]) { j = it.first;
+	AA[i-1][j-1] = A[i][j];
+      }
+    for ( i=1; i<b.size(); i++)
+      bb[i-1] = b[i];
+
+    x = bicgstab(M,AA,bb);
+    
+    for(i=0; i<=x.size(); i++){
+      U[i+1] = x[i];
+    }
+    b.clear();
+}
+
+
+
+
+
 
 int main(){
   sparse::matrix<double> A;
@@ -373,24 +420,50 @@ int main(){
   b.clear();
   b.resize(2*m+Z.size());
 
-  
-  makeA(A,U,b,Z,N);
 
-  matrix AA(2*m+Z.size()-1);
-  vector<double> bb(2*m+Z.size()-1);
-  Preconditioner M;
+
 
   
-  for ( i=1; i<A.size(); i++) for (auto it: A[i]) { j = it.first;
-      AA[i-1][j-1] = A[i][j];
+    makeA(A,U,b,Z,N);
+
+    matrix AA(2*m+Z.size()-1);
+    vector<double> bb(2*m+Z.size()-1);
+    Preconditioner M;
+
+    for ( i=1; i<A.size(); i++) for (auto it: A[i]) { j = it.first;
+	AA[i-1][j-1] = A[i][j];
+      }
+    for ( i=1; i<b.size(); i++)
+      bb[i-1] = b[i];
+
+    vector<double> x = bicgstab(M,AA,bb);
+    
+    for(i=0; i<=x.size(); i++){
+      U[i+1] = x[i];
     }
-  for ( i=1; i<b.size(); i++)
-    bb[i-1] = b[i];
+    b.clear();
 
-  vector<double> x = bicgstab(M,AA,bb);
-  
-  for(i=0; i<=x.size(); i++)
-    printf("%f\n",x[i]);
+
+  vector<xyc> Mid;
+
+  //plotuv(U,Mid);
+
+    for(int k=1;k<10000;k++){
+      fprintf(stderr,"%d\n",k);
+      makeA(A,U,b,Z,N);
+  for ( i=1; i<A.size(); i++) for (auto it: A[i]) { j = it.first;
+	AA[i-1][j-1] = A[i][j];
+      }
+    for ( i=1; i<b.size(); i++)
+      bb[i-1] = b[i];
+    x = bicgstab(M,AA,bb);
+    for(i=0; i<=x.size(); i++){
+      U[i+1] = x[i];
+    }
+    b.clear();
+    }
+    makeMid(Mid,Z,N);
+    plotuv(U,Mid);
 
   
   //plotmatrix(A);
