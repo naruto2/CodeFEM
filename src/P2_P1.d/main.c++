@@ -296,7 +296,66 @@ void makeA(matrix<double>&A,vector<double>&U,vector<xyc>&Z,vector<nde>&N)
   
   vector<xyc> Mid;
   makeMid(Mid,Z,N);
-  for(i=1;i<Mid.size();i++)printf("%s\n",Mid[i].label);
+  m = dimp2(N);
+  for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"v0")) {
+      A[i].clear();
+      A[i+m].clear();
+      A[i][i] = 1.0;
+      A[i+m][i+m] = 1.0;
+      b[i] = 0.0;
+      b[i+m] = 0.0;
+    }
+
+  for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"v1")) {
+      A[i].clear();
+      A[i+m].clear();
+      A[i][i] = 1.0;
+      A[i+m][i+m] = 1.0;
+      b[i] = 0.0;
+      b[i+m] = 0.0;
+    }
+
+  for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"v2")) {
+      A[i+m].clear();
+      A[i+m][i+m] = 1.0;
+      b[i+m] = 0.0;
+    }
+
+  for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"v3")) {
+      A[i+m].clear();
+      A[i+m][i+m] = 1.0;
+      b[i+m] = 0.0;
+    }
+
+  for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"e0")) {
+      A[i+m].clear();
+      A[i+m][i+m] = 1.0;
+      b[i+m] = 0.0;
+    }
+
+
+  for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"e1")) {
+      A[i].clear();
+      A[i][i] = 1.0;
+      b[i] = 0.0;
+    }
+
+  for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"e2")) {
+      A[i].clear();
+      A[i+m].clear();
+      A[i][i] = 1.0;
+      A[i+m][i+m] = 1.0;
+      b[i] = 1.0;
+      b[i+m] = 0.0;
+    }
+
+  for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"e3")) {
+      A[i].clear();
+      A[i][i] = 1.0;
+      b[i] = 0.0;
+    }
+
+
 }
 
 
@@ -309,11 +368,9 @@ int main(){
   int i, m = dimp2(N);
   
   U.resize(2*m+Z.size());
-  for (i=1; i<=2*m; i++) U[i] = 1.0;
+  //for (i=1; i<=2*m; i++) U[i] = 1.0;
 
   makeA(A,U,Z,N);
-
-  system("date");
   //plotmatrix(A);
   return 0;
 }
