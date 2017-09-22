@@ -13,9 +13,8 @@
 #include "est/xmesh.hpp"
 #include "est/foreach.hpp"
 
-using namespace sparse;
 
-void makeM(matrix<double>&M,vector<xyc>&Z,vector<nde>&N)
+void makeM(sparse::matrix<double>&M,vector<xyc>&Z,vector<nde>&N)
 {
   int e, m=dimp2(N), n=N.size(), i, j, I, J;
   int a, b, c, A, B, C;
@@ -40,7 +39,7 @@ void makeM(matrix<double>&M,vector<xyc>&Z,vector<nde>&N)
 }
 
 
-void makeAx(matrix<double>&Ax,vector<double>&U,vector<xyc>&Z,vector<nde>&N){
+void makeAx(sparse::matrix<double>&Ax,vector<double>&U,vector<xyc>&Z,vector<nde>&N){
   double del, B1, B2, B3, u[7];
   int e, m, n, i, j, I, J, a, b, c, A, B, C;
   n = N.size();
@@ -73,7 +72,7 @@ void makeAx(matrix<double>&Ax,vector<double>&U,vector<xyc>&Z,vector<nde>&N){
 }
 
 
-void makeAy(matrix<double>&Ay,vector<double>&V,vector<xyc>&Z,vector<nde>&N){
+void makeAy(sparse::matrix<double>&Ay,vector<double>&V,vector<xyc>&Z,vector<nde>&N){
   double del, C1, C2, C3, v[7];
   int e, m, n, i, j, I, J, a, b, c, A, B, C;
   n = N.size();
@@ -105,7 +104,7 @@ void makeAy(matrix<double>&Ay,vector<double>&V,vector<xyc>&Z,vector<nde>&N){
 }
 
 
-void makeD(matrix<double>&D,vector<xyc>&Z,vector<nde>&N)
+void makeD(sparse::matrix<double>&D,vector<xyc>&Z,vector<nde>&N)
 {
   int e, m, n, i, j, I, J;
   int a, b, c, A, B, C;
@@ -136,7 +135,7 @@ void makeD(matrix<double>&D,vector<xyc>&Z,vector<nde>&N)
 }
 
 
-void makeHx(matrix<double>&Hx,vector<xyc>&Z,vector<nde>&N)
+void makeHx(sparse::matrix<double>&Hx,vector<xyc>&Z,vector<nde>&N)
 {
   int e, m, n, i, j, I, J;
   int a, b, c, A, B, C;
@@ -167,7 +166,7 @@ void makeHx(matrix<double>&Hx,vector<xyc>&Z,vector<nde>&N)
 }
 
 
-void makeHy(matrix<double>&Hy,vector<xyc>&Z,vector<nde>&N)
+void makeHy(sparse::matrix<double>&Hy,vector<xyc>&Z,vector<nde>&N)
 {
   int e, m, n, i, j, I, J;
   int a, b, c, A, B, C;
@@ -235,9 +234,9 @@ void makeMid(vector<xyc>&Mid,vector<xyc>&Z,vector<nde>&N) {
   }
 }  
 
-void makeA(matrix<double>&A,vector<double>&U,vector<xyc>&Z,vector<nde>&N)
+void makeA(sparse::matrix<double>&A,vector<double>&U,vector<xyc>&Z,vector<nde>&N)
 {
-  matrix<double> M, Ax, Ay, D, Hx, Hy;
+  sparse::matrix<double> M, Ax, Ay, D, Hx, Hy;
   int m;
   
   makeM(M,Z,N);
@@ -355,12 +354,15 @@ void makeA(matrix<double>&A,vector<double>&U,vector<xyc>&Z,vector<nde>&N)
       b[i] = 0.0;
     }
 
-
+  A[2*m+1].clear();
+  A[2*m+1][2*m+1] = 1.0;
+  b[2*m+1] = 0.0;
+  
 }
 
 
 int main(){
-  matrix<double> A;
+  sparse::matrix<double> A;
   vector<double> U;
   vector<xyc>Z; vector<nde>N;
   
@@ -371,6 +373,6 @@ int main(){
   //for (i=1; i<=2*m; i++) U[i] = 1.0;
 
   makeA(A,U,Z,N);
-  //plotmatrix(A);
+  plotmatrix(A);
   return 0;
 }
