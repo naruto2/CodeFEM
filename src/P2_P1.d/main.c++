@@ -234,7 +234,7 @@ void makeMid(vector<xyc>&Mid,vector<xyc>&Z,vector<nde>&N) {
   }
 }  
 
-void makeA(sparse::matrix<double>&A,vector<double>&U,vector<xyc>&Z,vector<nde>&N)
+void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc>&Z,vector<nde>&N)
 {
   sparse::matrix<double> M, Ax, Ay, D, Hx, Hy;
   int m;
@@ -283,10 +283,6 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<xyc>&Z,vector<nde>&N
     }
 
 
-  vector<double> b;
-
-  b.clear();
-  b.resize(2*m+Z.size());
 
   for (i=1; i<=m; i++) for (auto it : M[i]) { j = it.first;
       b[  i] += M[i][j]*U[  j];
@@ -360,6 +356,7 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<xyc>&Z,vector<nde>&N
   
 }
 
+#include "est/solver.hpp"
 
 int main(){
   sparse::matrix<double> A;
@@ -367,12 +364,35 @@ int main(){
   vector<xyc>Z; vector<nde>N;
   
   f2mesh(fopen("cavity.mesh","r"),Z,N);
-  int i, m = dimp2(N);
+  int i, j, m = dimp2(N);
   
   U.resize(2*m+Z.size());
   //for (i=1; i<=2*m; i++) U[i] = 1.0;
+  vector<double> b;
 
-  makeA(A,U,Z,N);
-  plotmatrix(A);
+  b.clear();
+  b.resize(2*m+Z.size());
+
+  
+  makeA(A,U,b,Z,N);
+
+  matrix AA(2*m+Z.size()-1);
+  vector<double> bb(2*m+Z.size()-1);
+  Preconditioner M;
+
+  
+  for ( i=1; i<A.size(); i++) for (auto it: A[i]) { j = it.first;
+      AA[i-1][j-1] = A[i][j];
+    }
+  for ( i=1; i<b.size(); i++)
+    bb[i-1] = b[i];
+
+  vector<double> x = bicgstab(M,AA,bb);
+  
+  for(i=0; i<=x.size(); i++)
+    printf("%f\n",x[i]);
+
+  
+  //plotmatrix(A);
   return 0;
 }
