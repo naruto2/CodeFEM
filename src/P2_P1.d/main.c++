@@ -342,7 +342,7 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
       A[i+m].clear();
       A[i][i] = 1.0;
       A[i+m][i+m] = 1.0;
-      b[i] = 1.0;
+      b[i] = 0.1;
       b[i+m] = 0.0;
     }
 
@@ -358,9 +358,9 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
   
 }
 
-void plotuv(FILE *pp,vector<double>&U,vector<xyc>&Mid){
+void plotuv(FILE *pp,vector<double>&U,vector<xyc>&Z,vector<nde>&N,vector<xyc>&Mid){
 
-  double scale=0.8;
+  double scale=0.1;
   long arrow =1 ;
   int i, m=Mid.size()-1;
   
@@ -369,7 +369,14 @@ void plotuv(FILE *pp,vector<double>&U,vector<xyc>&Mid){
 	    arrow++,Mid[i].x,Mid[i].y,Mid[i].x+U[i]*scale,Mid[i].y+U[i+m]*scale);
   fprintf(pp,"set xrange [0:1]\n");
   fprintf(pp,"set yrange [0:1]\n");
-  fprintf(pp,"plot x\n");
+  fprintf(pp,"plot '-' w l\n");
+  for(int e=1;e<N.size();e++){
+    fprintf(pp,"%f %f\n",Z[N[e].a].x,Z[N[e].a].y);
+    fprintf(pp,"%f %f\n",Z[N[e].b].x,Z[N[e].b].y);
+    fprintf(pp,"%f %f\n",Z[N[e].c].x,Z[N[e].c].y);
+    fprintf(pp,"%f %f\n\n",Z[N[e].a].x,Z[N[e].a].y);
+  }
+  fprintf(pp,"e\n");
   fflush(pp);
   sleep(1);
 }
@@ -426,7 +433,7 @@ int main(){
     fprintf(stderr,"k=%d\n",k);
     makeA(A,U,b,Z,N,Mid);
     sparse__solve(A,U,b);
-    plotuv(pp,U,Mid);
+    plotuv(pp,U,Z,N,Mid);
   }
   sleep(30);
 }
