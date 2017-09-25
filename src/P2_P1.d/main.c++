@@ -115,6 +115,7 @@ void makeD(sparse::matrix<double>&D,vector<xyc>&Z,vector<nde>&N)
 
   D.clear();
   D.resize(m+1);
+
   
   for (e=1; e<n; e++) {
     a=N[e].a; b=N[e].b; c=N[e].c; A=N[e].A; B=N[e].B; C=N[e].C;
@@ -197,7 +198,7 @@ void makeHy(sparse::matrix<double>&Hy,vector<xyc>&Z,vector<nde>&N)
 }
 
 double tau(void) {
-  return 0.01;
+  return 0.001;
 }
 
 double Re(void) {
@@ -241,19 +242,12 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
   sparse::matrix<double> M, Ax, Ay, D, Hx, Hy;
   int m;
   
-  M.clear();
   makeM(M,Z,N);
-  Ax.clear();
   makeAx(Ax,U,Z,N);
-  Ay.clear();
   makeAy(Ay,U,Z,N);
-  D.clear();
   makeD(D,Z,N);
-  Hx.clear();
   makeHx(Hx,Z,N);
-  Hy.clear();
   makeHy(Hy,Z,N);
-  
   
   A.clear();
   m = dimp2(N);
@@ -266,6 +260,7 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
       A[m+i][m+j] = M[i][j]/tau();
     }
 
+
   for (i=1; i<=m; i++) for (auto it : Ax[i]) { j = it.first;
       A[  i][  j] += Ax[i][j];
       A[m+i][m+j] += Ax[i][j];
@@ -275,7 +270,7 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
       A[  i][  j] += Ay[i][j];
       A[m+i][m+j] += Ay[i][j];
     }
-
+  
   for (i=1; i<=m; i++) for (auto it : D[i]) { j = it.first;
       A[  i][  j] += D[i][j]/Re();
       A[m+i][m+j] += D[i][j]/Re();
@@ -294,13 +289,9 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
 
   b.clear();
   for (i=1; i<=m; i++) for (j=1; j<=m; j++) { 
-      b[  i] += M[i][j]*U[  j];
-      b[m+i] += M[i][j]*U[m+j];
+      b[  i] += M[i][j]*U[  j]/tau();
+      b[m+i] += M[i][j]*U[m+j]/tau();
     }
-  for ( i=1; i<=m;i++){
-    b[i] = b[i]/tau();
-    b[i+m] = b[i+m]/tau();
-  }
     
   m = dimp2(N);
   for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"v0")) {
