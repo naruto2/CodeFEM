@@ -6,7 +6,7 @@ std::vector<xyc> cavity(int n);
 
 int main(){
   vector<xyc>Z;
-  Z=cavity(8);
+  Z=cavity(2);
 
   for(int i=1;i<Z.size();i++){
     if (Z[i].label==NULL)

@@ -44,7 +44,7 @@ namespace sparse {
     for(i=1;i<n;i++){
       for( auto it : A[i]){
 	j = it.first;
-	if ( A[i][j] != 0 ) fprintf(pp,"set label \".\" at %d, %d;\n",j,i);
+	if ( A[i][j] != 0 ) fprintf(pp,"set label \"%.4f\" at %d, %d;\n",A[i][j],j,i);
       }
     }
     fprintf(pp,"plot '-' with lines title \"\"\n");

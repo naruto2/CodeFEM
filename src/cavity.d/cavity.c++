@@ -13,7 +13,7 @@ std::vector<xyc> cavity(int n)
 
   z.x = 0.0; z.y =0.0; z.label = NULL; Z.push_back(z);
 
-  double dx=0.125, dy=0.125;
+  double dx=0.5, dy=0.5;
   
   if ( n!=0 ) {
     dx = 1.0/(double)n;

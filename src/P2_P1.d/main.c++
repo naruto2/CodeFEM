@@ -13,6 +13,12 @@
 #include "est/xmesh.hpp"
 #include "est/foreach.hpp"
 
+void printmx(sparse::matrix<double>&A){
+  for (int i=1; i<A.size(); i++) for ( auto it: A[i]) { int j = it.first;
+      printf("%d %d %e\n",i,j,A[i][j]);
+    }
+  exit(0);
+}
 
 void makeM(sparse::matrix<double>&M,vector<xyc>&Z,vector<nde>&N)
 {
@@ -285,8 +291,7 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
       A[  m+i][2*m+j] = -Hy[i][j];
       A[2*m+j][  m+i] = -Hy[i][j];
     }
-
-
+  
   b.clear();
   for (i=1; i<=m; i++) for (j=1; j<=m; j++) { 
       b[  i] += M[i][j]*U[  j]/tau();
@@ -342,7 +347,7 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
       A[i+m].clear();
       A[i][i] = 1.0;
       A[i+m][i+m] = 1.0;
-      b[i] = 0.1;
+      b[i] = 1.0;
       b[i+m] = 0.0;
     }
 
