@@ -293,11 +293,17 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
     }
   
   b.clear();
-  for (i=1; i<=m; i++) for (j=1; j<=m; j++) { 
+  b.resize(A.size());
+
+  for (i=1; i<=m; i++) {
+    b[  i] = 0.0;
+    b[m+i] = 0.0;
+    for (j=1; j<=m; j++) { 
       b[  i] += M[i][j]*U[  j]/tau();
       b[m+i] += M[i][j]*U[m+j]/tau();
     }
-    
+  }
+
   m = dimp2(N);
   for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"v0")) {
       A[i].clear();
@@ -443,6 +449,7 @@ int main(){
   for(int k=0;k<100;k++){
     fprintf(stderr,"k=%d\n",k);
     makeA(A,U,b,Z,N,Mid);
+    printf("%f\n",A[10][10]);
     sparse__solve(A,U,b);
     plotuv(pp,U,Z,N,Mid);
   }
