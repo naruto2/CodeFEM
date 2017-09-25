@@ -266,7 +266,7 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
       A[m+i][m+j] = M[i][j]/tau();
     }
 
-
+#if 0
   for (i=1; i<=m; i++) for (auto it : Ax[i]) { j = it.first;
       A[  i][  j] += Ax[i][j];
       A[m+i][m+j] += Ax[i][j];
@@ -276,7 +276,7 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
       A[  i][  j] += Ay[i][j];
       A[m+i][m+j] += Ay[i][j];
     }
-  
+#endif  
   for (i=1; i<=m; i++) for (auto it : D[i]) { j = it.first;
       A[  i][  j] += D[i][j]/Re();
       A[m+i][m+j] += D[i][j]/Re();
@@ -318,14 +318,20 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
     }
 
   for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"v2")) {
+      A[i].clear();
       A[i+m].clear();
+      A[i][i] = 1.0;
       A[i+m][i+m] = 1.0;
+      b[i] = 0.0;
       b[i+m] = 0.0;
     }
 
   for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"v3")) {
+      A[i].clear();
       A[i+m].clear();
+      A[i][i] = 1.0;
       A[i+m][i+m] = 1.0;
+      b[i] = 0.0;
       b[i+m] = 0.0;
     }
 
