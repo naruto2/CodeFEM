@@ -364,15 +364,20 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
   
 }
 
-void plotuv(vector<double>&U,vector<xyc>&Mid){
+void plotuv(FILE *pp,vector<double>&U,vector<xyc>&Mid){
 
   double scale=0.8;
   long arrow =1 ;
   int i, m=Mid.size()-1;
   
   for (i=1; i<=m; i++)
-    printf("set arrow %ld from %f,%f to %f,%f\n",
-	   arrow++,Mid[i].x,Mid[i].y,Mid[i].x+U[i]*scale,Mid[i].y+U[i+m]*scale);
+    fprintf(pp, "set arrow %ld from %f,%f to %f,%f\n",
+	    arrow++,Mid[i].x,Mid[i].y,Mid[i].x+U[i]*scale,Mid[i].y+U[i+m]*scale);
+  fprintf(pp,"set xrange [0:1]\n");
+  fprintf(pp,"set yrange [0:1]\n");
+  fprintf(pp,"plot x\n");
+  fflush(pp);
+  sleep(1);
 }
 
 #include "est/solver.hpp"
@@ -406,6 +411,9 @@ void sparse__solve(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
 
 
 int main(){
+  FILE *pp = popen("gnuplot","w");
+
+  
   sparse::matrix<double> A;
   vector<double> U;
   vector<xyc>Z; vector<nde>N;
@@ -430,6 +438,7 @@ int main(){
     vector<double> bb(2*m+Z.size()-1);
     Preconditioner M;
 
+    
     for ( i=1; i<A.size(); i++) for (auto it: A[i]) { j = it.first;
 	AA[i-1][j-1] = A[i][j];
       }
@@ -448,7 +457,7 @@ int main(){
 
   //plotuv(U,Mid);
 
-    for(int k=1;k<10000;k++){
+    for(int k=1;k<10;k++){
       fprintf(stderr,"%d\n",k);
       makeA(A,U,b,Z,N);
   for ( i=1; i<A.size(); i++) for (auto it: A[i]) { j = it.first;
@@ -463,9 +472,9 @@ int main(){
     b.clear();
     }
     makeMid(Mid,Z,N);
-    plotuv(U,Mid);
-
-  
+    plotuv(pp,U,Mid);
+    sleep(30);
+    
   //plotmatrix(A);
   return 0;
 }
