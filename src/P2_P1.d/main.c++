@@ -429,7 +429,7 @@ int main(){
   FILE *pp = popen("gnuplot","w");
   
   vector<xyc>Z; vector<nde>N;
-  f2mesh(fopen("cavity.mesh","r"),Z,N);
+  f2mesh(fopen("cavity16.mesh","r"),Z,N);
 
   vector<xyc> Mid;
   makeMid(Mid,Z,N);
