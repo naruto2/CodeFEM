@@ -204,11 +204,11 @@ void makeHy(sparse::matrix<double>&Hy,vector<xyc>&Z,vector<nde>&N)
 }
 
 double tau(void) {
-  return 0.001;
+  return 0.07 ;
 }
 
 double Re(void) {
-  return 100.0;
+  return 1000.0;
 }
 
 static char* border(char *s, char *t)
@@ -376,7 +376,7 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
 
 void plotuv(FILE *pp,vector<double>&U,vector<xyc>&Z,vector<nde>&N,vector<xyc>&Mid){
 
-  double scale=0.1;
+  double scale=0.4;
   long arrow =1 ;
   int i, m=Mid.size()-1;
   
@@ -415,6 +415,8 @@ void sparse__solve(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
       bb[i-1] = b[i];
 
     x = bicgstab(M,AA,bb);
+    vector<double> gpubicgstab(matrix&, vector<double>&);
+    //x = gpubicgstab(AA,bb);
 
     for(i=0; i<=x.size(); i++){
       U[i+1] = x[i];
@@ -445,7 +447,7 @@ int main(){
   b.resize(2*m+Z.size());
 
 
-  for(int k=0;k<100;k++){
+  for(int k=0;k<1000;k++){
     fprintf(stderr,"k=%d\n",k);
     makeA(A,U,b,Z,N,Mid);
     sparse__solve(A,U,b);

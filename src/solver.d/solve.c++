@@ -9,9 +9,10 @@ vector<double> solve(matrix &A, vector<double> &b) {
   Preconditioner M;
   //M.ic(A);
 
-
+#if 0
   if ( getop("-solver") == "bicgstab")   { printf("bicgstab\n");    return bicgstab(M,A,b); }
   if ( getop("-solver") == "cgs")        { printf("cgs\n");         return cgs(M,A,b); }
   if ( getop("-solver") == "gpubicgstab"){ printf("gpubicgstab\n"); return gpubicgstab(A,b); }
+#endif
   return gpubicgstab(A,b);
 }

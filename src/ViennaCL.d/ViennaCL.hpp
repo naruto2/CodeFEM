@@ -90,13 +90,13 @@ vector<double> gpubicgstab(matrix& A, vector<double>& b)
   //ILU          vcl_ilut(Agpu, ilut_tag(256,1e-14));
   //Scaling vcl_row_scaling(Agpu, row_scaling_tag(2));
   Jacobi  vcl_jacobi(Agpu,jacobi_tag());
-  bicgstab_tag custom_bicgstab(1e-12,1000000);
+  bicgstab_tag custom_bicgstab(1e-6,100000);
 
   //viennacl::linalg::ilu0_tag ilu0_config;
   //viennacl::linalg::ilu0_precond< SparseMatrix > vcl_ilut(Agpu, ilu0_config);
-  
+  printf("hello\n");
   xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_bicgstab, vcl_jacobi);
-
+  printf("world\n");
   copy(xgpu.begin(), xgpu.end(), x.begin());
   return x;
 }
