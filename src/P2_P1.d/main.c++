@@ -424,12 +424,35 @@ void sparse__solve(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
 
 }
 
+void matrixreorder(sparse::matrix<double>&A)
+{
+  int m, n, i, j, k;
+
+  //A[k][k]以降はゼロ成分
+  for ( k=1;A[k][k]!=0.0;k++ );
+
+
+  for( ; k<71; k++) 
+    {
+      for ( auto it : A[k] ) 
+	if ( it.second != 0.0 ) printf("%d ",it.first);
+      printf("\n");
+
+      for (i=1;i<k;i++) if ( A[i][k] != 0.0 ) printf("%d ",i);
+      printf("\n");
+      
+      printf("swapcolumn %d %d\n",12,k);
+    }
+  
+}
+
+
 
 int main(){
   FILE *pp = popen("gnuplot","w");
   
   vector<xyc>Z; vector<nde>N;
-  f2mesh(fopen("cavity16.mesh","r"),Z,N);
+  f2mesh(fopen("mini.mesh","r"),Z,N);
 
   vector<xyc> Mid;
   makeMid(Mid,Z,N);
@@ -450,6 +473,8 @@ int main(){
   for(int k=0;k<1000;k++){
     fprintf(stderr,"k=%d\n",k);
     makeA(A,U,b,Z,N,Mid);
+    matrixreorder(A);
+    plotmatrix(A);sleep(60);exit(0);
     sparse__solve(A,U,b);
     plotuv(pp,U,Z,N,Mid);
   }
