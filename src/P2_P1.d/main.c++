@@ -424,27 +424,92 @@ void sparse__solve(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
 
 }
 
-void matrixreorder(sparse::matrix<double>&A)
+void swaprow(sparse::matrix<double>&A,vector<double>&b,int p, int q)
+{
+  vector<double> tmpA(A.size()+1);
+  int j;
+
+  for (j=1; j<A.size(); j++) tmpA[j] = A[p][j];
+  for (j=1; j<A.size(); j++) A[p][j] = A[q][j];
+  for (j=1; j<A.size(); j++) A[q][j] = tmpA[j];
+
+  double tmpb;
+  tmpb = b[p];
+  b[p] = b[q];
+  b[q] = tmpb;
+}
+
+
+void swapcolumn(sparse::matrix<double>&A,vector<double>&b,int p, int q)
+{
+  vector<double> tmpA(A.size()+1);
+  int j;
+
+  for (j=1; j<A.size(); j++) tmpA[j] = A[j][p];
+  for (j=1; j<A.size(); j++) A[j][p] = A[j][q];
+  for (j=1; j<A.size(); j++) A[j][q] = tmpA[j];
+
+  double tmpb;
+  tmpb = b[p];
+  b[p] = b[q];
+  b[q] = tmpb;
+}
+
+
+#include <set>
+#include <map>
+
+
+void matrixreorder(map<int,int>&Aindex,sparse::matrix<double>&A,vector<double>&b)
 {
   int m, n, i, j, k;
 
   //A[k][k]以降はゼロ成分
   for ( k=1;A[k][k]!=0.0;k++ );
 
-
-  for( ; k<71; k++) 
+  set<int> NG;
+  n = k+1;
+  for( ; k<n; k++) 
     {
-      for ( auto it : A[k] ) 
-	if ( it.second != 0.0 ) printf("%d ",it.first);
-      printf("\n");
-
-      for (i=1;i<k;i++) if ( A[i][k] != 0.0 ) printf("%d ",i);
-      printf("\n");
-      
-      printf("swapcolumn %d %d\n",12,k);
+      for ( auto it : A[k] ) {
+	i = it.first;
+	if ( it.second != 0.0 && A[i][k] != 0.0 )  {
+	  if ( NG.find(i) != NG.end() ) continue;
+	  NG.insert(i);
+	  swapcolumn(A,b,i,k);
+	  Aindex[i] = k;
+	  break;
+	}	
+      }
     }
-  
 }
+
+
+void matrixreorder__row(map<int,int>&Aindex,sparse::matrix<double>&A,vector<double>&b)
+{
+  int m, n, i, j, k;
+
+  //A[k][k]以降はゼロ成分
+  for ( k=1;A[k][k]!=0.0;k++ );
+  double eps = 0.04;
+  
+  set<int> NG;
+  n = A.size();
+  for( ; k<n; k++) 
+    {
+      for ( i=1; i<n; i++){
+	if ( A[i][k] > eps ) 
+	if ( A[k][i] > eps )  {
+	  if ( NG.find(i) != NG.end() ) continue;
+	  NG.insert(i);
+	  swaprow(A,b,i,k);
+	  Aindex[i] = k;
+	  break;
+	}	
+      }
+    }
+}
+
 
 
 
@@ -452,7 +517,7 @@ int main(){
   FILE *pp = popen("gnuplot","w");
   
   vector<xyc>Z; vector<nde>N;
-  f2mesh(fopen("mini.mesh","r"),Z,N);
+  f2mesh(fopen("cavity.mesh","r"),Z,N);
 
   vector<xyc> Mid;
   makeMid(Mid,Z,N);
@@ -469,13 +534,22 @@ int main(){
   b.clear();
   b.resize(2*m+Z.size());
 
-
+  map<int,int> Aindex;
+  
   for(int k=0;k<1000;k++){
     fprintf(stderr,"k=%d\n",k);
     makeA(A,U,b,Z,N,Mid);
-    matrixreorder(A);
-    plotmatrix(A);sleep(60);exit(0);
+    //matrixreorder__row(Aindex,A,b);
+    //plotmatrix(A);sleep(60);exit(0);
     sparse__solve(A,U,b);
+    #if 0
+    for(auto it: Aindex) {
+      double tmpU;
+      tmpU         = U[it.first];
+      U[it.first]  = U[it.second];
+      U[it.second] = tmpU;
+    }
+    #endif
     plotuv(pp,U,Z,N,Mid);
   }
   sleep(30);
