@@ -2,6 +2,11 @@
 #include <cstdlib>
 #include <cmath>
 #include <cstring>
+#include <iostream>
+#include <set>
+#include <map>
+#include <vector>
+#include <unistd.h>
 #include "P2_P1.hpp"
 #include "mij.hpp"
 #include "axij.hpp"
@@ -10,14 +15,12 @@
 #include "hxij.hpp"
 #include "hyij.hpp"
 #include "est/sparse.hpp"
-#include <iostream>
-#include <vector>
-#include <unistd.h>
 #include "est/xmesh.hpp"
 #include "est/foreach.hpp"
+#include "est/solver.hpp"
+#include "est/matrix.hpp"
 
 using namespace std;
-
 
 void printmx(sparse::matrix<double>&A){
   for (int i=1; i<A.size(); i++) for ( auto it: A[i]) { int j = it.first;
@@ -411,8 +414,6 @@ void plotuv(vector<double>&U,vector<xyc>&Z,vector<nde>&N,vector<xyc>&Mid)
 }
 
 
-#include "est/solver.hpp"
-#include "est/matrix.hpp"
 
 void sparse__solve(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
 {
@@ -452,8 +453,6 @@ void swapcolumn(sparse::matrix<double>&A,int p, int q)
 }
 
 
-#include <set>
-#include <map>
 
 
 void matrixreorder(map<int,int>&Aindex,sparse::matrix<double>&A)
