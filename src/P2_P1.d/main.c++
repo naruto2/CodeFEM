@@ -10,8 +10,14 @@
 #include "hxij.hpp"
 #include "hyij.hpp"
 #include "est/sparse.hpp"
+#include <iostream>
+#include <vector>
+#include <unistd.h>
 #include "est/xmesh.hpp"
 #include "est/foreach.hpp"
+
+using namespace std;
+
 
 void printmx(sparse::matrix<double>&A){
   for (int i=1; i<A.size(); i++) for ( auto it: A[i]) { int j = it.first;
@@ -19,6 +25,7 @@ void printmx(sparse::matrix<double>&A){
     }
   exit(0);
 }
+
 
 void makeM(sparse::matrix<double>&M,vector<xyc>&Z,vector<nde>&N)
 {
@@ -45,7 +52,8 @@ void makeM(sparse::matrix<double>&M,vector<xyc>&Z,vector<nde>&N)
 }
 
 
-void makeAx(sparse::matrix<double>&Ax,vector<double>&U,vector<xyc>&Z,vector<nde>&N){
+void makeAx(sparse::matrix<double>&Ax,vector<double>&U,vector<xyc>&Z,vector<nde>&N)
+{
   double del, B1, B2, B3, u[7];
   int e, m, n, i, j, I, J, a, b, c, A, B, C;
   n = N.size();
@@ -78,7 +86,8 @@ void makeAx(sparse::matrix<double>&Ax,vector<double>&U,vector<xyc>&Z,vector<nde>
 }
 
 
-void makeAy(sparse::matrix<double>&Ay,vector<double>&V,vector<xyc>&Z,vector<nde>&N){
+void makeAy(sparse::matrix<double>&Ay,vector<double>&V,vector<xyc>&Z,vector<nde>&N)
+{
   double del, C1, C2, C3, v[7];
   int e, m, n, i, j, I, J, a, b, c, A, B, C;
   n = N.size();
@@ -203,18 +212,24 @@ void makeHy(sparse::matrix<double>&Hy,vector<xyc>&Z,vector<nde>&N)
   }
 }
 
-double tau(void) {
+
+double tau(void)
+{
   return 0.07 ;
 }
 
-double Re(void) {
-  return 1000.0;
+
+double Re(void)
+{
+  return 100.0;
 }
+
 
 static char* border(char *s, char *t)
 {
   return (strcmp(s,t)<0?s:t);
 }
+
 
 void makeMid(vector<xyc>&Mid,vector<xyc>&Z,vector<nde>&N) {
   int e, n=N.size();
@@ -243,29 +258,27 @@ void makeMid(vector<xyc>&Mid,vector<xyc>&Z,vector<nde>&N) {
   }
 }  
 
+
 void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc>&Z,vector<nde>&N,vector<xyc>&Mid)
 {
   sparse::matrix<double> M, Ax, Ay, D, Hx, Hy;
-  int m;
-  
+  int i, j, num = 2*dimp2(N)+Z.size(), m = dimp2(N);
+
+  U.resize(num);
+  A.clear(); A.resize(num);
+  b.clear(); b.resize(num);
+
   makeM(M,Z,N);
   makeAx(Ax,U,Z,N);
   makeAy(Ay,U,Z,N);
   makeD(D,Z,N);
   makeHx(Hx,Z,N);
   makeHy(Hy,Z,N);
-  
-  A.clear();
-  m = dimp2(N);
-  A.resize(2*m+Z.size());
-  
-  int i, j;
 
   for (i=1; i<=m; i++) for (auto it : M[i]) { j = it.first;
       A[  i][  j] = M[i][j]/tau();
       A[m+i][m+j] = M[i][j]/tau();
     }
-
 
   for (i=1; i<=m; i++) for (auto it : Ax[i]) { j = it.first;
       A[  i][  j] += Ax[i][j];
@@ -291,8 +304,6 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
       A[  m+i][2*m+j] = -Hy[i][j];
       A[2*m+j][  m+i] = -Hy[i][j];
     }
-  
-  b.clear();
 
   for (i=1; i<=m; i++) {
     b[  i] = 0.0;
@@ -303,7 +314,6 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
     }
   }
   
-  m = dimp2(N);
   for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"v0")) {
       A[i].clear();
       A[i+m].clear();
@@ -346,7 +356,6 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
       b[i+m] = 0.0;
     }
 
-
   for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"e1")) {
       A[i].clear();
       A[i][i] = 1.0;
@@ -371,142 +380,15 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
   A[2*m+1].clear();
   A[2*m+1][2*m+1] = 1.0;
   b[2*m+1] = 0.0;
-  
 }
 
-void makeB(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc>&Z,vector<nde>&N,vector<xyc>&Mid)
+
+void plotuv(vector<double>&U,vector<xyc>&Z,vector<nde>&N,vector<xyc>&Mid)
 {
-  sparse::matrix<double> M, Ax, Ay, D, Hx, Hy;
-  int m;
+  static FILE *pp = NULL;
+
+  if ( pp == NULL ) pp = popen("gnuplot","w");
   
-  makeM(M,Z,N);
-  makeAx(Ax,U,Z,N);
-  makeAy(Ay,U,Z,N);
-  makeD(D,Z,N);
-  makeHx(Hx,Z,N);
-  makeHy(Hy,Z,N);
-  
-  A.clear();
-  m = dimp2(N);
-  A.resize(2*m+Z.size());
-  
-  int i, j;
-
-  for (i=1; i<=m; i++) for (auto it : M[i]) { j = it.first;
-      A[  i][  j] = M[i][j]/tau();
-      A[m+i][m+j] = M[i][j]/tau();
-    }
-
-
-  for (i=1; i<=m; i++) for (auto it : Ax[i]) { j = it.first;
-      A[  i][  j] += Ax[i][j];
-      A[m+i][m+j] += Ax[i][j];
-    }
-
-  for (i=1; i<=m; i++) for (auto it : Ay[i]) { j = it.first;
-      A[  i][  j] += Ay[i][j];
-      A[m+i][m+j] += Ay[i][j];
-    }
-
-  for (i=1; i<=m; i++) for (auto it : D[i]) { j = it.first;
-      A[  i][  j] += D[i][j]/Re();
-      A[m+i][m+j] += D[i][j]/Re();
-    }
-
-  for (i=1; i<=m; i++) for (auto it : Hx[i]) { j = it.first;
-      A[    i][2*m+j] = -Hx[i][j];
-      A[2*m+j][    i] = -Hx[i][j];
-    }
-
-  for (i=1; i<=m; i++) for (auto it : Hy[i]) { j = it.first;
-      A[  m+i][2*m+j] = -Hy[i][j];
-      A[2*m+j][  m+i] = -Hy[i][j];
-    }
-  
-  b.clear();
-
-  for (i=1; i<=m; i++) {
-    b[  i] = 0.0;
-    b[m+i] = 0.0;
-    for (j=1; j<=m; j++) { 
-      b[  i] += M[i][j]*U[  j]/tau();
-      b[m+i] += M[i][j]*U[m+j]/tau();
-    }
-  }
-  
-  m = dimp2(N);
-  for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"v0")) {
-      A[i].clear();
-      A[i+m].clear();
-      A[i][i] = 1.0;
-      A[i+m][i+m] = 1.0;
-      b[i] = 0.0;
-      b[i+m] = 0.0;
-    }
-
-  for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"v1")) {
-      A[i].clear();
-      A[i+m].clear();
-      A[i][i] = 1.0;
-      A[i+m][i+m] = 1.0;
-      b[i] = 0.0;
-      b[i+m] = 0.0;
-    }
-
-  for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"v2")) {
-      A[i].clear();
-      A[i+m].clear();
-      A[i][i] = 1.0;
-      A[i+m][i+m] = 1.0;
-      b[i] = 0.0;
-      b[i+m] = 0.0;
-    }
-
-  for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"v3")) {
-      A[i].clear();
-      A[i+m].clear();
-      A[i][i] = 1.0;
-      A[i+m][i+m] = 1.0;
-      b[i] = 0.0;
-      b[i+m] = 0.0;
-    }
-
-  for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"e0")) {
-      A[i+m].clear();
-      A[i+m][i+m] = 1.0;
-      b[i+m] = 0.0;
-    }
-
-
-  for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"e1")) {
-      A[i].clear();
-      A[i][i] = 1.0;
-      b[i] = 0.0;
-    }
-
-  for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"e2")) {
-      A[i].clear();
-      A[i+m].clear();
-      A[i][i] = 1.0;
-      A[i+m][i+m] = 1.0;
-      b[i] = 1.0;
-      b[i+m] = 0.0;
-    }
-
-  for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"e3")) {
-      A[i].clear();
-      A[i][i] = 1.0;
-      b[i] = 0.0;
-    }
-
-  A[2*m+1].clear();
-  A[2*m+1][2*m+1] = 1.0;
-  b[2*m+1] = 0.0;
-  
-}
-
-void plotuv(FILE *pp,vector<double>&U,vector<xyc>&Z,vector<nde>&N,vector<xyc>&Mid){
-
   double scale=0.4;
   long arrow =1 ;
   int i, m=Mid.size()-1;
@@ -528,9 +410,9 @@ void plotuv(FILE *pp,vector<double>&U,vector<xyc>&Z,vector<nde>&N,vector<xyc>&Mi
   sleep(1);
 }
 
+
 #include "est/solver.hpp"
 #include "est/matrix.hpp"
-
 
 void sparse__solve(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
 {
@@ -545,8 +427,11 @@ void sparse__solve(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
   
   
   for ( i=1; i<A.size(); i++) for (auto it: A[i]) { j = it.first;
+      if ( it.second != 0.0)
 	AA[i-1][j-1] = A[i][j];
-      }
+      else
+	;
+	  }
     for ( i=1; i<A.size(); i++)
       bb[i-1] = b[i];
 
@@ -560,43 +445,10 @@ void sparse__solve(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
 
 }
 
-
-void sparse__solve2(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
-{
-  int i, j;
-  matrix AA;
-  vector<double> x(A.size()-1), bb(A.size()-1);
-  Preconditioner M;
-
-  AA.resize(A.size()-1);
-
-  for (int i = 0; i<AA.size(); i++) AA[i].clear();
-  
-  
-  for ( i=1; i<A.size(); i++) for (auto it: A[i]) { j = it.first;
-	AA[i-1][j-1] = A[i][j];
-      }
-    for ( i=1; i<A.size(); i++)
-      bb[i-1] = b[i];
-
-    x = bicgstab(M,AA,bb);
-    vector<double> gpubicgstab(matrix&, vector<double>&);
-    //x = gpubicgstab(AA,bb);
-
-    for(i=0; i<=x.size(); i++){
-      U[i+1] = x[i];
-    }
-
-}
 
 void swapcolumn(sparse::matrix<double>&A,int p, int q)
 {
-  vector<double> tmpA(A.size());
-  int j;
-
-  for (j=1; j<A.size(); j++) tmpA[j] = A[j][p];
-  for (j=1; j<A.size(); j++) A[j][p] = A[j][q];
-  for (j=1; j<A.size(); j++) A[j][q] = tmpA[j];
+  for (int j=0; j<A.size(); j++) swap(A[j][p],A[j][q]);
 }
 
 
@@ -608,122 +460,83 @@ void matrixreorder(map<int,int>&Aindex,sparse::matrix<double>&A)
 {
   int m, n, i, j, k;
 
-  //A[k][k]以降はゼロ成分
+  /* A[k][k]以降はゼロ成分 */
   for ( k=1;A[k][k]!=0.0;k++ );
 
   set<int> NG;
   NG.clear();
-  double eps = 0.04;
+  double eps = 0.001, max = 0.0;
   n = A.size();
+  int Notfound;
+
   for( ; k<n; k++) 
     {
+      for ( auto it : NG ) printf("%d ",it);
+      printf("\n");
+      
+      max = -10.0;
       for ( auto it : A[k] ) {
 	i = it.first;
-	if ( it.second > eps && A[i][k] > eps )  {
-	  if ( NG.find(i) != NG.end() ) continue;
-	  NG.insert(i);
-	  swapcolumn(A,i,k);
-	  Aindex[i] = k;
-	  break;
-	}	
+	if ( NG.find(i) == NG.end() ) if ( max < A[k][i] ) max = A[k][i];
       }
+      for ( auto it: A[k] ) {
+	Notfound = 0;
+	i = it.first;
+	if ( NG.find(i) == NG.end() ) {
+	  printf("Not found %d\n",i);
+	  if ( max * 0.4 < A[k][i] ) 
+	    {
+	      if ( A[i][k] > eps ) 
+		{
+		  NG.insert(i);
+		  Aindex[i] = k;
+		  printf("max = %f %d %d\n",max,i,k);
+		  break;
+		}
+	    }
+	}
+      }
+      printf("Notfound = %d\n",Notfound);
     }
   NG.clear();
+
+  for(auto it: Aindex ) { i = it.first; swapcolumn(A,Aindex[i],i);}
 }
 
 
-
-
-void matrixreorder2(map<int,int>&Aindex,sparse::matrix<double>&A)
+void printdiag(sparse::matrix<double>&A)
 {
-  int m, n, i, j, k;
-
-  //A[k][k]以降はゼロ成分
-  for ( k=1;A[k][k]!=0.0;k++ );
-
-  set<int> NG;
-  NG.clear();
-  double eps = 0.04;
-  n = A.size();
-  for( ; k<n; k++) 
-    {
-      for ( auto it : A[k] ) {
-	i = it.first;
-	if ( it.second > eps && A[i][k] > eps )  {
-	  if ( NG.find(i) != NG.end() ) continue;
-	  NG.insert(i);
-	  swapcolumn(A,i,k);
-	  Aindex[i] = k;
-	  break;
-	}	
-      }
-    }
-  NG.clear();
+  int k;
+  for (k=0; k<A.size(); k++) if(A[k][k] == 0.0)
+			       printf("A[%d][%d] = 0.0\n",k,k);
 }
 
 
-int main(){
-  FILE *pp = popen("gnuplot","w");
-  
-  vector<xyc>Z; vector<nde>N;
-  f2mesh(fopen("cavity.mesh","r"),Z,N);
+void fprintAindex(FILE *fp, map<int,int> Bindex)
+{
+  for ( auto it : Bindex )
+    fprintf(fp,"%d %d\n",it.first,it.second);
+  fclose(fp);
+}
 
-  vector<xyc> Mid;
-  makeMid(Mid,Z,N);
 
-  int i, j, m = dimp2(N);
+int main(int argc, char **argv)
+{
+  vector<xyc>Z; vector<nde>N; vector<xyc> Mid;
+  f2mesh(fopen("cavity.mesh","r"),Z,N); makeMid(Mid,Z,N);
 
-  sparse::matrix<double> A;
-  A.clear();
-  A.resize(2*m+Z.size());
-  vector<double> U;
-  U.clear();
-  U.resize(2*m+Z.size());
-  vector<double> b;
-  b.clear();
-  b.resize(2*m+Z.size());
-
+  sparse::matrix<double> A; vector<double> U, b;
   map<int,int> Aindex;
-  map<int,int> Bindex;
-  
-  for(int k=0;k<1;k++){
+
+  for(int k=1;k<10;k++){
     fprintf(stderr,"k=%d\n",k);
     makeA(A,U,b,Z,N,Mid);
-    matrixreorder(Aindex,A);
+    //matrixreorder(Aindex,A);
     sparse__solve(A,U,b);
-    for (int i = 0; i<A.size(); i++) A[i].clear();
-#if 1
-    for(auto it: Aindex) {
-      double tmpU;
-      tmpU         = U[it.first];
-      U[it.first]  = U[it.second];
-      U[it.second] = tmpU;
-      fprintf(stderr,"%d %d\n",it.first,it.second);
-    }
+    for(auto it: Aindex) { int i = it.first; swap(U[Aindex[i]],U[i]);}
     Aindex.clear();
-#endif
-    plotuv(pp,U,Z,N,Mid);
-  }
-  
-  for(int k=1;k<2;k++){
-    fprintf(stderr,"k=%d\n",k);
-
-    sparse::matrix<double>B(A.size());
-    
-    makeB(B,U,b,Z,N,Mid);
-    matrixreorder2(Bindex,B);
-    sparse__solve2(B,U,b);
-#if 1
-    for(auto it: Bindex) {
-      double tmpU;
-      tmpU         = U[it.first];
-      U[it.first]  = U[it.second];
-      U[it.second] = tmpU;
-      fprintf(stderr,"%d %d\n",it.first,it.second);
-    }
-    Bindex.clear();
-#endif
-    plotuv(pp,U,Z,N,Mid);
+    plotuv(U,Z,N,Mid);
   }
   sleep(30);
+  return 0;
 }
