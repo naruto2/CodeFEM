@@ -9,5 +9,4 @@ obj: ;
 	rm *.o
 
 clean: a.out
-	rm a.out
-
+	rm a.out lib/libstwart.a
