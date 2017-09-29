@@ -574,6 +574,8 @@ int forful_(integer *ia, integer *l, integer *ma, integer *m,
 }
 
 
+int stwart(sparse::matrix<double>&A);
+
 int main(int argc, char **argv)
 {
   vector<xyc>Z; vector<nde>N; vector<xyc> Mid;
@@ -585,6 +587,7 @@ int main(int argc, char **argv)
   for(int k=1;k<10;k++){
     fprintf(stderr,"k=%d\n",k);
     makeA(A,U,b,Z,N,Mid);
+    // stwart(A);
     matrixreversereorder(Aindex,A);
     sparse__solve(A,U,b);
     for(auto it: Aindex) { int i = it.first; swap(U[Aindex[i]],U[i]);}
