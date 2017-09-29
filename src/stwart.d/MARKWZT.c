@@ -151,15 +151,15 @@ L5:
       integer *IW   = (integer*)calloc(sizeof(integer),mm);
 
 
-      /*
+ 
       stwart_(ib, &ll, mb, &mm, r__, c__, ir, ic, jrow, jcol, ip, jp, &kerns, 
-      &mend, iw, &lg, &ier); */
+      &mend, iw, &lg, &ier); 
+      /*
       stwart_(ib, &ll, mb, &mm, R, C, IR, IC, JROW, JCOL, IP, JP, &kerns, 
-		&mend, IW, &lg, &ier);
+      &mend, IW, &lg, &ier); */
 
       printf("m=%d, l=%d, kerns=%d, mend=%d, lg=%d, ier=%d\n",
 	     mm,    ll,    kerns,    mend,    lg,    ier);
-
 
       free(R);
       free(C);
