@@ -502,6 +502,53 @@ void matrixreorder(map<int,int>&Aindex,sparse::matrix<double>&A)
   for(auto it: Aindex ) { i = it.first; swapcolumn(A,Aindex[i],i);}
 }
 
+void matrixreversereorder(map<int,int>&Aindex,sparse::matrix<double>&A)
+{
+  int m, n, i, j, k, p;
+
+  /* A[k][k]以降はゼロ成分 */
+  for ( k=1;A[k][k]!=0.0;k++ );
+
+  set<int> NG;
+  NG.clear();
+  double eps = 0.001, max = 0.0;
+  int binx = 0, biny = 0;
+  
+  m = k/2;
+  p = k;
+  p = A.size()-4;
+  for(k=A.size()-1; p <= k; k--) 
+    {
+      for ( auto it : NG ) 
+      max = 0.0;
+      for ( j = k-1; 0 <= j; j--) {
+	if ( NG.find(j) == NG.end() ) if ( max < (A[k][j]) )  max = (A[k][j]);
+
+      }
+      for ( j = k-1; m <= j; j--) {
+
+	if ( NG.find(j) == NG.end() ) {
+	  if ( max * 0.5 < (A[k][j]) ) 
+	    {
+	      if ( (A[j][k]) > max * 0.5 ) 
+		{
+		  printf("swap %f %f\n",A[k][j],A[j][k]);
+		  NG.insert(j);
+		  Aindex[j] = k;
+		  break;
+		}
+	    }
+	}
+      }
+    }
+  NG.clear();
+
+  for(auto it: Aindex ) {
+    i = it.first; swapcolumn(A,Aindex[i],i);
+    printf("%d %d\n",Aindex[i],i);
+  }
+}
+
 
 void printdiag(sparse::matrix<double>&A)
 {
@@ -519,6 +566,14 @@ void fprintAindex(FILE *fp, map<int,int> Bindex)
 }
 
 
+#include <f2c.h>
+extern "C" {
+int forful_(integer *ia, integer *l, integer *ma, integer *m,
+	    integer *ip, integer *jp, integer *ir, integer *ic, integer *kerns,
+	    integer *ier);
+}
+
+
 int main(int argc, char **argv)
 {
   vector<xyc>Z; vector<nde>N; vector<xyc> Mid;
@@ -530,7 +585,7 @@ int main(int argc, char **argv)
   for(int k=1;k<10;k++){
     fprintf(stderr,"k=%d\n",k);
     makeA(A,U,b,Z,N,Mid);
-    //matrixreorder(Aindex,A);
+    matrixreversereorder(Aindex,A);
     sparse__solve(A,U,b);
     for(auto it: Aindex) { int i = it.first; swap(U[Aindex[i]],U[i]);}
     Aindex.clear();
