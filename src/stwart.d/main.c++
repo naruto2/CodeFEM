@@ -3,18 +3,19 @@
 #include <f2c.h>
 
 extern "C" {
-  int acutualmain(int argc, char **argv, integer *ib, integer *mb);
+  int acutualmain(int argc, char **argv, integer *ib, integer l, integer *mb, integer m);
 };
 
 integer *generate_ma(sparse::matrix<double>&A)
 {
   int i, j, n;
   integer *ma;
-  ma = (integer*)calloc(sizeof(integer),10000);
+  ma = (integer*)calloc(sizeof(integer),A.size());
   
   n = 0;
   for ( i = 1; i < A.size(); i++ ) {
-    for ( j = 1; j < A.size(); j++ ) {
+    for ( auto it:A[i]) {
+      j = it.first;
       if ( A[i][j] != 0.0 ) n++;
     }
     ma[i] = n;
@@ -22,19 +23,27 @@ integer *generate_ma(sparse::matrix<double>&A)
   return ma;
 }
 
-integer *generate_ia(sparse::matrix<double>&A)
+integer generate_ia(sparse::matrix<double>&A, integer **ia)
 {
   int i, j, n;
-  integer *ia;
-  ia = (integer*)calloc(sizeof(integer),10000);
-  
+
   n = 0;
   for ( i = 1; i < A.size(); i++ ) {
-    for ( j = 1; j < A.size(); j++ ) {
-      if ( A[i][j] != 0.0 ) ia[n++] = j;
+    for ( auto it:A[i] ) {
+      j = it.first;
+      if ( A[i][j] != 0.0 ) n++;
     }
   }
-  return ia;
+  *ia = (integer*)calloc(sizeof(integer),n);
+  printf("ia's n = %d\n",n);
+  n = 0;
+  for ( i = 1; i < A.size(); i++ ) {
+    for ( auto it:A[i] ) {
+      j = it.first;
+      if ( A[i][j] != 0.0 ) (*ia)[n++] = j;
+    }
+  }
+  return n;
 }
 
 int main(int argc, char **argv){
@@ -91,18 +100,16 @@ int main(int argc, char **argv){
     A[16][1]=0; A[16][2]=2; A[16][3]=0; A[16][4]=4; A[16][5]=0; A[16][6]=0; A[16][7]=0; A[16][8]=0; A[16][9]=0; A[16][10]=10;A[16][11]=0; A[16][12]=0; A[16][13]=13;A[16][14]=0; A[16][15]=0; A[16][16]=0; 
 
 
-    integer *mc;
-    mc = generate_ma(A);
-
-    integer *ic;
-    ic = generate_ia(A);
+    integer *ma, m;
+    ma = generate_ma(A);
+    m  = A.size()-1; 
     
-    for ( int i=0; i<A.size(); i++) printf("%d ",mc[i]);
-    printf("world\n");
-
-    for ( int i=0; i<100; i++) printf("%d ",ic[i]);
-    printf("world\n");
-
-    acutualmain(argc, argv, ic, mc);
+    integer *ia, l;
+    l = generate_ia(A,&ia);
+    
+    for ( int i=0; i<A.size(); i++) printf("%d ",ma[i]); printf("ma\n");
+    for ( int i=0; i<l; i++) printf("%d ",ia[i]); printf("ia\n");
+    
+    acutualmain(argc, argv, ia, l, ma, m);
   return 0;
 }

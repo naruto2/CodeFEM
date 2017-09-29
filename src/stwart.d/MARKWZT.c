@@ -10,6 +10,7 @@
 		http://www.netlib.org/f2c/libf2c.zip
 */
 
+#include <stdio.h>
 #include <stdlib.h> /* For exit() */
 #include <f2c.h>
 
@@ -21,18 +22,18 @@ static integer c__9 = 9;
 
 
 /* Actual main program */
-int acutualmain(int argc, char **argv, integer *ib, integer *mb)
+int acutualmain(int argc, char **argv, integer *ib, integer ll, integer *mb, integer mm)
 {
-  extern int MAIN__(integer *ib, integer *mb);
+  extern int MAIN__(integer *ib, integer ll, integer *mb, integer mm);
 	libf2c_init(argc, argv);
-	MAIN__(ib,mb);
+	MAIN__(ib,ll,mb,mm);
 	libf2c_close();
 	exit(0);
 	return 0;
 }
 
 /* Main program */
-int MAIN__(integer *ib, integer *mb)
+int MAIN__(integer *ib, integer ll, integer *mb, integer mm)
 {
     /* Initialized data */
 
@@ -139,10 +140,37 @@ L5:
 	}
 	e_wsle();
     } else {
-      printf("l=%d, m=%d\n",l,m);
-      stwart_(ib, &l, mb, &m, r__, c__, ir, ic, jrow, jcol, ip, jp, &kerns, 
-		&mend, iw, &lg, &ier);
-	s_wsle(&io___32);
+      integer *R    = (integer*)calloc(sizeof(integer),mm);
+      integer *C    = (integer*)calloc(sizeof(integer),mm);
+      integer *IR   = (integer*)calloc(sizeof(integer),mm);
+      integer *IC   = (integer*)calloc(sizeof(integer),mm);
+      integer *JROW = (integer*)calloc(sizeof(integer),mm);
+      integer *JCOL = (integer*)calloc(sizeof(integer),mm);
+      integer *IP   = (integer*)calloc(sizeof(integer),mm);
+      integer *JP   = (integer*)calloc(sizeof(integer),mm);
+      integer *IW   = (integer*)calloc(sizeof(integer),mm);
+
+
+      /*
+      stwart_(ib, &ll, mb, &mm, r__, c__, ir, ic, jrow, jcol, ip, jp, &kerns, 
+      &mend, iw, &lg, &ier); */
+      stwart_(ib, &ll, mb, &mm, R, C, IR, IC, JROW, JCOL, IP, JP, &kerns, 
+		&mend, IW, &lg, &ier);
+
+      printf("m=%d, l=%d, kerns=%d, mend=%d, lg=%d, ier=%d\n",
+	     mm,    ll,    kerns,    mend,    lg,    ier);
+
+
+      free(R);
+      free(C);
+      free(IR);
+      free(IC);
+      free(JROW);
+      free(JCOL);
+      free(IP);
+      free(JP);
+      
+        s_wsle(&io___32);
 	do_lio(&c__9, &c__1, "STEWART METHOD. ", (ftnlen)16);
 	do_lio(&c__3, &c__1, (char *)&mend, (ftnlen)sizeof(integer));
 	i__2 = kerns - 1;
