@@ -573,13 +573,24 @@ int forful_(integer *ia, integer *l, integer *ma, integer *m,
 	    integer *ier);
 }
 
+sparse::matrix<double> T(sparse::matrix<double>&A)
+{
+  int i, j, n = A.size();
+  sparse::matrix<double> AT(n);
 
+  for ( i = 1; i < n; i++) for ( auto it : A[i] ) {
+      j = it.first;
+      if ( A[i][j] != 0.0 ) AT[j][i] = A[i][j];
+    }
+  return AT;
+}
 int stwart(sparse::matrix<double>&A);
+int GLU1(sparse::matrix<double>&A);
 
 int main(int argc, char **argv)
 {
   vector<xyc>Z; vector<nde>N; vector<xyc> Mid;
-  f2mesh(fopen("cavity.mesh","r"),Z,N); makeMid(Mid,Z,N);
+  f2mesh(fopen("mini.mesh","r"),Z,N); makeMid(Mid,Z,N);
 
   sparse::matrix<double> A; vector<double> U, b;
   map<int,int> Aindex;
@@ -587,7 +598,10 @@ int main(int argc, char **argv)
   for(int k=1;k<10;k++){
     fprintf(stderr,"k=%d\n",k);
     makeA(A,U,b,Z,N,Mid);
-    // stwart(A);
+    sparse::matrix<double> AT = T(A);
+    printf("stwart=%d\n",stwart(AT));
+    exit(0);
+    printf("GLU1=%d\n",GLU1(AT));
     matrixreversereorder(Aindex,A);
     sparse__solve(A,U,b);
     for(auto it: Aindex) { int i = it.first; swap(U[Aindex[i]],U[i]);}

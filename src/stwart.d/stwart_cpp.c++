@@ -16,7 +16,7 @@ integer *generate_ma(sparse::matrix<double>&A)
 {
   int i, j, n;
   integer *ma;
-  ma = (integer*)calloc(sizeof(integer),A.size());
+  ma = (integer*)calloc(sizeof(integer),A.size()+1);
   
   n = 0;
   for ( i = 1; i < A.size(); i++ ) {
@@ -40,7 +40,7 @@ integer generate_ia(sparse::matrix<double>&A, integer **ia)
       if ( A[i][j] != 0.0 ) n++;
     }
   }
-  *ia = (integer*)calloc(sizeof(integer),n);
+  *ia = (integer*)calloc(sizeof(integer),n+1);
 
   n = 0;
   for ( i = 1; i < A.size(); i++ ) {
