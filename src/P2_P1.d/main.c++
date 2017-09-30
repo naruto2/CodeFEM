@@ -586,28 +586,24 @@ sparse::matrix<double> T(sparse::matrix<double>&A)
 }
 int stwart(sparse::matrix<double>&A);
 int GLU1(sparse::matrix<double>&A);
+int GSLV1(sparse::matrix<double>&A, vector<double>&b);
 
 int main(int argc, char **argv)
 {
   vector<xyc>Z; vector<nde>N; vector<xyc> Mid;
-  f2mesh(fopen("mini.mesh","r"),Z,N); makeMid(Mid,Z,N);
+  f2mesh(fopen("cavity16.mesh","r"),Z,N); makeMid(Mid,Z,N);
 
   sparse::matrix<double> A; vector<double> U, b;
   map<int,int> Aindex;
 
-  for(int k=1;k<10;k++){
+  for(int k=1;k<1000;k++){
     fprintf(stderr,"k=%d\n",k);
     makeA(A,U,b,Z,N,Mid);
-    sparse::matrix<double> AT = T(A);
-    printf("stwart=%d\n",stwart(AT));
-    exit(0);
-    printf("GLU1=%d\n",GLU1(AT));
-    matrixreversereorder(Aindex,A);
-    sparse__solve(A,U,b);
-    for(auto it: Aindex) { int i = it.first; swap(U[Aindex[i]],U[i]);}
-    Aindex.clear();
+    printf("A.size()=%d\n",A.size());
+    GSLV1(A,b);
+    for(int i=1;i<b.size();i++)U[i] = b[i];
     plotuv(U,Z,N,Mid);
   }
-  sleep(30);
+  sleep(300);
   return 0;
 }
