@@ -587,11 +587,12 @@ sparse::matrix<double> T(sparse::matrix<double>&A)
 int stwart(sparse::matrix<double>&A);
 int GLU1(sparse::matrix<double>&A);
 int GSLV1(sparse::matrix<double>&A, vector<double>&b);
+int estiva__bicgstab(sparse::matrix<double>&,vector<double>&);
 
 int main(int argc, char **argv)
 {
   vector<xyc>Z; vector<nde>N; vector<xyc> Mid;
-  f2mesh(fopen("cavity16.mesh","r"),Z,N); makeMid(Mid,Z,N);
+  f2mesh(fopen("cavity.mesh","r"),Z,N); makeMid(Mid,Z,N);
 
   sparse::matrix<double> A; vector<double> U, b;
   map<int,int> Aindex;
