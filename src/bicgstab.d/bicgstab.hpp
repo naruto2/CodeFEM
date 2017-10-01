@@ -20,8 +20,7 @@
 //*****************************************************************
 
 int 
-sparse__BiCGSTAB(const sparse::matrix<double> &A, vector<double> &x,
-		 const vector<double> &b,
+sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 		 int &max_iter, double &tol)
 {
   int k, n = A.size();
@@ -29,7 +28,17 @@ sparse__BiCGSTAB(const sparse::matrix<double> &A, vector<double> &x,
   tmp = 0.0;
   for (k=1;k<n;k++) tmp += b[k]*b[k];
   double tmq,resid,rho_1,rho_2,alpha,beta,omega, normb = sqrt(tmp);
-  vector<double> r(n), p(n), phat(n), s(n), shat(n), t(n), v(n), rtilde(n);
+
+  static double *r,*p,*phat,*s,*shat,*t,*v,*rtilde;
+  if (!r) r = (double*)calloc(n,sizeof(double));
+  if (!p) p = (double*)calloc(n,sizeof(double));
+  if (!s) s = (double*)calloc(n,sizeof(double));
+  if (!t) t = (double*)calloc(n,sizeof(double));
+  if (!v) v = (double*)calloc(n,sizeof(double));
+  if (!phat) phat = (double*)calloc(n,sizeof(double));
+  if (!shat) shat = (double*)calloc(n,sizeof(double));
+  if (!rtilde) rtilde = (double*)calloc(n,sizeof(double));
+  
   for (k=1;k<n;k++ ) {
     r[k] = 0.0;
     for (auto j : A[k] ) r[k] += j.second * x[j.first];
