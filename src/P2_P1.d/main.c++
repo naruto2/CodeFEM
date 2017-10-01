@@ -592,7 +592,7 @@ int estiva__bicgstab(sparse::matrix<double>&,vector<double>&);
 int main(int argc, char **argv)
 {
   vector<xyc>Z; vector<nde>N; vector<xyc> Mid;
-  f2mesh(fopen("cavity.mesh","r"),Z,N); makeMid(Mid,Z,N);
+  f2mesh(fopen("cavity16.mesh","r"),Z,N); makeMid(Mid,Z,N);
 
   sparse::matrix<double> A; vector<double> U, b;
   map<int,int> Aindex;
@@ -601,8 +601,8 @@ int main(int argc, char **argv)
     fprintf(stderr,"k=%d\n",k);
     makeA(A,U,b,Z,N,Mid);
     printf("A.size()=%d\n",A.size());
-    GSLV1(A,b);
-    for(int i=1;i<b.size();i++)U[i] = b[i];
+    sparse__solve(A,U,b);
+    //for(int i=1;i<b.size();i++)U[i] = b[i];
     plotuv(U,Z,N,Mid);
   }
   sleep(300);

@@ -18,7 +18,7 @@ int estiva_bicgstab(long *Ai, long *Aj, double *Aa, double *X, double *B)
   n = Ai[i-1];
   
   static MX *A;
-  initmx(A,n+1,n+1);
+  initmx(A,n+1,30);
 
   for(k=0; Ai[k]!=0; k++) mx(A,Ai[k],Aj[k]) = Aa[k];
 
