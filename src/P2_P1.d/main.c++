@@ -413,7 +413,8 @@ void plotuv(vector<double>&U,vector<xyc>&Z,vector<nde>&N,vector<xyc>&Mid)
   sleep(1);
 }
 
-
+vector<double> sparse__bicgstab(Preconditioner&, sparse::matrix<double>&, vector<double>&);
+  
 
 void sparse__solve(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
 {
@@ -436,7 +437,7 @@ void sparse__solve(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
     for ( i=1; i<A.size(); i++)
       bb[i-1] = b[i];
 
-    x = bicgstab(M,AA,bb);
+    //x = sparse__bicgstab(M,AA,bb);
     vector<double> gpubicgstab(matrix&, vector<double>&);
     //x = gpubicgstab(AA,bb);
 
@@ -444,6 +445,15 @@ void sparse__solve(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
       U[i+1] = x[i];
     }
 
+}
+
+
+
+void sparse__solve2(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
+{
+  Preconditioner M;
+  A[0][0] = 1.0;
+  U = sparse__bicgstab(M,A,b);
 }
 
 
@@ -601,7 +611,7 @@ int main(int argc, char **argv)
     fprintf(stderr,"k=%d\n",k);
     makeA(A,U,b,Z,N,Mid);
     printf("A.size()=%d\n",A.size());
-    sparse__solve(A,U,b);
+    sparse__solve2(A,U,b);
     //for(int i=1;i<b.size();i++)U[i] = b[i];
     plotuv(U,Z,N,Mid);
   }
