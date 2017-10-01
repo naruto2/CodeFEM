@@ -19,71 +19,98 @@
 //  
 //*****************************************************************
 
-template < class Matrix, class Vector, class Preconditioner, class Real >
 int 
-sparse__BiCGSTAB(const Matrix &A, Vector &x, const Vector &b,
-         const Preconditioner &M, int &max_iter, Real &tol)
+sparse__BiCGSTAB(const sparse::matrix<double> &A, vector<double> &x,
+		 const vector<double> &b,
+		 int &max_iter, double &tol)
 {
-  Real resid;
-  Vector rho_1(1), rho_2(1), alpha(1), beta(1), omega(1);
-  Vector p, phat, s, shat, t, v;
+  int k, n = A.size();
+  double tmp;
+  tmp = 0.0;
+  for (k=1;k<n;k++) tmp += b[k]*b[k];
+  double tmq,resid,rho_1,rho_2,alpha,beta,omega, normb = sqrt(tmp);
+  vector<double> r(n), p(n), phat(n), s(n), shat(n), t(n), v(n), rtilde(n);
+  for (k=1;k<n;k++ ) {
+    r[k] = 0.0;
+    for (auto j : A[k] ) r[k] += j.second * x[j.first];
+  }
+  for(k=1;k<n;k++) rtilde[k] = r[k] = b[k] - r[k];
 
-  Real normb = norm(b);
-  Vector r = b - A * x;
-  Vector rtilde = r;
-
-  if (normb == 0.0)
-    normb = 1;
-  
-  if ((resid = norm(r) / normb) <= tol) {
+  if (normb == 0.0) normb = 1;
+  tmp=0.0;
+  for (k=1;k<n;k++) tmp += r[k]*r[k];  
+  if ((resid = sqrt(tmp) / normb) <= tol) {
     tol = resid;
     max_iter = 0;
     return 0;
   }
 
   for (int i = 1; i <= max_iter; i++) {
-    rho_1[0] = dot(rtilde, r);
-    if (rho_1[0] == 0) {
-      tol = norm(r) / normb;
+
+    rho_1=0.0;
+    for (k=1; k<n; k++ ) rho_1 += rtilde[k]*r[k];
+
+    if (rho_1 == 0) {
+      tmp=0.0;
+      for (k=1;k<n;k++) tmp += r[k]*r[k];
+      tol = sqrt(tmp) / normb;
       return 2;
     }
     if (i == 1)
-      p = r;
+      for(k=1;k<n;k++) p[k]=r[k];
     else {
-      beta[0] = (rho_1[0]/rho_2[0]) * (alpha[0]/omega[0]);
-      p = r + beta[0] * (p - omega[0] * v);
+      beta = (rho_1/rho_2) * (alpha/omega);
+      for(k=1;k<n;k++) p[k] = r[k] + beta * (p[k] - omega *v[k]);
     }
-    phat = M.solve(p);
-    v = A * phat;
-    alpha[0] = rho_1[0] / dot(rtilde, v);
-    s = r - alpha[0] * v;
-    if ((resid = norm(s)/normb) < tol) {
-      x = x + alpha[0] * phat;
+    for(k=1;k<n;k++) phat[k] = p[k];
+
+    for (k=1;k<n;k++ ) {
+      v[k] = 0.0;
+      for (auto j : A[k] ) v[k] += j.second * phat[j.first];
+    }
+
+    tmp=0.0;
+    for (k=1;k<n;k++) tmp += rtilde[k]*v[k];
+    alpha = rho_1 / tmp;
+
+    for(k=1;k<n;k++) s[k] = r[k] - alpha * v[k];
+
+    tmp=0.0;
+    for (k=1;k<n;k++) tmp += s[k]*s[k];
+    if ((resid = sqrt(tmp)/normb) < tol) {
+      for(k=1;k<n;k++) x[k] = x[k] + alpha*phat[k];
       tol = resid;
       return 0;
     }
-    shat = M.solve(s);
-    t = A * shat;
-    omega[0] = dot(t,s) / dot(t,t);
+    for(k=1;k<n;k++) shat[k] = s[k];
 
+    for (k=1;k<n;k++ ) {
+      t[k] = 0.0;
+      for (auto j : A[k] ) t[k] += j.second * shat[j.first];
+    }
+    tmp=0.0;
+    for (k=1;k<n;k++) tmp += t[k]*s[k];
+    tmq=0.0;
+    for (k=1;k<n;k++) tmq += t[k]*t[k];
+    omega = tmp / tmq;
 
-    Vector x1, x2;
-    x1 = alpha[0] * phat;
-    x2 = omega[0] * shat;
-    x = x + x1;
-    x = x + x2;
-    //x = x + alpha[0] * phat + omega[0] * shat;
+    for(k=1;k<n;k++) {
+      x[k] = x[k] + alpha*phat[k] + omega*shat[k];
+      r[k] = s[k] - omega * t[k];
+    }
+    rho_2 = rho_1;
 
-
-    r = s - omega[0] * t;
-    rho_2[0] = rho_1[0];
-    if ((resid = norm(r) / normb) < tol) {
+    tmp=0.0;
+    for (k=1;k<n;k++) tmp += r[k]*r[k];
+    if ((resid = sqrt(tmp) / normb) < tol) {
       tol = resid;
       max_iter = i;
       return 0;
     }
-    if (omega[0] == 0) {
-      tol = norm(r) / normb;
+    if (omega == 0) {
+      tmp=0.0;
+      for (k=1;k<n;k++) tmp += r[k]*r[k];
+      tol = sqrt(tmp) / normb;
       return 3;
     }
   }
