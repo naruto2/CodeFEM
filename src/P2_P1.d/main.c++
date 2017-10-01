@@ -410,10 +410,9 @@ void plotuv(vector<double>&U,vector<xyc>&Z,vector<nde>&N,vector<xyc>&Mid)
   }
   fprintf(pp,"e\n");
   fflush(pp);
-  sleep(1);
 }
 
-vector<double> sparse__bicgstab(Preconditioner&, sparse::matrix<double>&, vector<double>&);
+vector<double> sparse__bicgstab(sparse::matrix<double>&, vector<double>&);
   
 
 void sparse__solve(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
@@ -451,9 +450,7 @@ void sparse__solve(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
 
 void sparse__solve2(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
 {
-  Preconditioner M;
-  A[0][0] = 1.0;
-  U = sparse__bicgstab(M,A,b);
+  U = sparse__bicgstab(A,b);
 }
 
 
