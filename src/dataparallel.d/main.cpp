@@ -165,7 +165,8 @@ int main(int argc, char **argv)
 
 
     for(k=0;k<8192;k++) printf("z[%d]=%f\n",k,z[k]);
-    printf("np=%d\n",result[0]);    
+    printf("np=%d\n",result[0]);
+    for (k=1;k<5;k++) printf("out[%d]=%d\n",k,result[k]);    
     /* Deallocate memory on the host */
     free(result);
     free(kernel_src_str);
