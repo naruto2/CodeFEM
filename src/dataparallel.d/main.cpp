@@ -163,30 +163,28 @@ int main(int argc, char **argv)
     x_norm[0] = 0.0;
     for(k=1;k<nn;k++) x_norm[k] = 1.0;
 
+
+
+
     cl_mem mem_x_norm = NULL;
     cl_kernel kernel_norm = NULL;
     kernel_norm = clCreateKernel(program, "mynorm", &ret);
-    printf("ret3=%d\n",ret);
+    printf("kernel_norm=%d\n",ret);
     mem_x_norm  = clCreateBuffer(context, CL_MEM_READ_WRITE,
 				 nn * sizeof(float), NULL, &ret);
     ret = clEnqueueWriteBuffer(command_queue, mem_x_norm, CL_TRUE, 0,
 			       nn*sizeof(float),
                                x_norm, 0, NULL, NULL);
-
-    /* Set Kernel Arguments */
     ret = clSetKernelArg(kernel_norm, 0, sizeof(int), (void *)&nn);
-
     ret = clSetKernelArg(kernel_norm, 1, sizeof(cl_mem), (void *)&mem_x_norm);
-
     ret = clEnqueueNDRangeKernel(command_queue, kernel_norm, work_dim, NULL,
                                  global_item_size, local_item_size,
                                  0, NULL, NULL);
-
     ret = clEnqueueReadBuffer(command_queue, mem_x_norm, CL_TRUE, 0,
-                              nn * sizeof(float),
+                              1 * sizeof(float),
                               x_norm,0, NULL, NULL);
 
-
+    printf("norm(x) =%f\n",k,x_norm[0]);
 #endif // #####################################################################
     /* OpenCL Object Finalization */
 
@@ -197,7 +195,7 @@ int main(int argc, char **argv)
     ret = clReleaseContext(context);
 
 
-    for (k=0;k<5;k++) printf("x_norm[%d] =%f\n",k,x_norm[k]);
+
     for (k=0;k<5;k++) printf("out[%d]=%d\n",k,result[k]);    
     /* Deallocate memory on the host */
     free(result);
