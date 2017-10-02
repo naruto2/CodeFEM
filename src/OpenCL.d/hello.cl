@@ -13,7 +13,7 @@ __kernel void hello(__global char* string)
    string[8] = 'o';
    string[9] = 'r';
    string[10] = 'l';
-   string[11] = 'd';
-   string[12] = '!';
+   string[11] = 'A'+get_global_size(0);
+   string[12] = 'A'+get_global_id(0);
    string[13] = '\0';
 }
