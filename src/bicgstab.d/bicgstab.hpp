@@ -40,13 +40,14 @@ static double dot(int n, double *p, double *q)
   return tmp;
 }
 
-static double phase0(int n, double *r, const sparse::matrix<double>&A,
+static double phase0(int n, double *r, 
+		     double *Aa, int *col_ind, int *row_ptr,
 		     double *x, double *rtilde, double *b)
 {
   double tmp=0.0;
   for (int k=1;k<n;k++ ) {
     r[k] = 0.0;
-    for (auto j : A[k] ) r[k] += j.second * x[j.first];
+    for (int j=row_ptr[k];j<row_ptr[k+1];j++) r[k] += Aa[j] * x[col_ind[j]];
     rtilde[k] = r[k] = b[k] - r[k];
     tmp += r[k]*r[k];
   }
@@ -60,12 +61,11 @@ static void phase1(int n, double *p, double *r, double *v,
   for(int k=1;k<n;k++) p[k] = r[k] + beta * (p[k] - omega *v[k]);
 }
 
-static double phase2(int n, double *v, const sparse::matrix<double>A,
+static double phase2(int n, double *v,
 		     double *Aa, int *col_ind, int *row_ptr,
 		     double *phat, double *rtilde)
 {
   double tmp=0.0;
-#if 1
   for (int k=1;k<n;k++ ) {
     v[k] = 0.0;
     for (int j=row_ptr[k];j<row_ptr[k+1];j++){
@@ -73,18 +73,6 @@ static double phase2(int n, double *v, const sparse::matrix<double>A,
     }
     tmp += rtilde[k]*v[k];
   }
-#endif  
-#if 0
-  for (int k=1;k<n;k++ ) {
-    v[k] = 0.0;
-    int jj = row_ptr[k];
-    for (auto j : A[k] ) {
-      printf("col_ind[jj]=%d j=%d\n",col_ind[jj],j.first);
-      v[k] += j.second * phat[j.first];
-    }
-    tmp += rtilde[k]*v[k];
-  }
-#endif
   return tmp;
 }
 
@@ -101,13 +89,15 @@ static void phase4(int n, double *x, double *phat, double alpha)
 }
 
 
-static double phase5(int n, double *t, const sparse::matrix<double>&A,
+static double phase5(int n, double *t, 
+		     double *Aa, int *col_ind, int *row_ptr,
 		     double *shat, double *s)
 {
   double tmp=0.0, tmq=0.0;
   for (int k=1;k<n;k++ ) {
     t[k] = 0.0;
-    for (auto j : A[k] ) t[k] += j.second * shat[j.first];
+    for (int j=row_ptr[k];j<row_ptr[k+1];j++)
+      t[k] += Aa[j] * shat[col_ind[j]];
     tmp += t[k]*s[k];
     tmq += t[k]*t[k];
   }
@@ -145,8 +135,6 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
     for (auto j : A[k] ) if(j.second != 0.0) w++;
   }
   row_ptr[n] = w;
-  for(k=0;k<=n;k++)printf("row_ptr[%d]=%d\n",k,row_ptr[k]);
-  printf("w=%d\n",w);
 
   if( ww < w ) { free(Aa); free(col_ind); Aa=0; }
   if (!Aa){
@@ -162,14 +150,10 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 	ii++;
       }
 
-#if 0
-  for ( k=1;k<w;k++) printf("col_ind[%d]=%d Aa[%d]=%f\n",
-			     k,col_ind[k],k,Aa[k]);
-#endif  
   double resid,rho_1,rho_2,alpha,beta,omega, normb = norm(n,b);
   if (normb == 0.0) normb = 1;
 
-  if ((resid = phase0(n,r,A,x,rtilde,b)/normb) <= tol) {
+  if ((resid = phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b)/normb) <= tol) {
     tol = resid;
     max_iter = 0;
     return 0;
@@ -187,7 +171,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
       phase1(n,p,r,v,beta,omega);
     }
     copy(n,phat,p);
-    alpha = rho_1/phase2(n,v,A,Aa,col_ind,row_ptr,phat,rtilde);
+    alpha = rho_1/phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde);
     phase3(n,s,r,v,alpha);
     
     if ((resid = norm(n,s)/normb) < tol) {
@@ -196,7 +180,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
       return 0;
     }
     copy(n,shat,s);
-    omega = phase5(n,t,A,shat,s);
+    omega = phase5(n,t,Aa,col_ind,row_ptr,shat,s);
     phase6(n,x,s,r,t,phat,shat,alpha,omega);
     rho_2 = rho_1;
     if ((resid = norm(n,r)/normb) < tol) {

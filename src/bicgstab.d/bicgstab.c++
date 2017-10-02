@@ -10,6 +10,6 @@ vector<double> sparse__bicgstab(sparse::matrix<double>& A, vector<double>& b){
   A[0][0] = 1.0;
 
   sparse__BiCGSTAB(A, &x[0], &b[0], max_iter, tol);
-  fprintf(stderr,"sparse__BiCGSTAB is successed\n");
+
   return x;
 }
