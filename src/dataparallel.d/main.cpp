@@ -40,7 +40,13 @@ int main(int argc, char **argv)
     float *z, *x, *y;
     cl_int ret;
     FILE *fp;
+    int k;
 
+#ifndef mynorm // mynorm用 ##################################################  
+    int nn = 1024;
+    float *x_norm = (float*)malloc(nn*sizeof(float));
+    for(k=1;k<nn;k++) x_norm[k] = 1.0;
+#endif // #################################################################    
     int window_num = (int)WINDOW_SIZE;
     int point_num = NAME_NUM * DATA_NUM;
     int data_num = (int)DATA_NUM;
@@ -56,7 +62,7 @@ int main(int argc, char **argv)
     z = (float *)malloc(8192*sizeof(float));
     x = (float *)malloc(8192*sizeof(float));
     y = (float *)malloc(8192*sizeof(float));
-    int k;
+
     for(k=0;k<8192;k++) x[k] = 1.0;
     for(k=0;k<8192;k++) y[k] = 1.0;
 
@@ -88,6 +94,8 @@ int main(int argc, char **argv)
     /* Create kernel */
     kernel = clCreateKernel(program, "moving_average_vec4_para", &ret);
 
+#ifndef mynorm // mynorm用 ################################################## 
+#endif // #####################################################################
     /* Create buffer for the input data on the device */
     memobjIn  = clCreateBuffer(context, CL_MEM_READ_WRITE,
                                point_num * sizeof(int), NULL, &ret);
@@ -151,22 +159,46 @@ int main(int argc, char **argv)
     ret = clEnqueueReadBuffer(command_queue, memobjOut1, CL_TRUE, 0,
                               8192 * sizeof(float),
                               z, 0, NULL, NULL);
+#ifndef mynorm // mynorm用 ################################################## 
+    cl_mem mem_x_norm = NULL;
+    cl_kernel kernel_norm = NULL;
+    kernel_norm = clCreateKernel(program, "mynorm", &ret);
+    mem_x_norm  = clCreateBuffer(context, CL_MEM_READ_WRITE,
+				 nn * sizeof(float), NULL, &ret);
+    ret = clEnqueueWriteBuffer(command_queue, mem_x_norm, CL_TRUE, 0,
+			       nn * sizeof(float),
+                               x_norm, 0, NULL, NULL);
+
+    /* Set Kernel Arguments */
+    ret = clSetKernelArg(kernel_norm, 0, sizeof(int), (void *)&nn);
+
+    ret = clSetKernelArg(kernel_norm, 1, sizeof(cl_mem), (void *)&mem_x_norm);
+
+    ret = clEnqueueNDRangeKernel(command_queue, kernel_norm, work_dim, NULL,
+                                 global_item_size, local_item_size,
+                                 0, NULL, NULL);
+
+    ret = clEnqueueReadBuffer(command_queue, mem_x_norm, CL_TRUE, 0,
+                              nn * sizeof(float),
+                              x_norm, 0, NULL, NULL);
 
 
+#endif // #####################################################################
     /* OpenCL Object Finalization */
     ret = clReleaseKernel(kernel);
     ret = clReleaseProgram(program);
     ret = clReleaseMemObject(memobjIn);
     ret = clReleaseMemObject(memobjOut);
     ret = clReleaseMemObject(memobjOut1);
+    ret = clReleaseMemObject(mem_x_norm);
+    ret = clReleaseKernel(kernel_norm);
+    printf("ret=%d\n",ret);
     ret = clReleaseCommandQueue(command_queue);
     ret = clReleaseContext(context);
 
 
-
-    for(k=0;k<8192;k++) printf("z[%d]=%f\n",k,z[k]);
-    printf("np=%d\n",result[0]);
-    for (k=1;k<5;k++) printf("out[%d]=%d\n",k,result[k]);    
+    printf("x_norm[0] =%f\n",x_norm[0]);
+    for (k=0;k<5;k++) printf("out[%d]=%d\n",k,result[k]);    
     /* Deallocate memory on the host */
     free(result);
     free(kernel_src_str);
