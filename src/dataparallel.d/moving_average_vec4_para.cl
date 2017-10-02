@@ -35,17 +35,15 @@ __kernel void moving_average_vec4_para(__global int4  *values,
 }
 
 
-__kernel void mynorm(int n,__global *x)
+__kernel void mynorm(int n,__global float *x)
 {
   int np   = get_global_size(0);
   int rank = get_global_id(0);
   int k;
-  float tmp;
 
-  if ( rank == 0){
-    tmp = 0.0;
-    for(k=1;k<n;k++) tmp += x[k]*x[k];
-    x[0] = 1.0;
+  if ( rank == 0 ) {
+    x[0] = 0.0;
+    for (k=1;k<n;k++) x[0] += x[k]*x[k];
   }
-  barrier(CLK_GLOBAL_MEM_FENCE);
+
 }
