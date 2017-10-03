@@ -18,6 +18,11 @@
 //      tol  --  the residual after the final iteration
 //  
 //*****************************************************************
+double cl_norm(int n, double *x);
+void   cl_copy(int n, double *y, double *x);
+void   cl_init(int argc, char **argv);
+double  cl_dot(int n, double *y, double *x);
+
 
 static double norm(int n, double *x)
 {
@@ -29,6 +34,7 @@ static double norm(int n, double *x)
 
 static void copy(int n, double *p, double *q)
 {
+  return;
   for (int k=1;k<n;k++) p[k]=q[k];
 }
 
@@ -117,6 +123,7 @@ static void phase6(int n, double *x, double *s, double *r, double *t,
 int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 		     int &max_iter, double &tol)
 {
+  cl_init(0,NULL);
   static int nn, k, ww, w, *row_ptr, *col_ind, n = A.size();
   static double *r,*p,*phat,*s,*shat,*t,*v,*rtilde, *Aa;
 
@@ -150,7 +157,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 	ii++;
       }
 
-  double resid,rho_1,rho_2,alpha,beta,omega, normb = norm(n,b);
+  double resid,rho_1,rho_2,alpha,beta,omega, normb = cl_norm(n,b);
   if (normb == 0.0) normb = 1;
 
   if ((resid = phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b)/normb) <= tol) {
@@ -159,37 +166,37 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
     return 0;
   }
   for (int i = 1; i <= max_iter; i++) {
-    rho_1 = dot(n,rtilde,r);
+    rho_1 = cl_dot(n,rtilde,r);
     if (rho_1 == 0) {
-      tol = norm(n,r)/normb;
+      tol = cl_norm(n,r)/normb;
       return 2;
     }
     if (i == 1)
-      copy(n,p,r);
+      cl_copy(n,p,r);
     else {
       beta = (rho_1/rho_2) * (alpha/omega);
       phase1(n,p,r,v,beta,omega);
     }
-    copy(n,phat,p);
+    cl_copy(n,phat,p);
     alpha = rho_1/phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde);
     phase3(n,s,r,v,alpha);
     
-    if ((resid = norm(n,s)/normb) < tol) {
+    if ((resid = cl_norm(n,s)/normb) < tol) {
       phase4(n,x,phat,alpha);
       tol = resid;
       return 0;
     }
-    copy(n,shat,s);
+    cl_copy(n,shat,s);
     omega = phase5(n,t,Aa,col_ind,row_ptr,shat,s);
     phase6(n,x,s,r,t,phat,shat,alpha,omega);
     rho_2 = rho_1;
-    if ((resid = norm(n,r)/normb) < tol) {
+    if ((resid = cl_norm(n,r)/normb) < tol) {
       tol = resid;
       max_iter = i;
       return 0;
     }
     if (omega == 0) {
-      tol = norm(n,r)/normb;
+      tol = cl_norm(n,r)/normb;
       return 3;
     }
   }
