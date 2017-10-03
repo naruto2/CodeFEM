@@ -12,7 +12,7 @@ static size_t local_item_size[3];
 static cl_program program = NULL;
 static char *kernel_src_str;
 
-static double cl_norm(int n, double *x)
+double cl_norm(int n, double *x)
 {
   static cl_mem mem_x = NULL;
   static cl_kernel kernel_norm = NULL;
@@ -41,7 +41,7 @@ static double cl_norm(int n, double *x)
 }
 
 
-static void cl_copy(int n, double *y, double *x)
+void cl_copy(int n, double *y, double *x)
 {
   static cl_mem mem_y = NULL;
   static cl_mem mem_x = NULL;
@@ -75,7 +75,7 @@ static void cl_copy(int n, double *y, double *x)
 }
 
 
-static double cl_dot(int n, double *y, double *x)
+double cl_dot(int n, double *y, double *x)
 {
   static cl_mem mem_y = NULL;
   static cl_mem mem_x = NULL;
@@ -176,22 +176,3 @@ void cl_finalize(void)
     free(kernel_src_str);
 }
 
-
-int main(int argc, char **argv)
-{
-  cl_init(argc,argv);
-
-  int k, n = 65537;
-  double *x = (double*)malloc(sizeof(double)*n);
-  double *y = (double*)malloc(sizeof(double)*n);
-
-  x[0] = 0.0; for(k=1;k<n;k++) x[k] = 1.0;
-
-  printf("norm(n,x) = %f\n",cl_norm(n,x));
-
-  cl_copy(n,y,x);
-  printf("dot(n,y,x) = %f\n",cl_dot(n,y,x));
-
-  cl_finalize();
-  return 0;
-}
