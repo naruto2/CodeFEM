@@ -26,6 +26,7 @@ static size_t global_item_size[3];
 static size_t local_item_size[3];
 static cl_program program = NULL;
 
+
 static float cl_norm(int nn, float *x_norm)
 {
   static cl_mem mem_x_norm = NULL;
@@ -46,6 +47,78 @@ static float cl_norm(int nn, float *x_norm)
     ret = clSetKernelArg(kernel_norm, 0, sizeof(int), (void *)&nn);
     ret = clSetKernelArg(kernel_norm, 1, sizeof(cl_mem), (void *)&mem_x_norm);
     ret = clEnqueueNDRangeKernel(command_queue, kernel_norm, work_dim, NULL,
+                                 global_item_size, local_item_size,
+                                 0, NULL, NULL);
+    ret = clEnqueueReadBuffer(command_queue, mem_x_norm, CL_TRUE, 0,
+                              1 * sizeof(float),
+                              x_norm,0, NULL, NULL);
+    return x_norm[0];
+}
+
+
+static void cl_copy(int nn, float *y_copy, float *x_norm)
+{
+  static cl_mem mem_y_copy = NULL;
+  static cl_mem mem_x_norm = NULL;
+  static cl_kernel  kernel = NULL;
+  int k, ret;
+
+  if(!kernel) {
+    kernel = clCreateKernel(program, "cl_copy", &ret);
+    printf("cl_copy=%d\n",ret);
+  }
+  if(!mem_y_copy)
+    mem_y_copy  = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+				 nn * sizeof(float), NULL, &ret);
+  if(!mem_x_norm)
+    mem_x_norm  = clCreateBuffer(context, CL_MEM_READ_ONLY,
+				 nn * sizeof(float), NULL, &ret);
+
+    ret = clEnqueueWriteBuffer(command_queue, mem_x_norm, CL_TRUE, 0,
+			       nn*sizeof(float),
+                               x_norm, 0, NULL, NULL);
+    ret = clSetKernelArg(kernel, 0, sizeof(int), (void *)&nn);
+    ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_y_copy);
+    ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_x_norm);
+
+    ret = clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
+                                 global_item_size, local_item_size,
+                                 0, NULL, NULL);
+    ret = clEnqueueReadBuffer(command_queue, mem_y_copy, CL_TRUE, 0,
+                              nn * sizeof(float),
+                              y_copy,0, NULL, NULL);
+}
+
+
+static float cl_dot(int nn, float *y_copy, float *x_norm)
+{
+  static cl_mem mem_y_copy = NULL;
+  static cl_mem mem_x_norm = NULL;
+  static cl_kernel  kernel = NULL;
+  int k, ret;
+
+  if(!kernel) {
+    kernel = clCreateKernel(program, "cl_dot", &ret);
+    printf("cl_dot=%d\n",ret);
+  }
+  if(!mem_y_copy)
+    mem_y_copy  = clCreateBuffer(context, CL_MEM_READ_WRITE,
+				 nn * sizeof(float), NULL, &ret);
+  if(!mem_x_norm)
+    mem_x_norm  = clCreateBuffer(context, CL_MEM_READ_WRITE,
+				 nn * sizeof(float), NULL, &ret);
+
+    ret = clEnqueueWriteBuffer(command_queue, mem_y_copy, CL_TRUE, 0,
+			       nn*sizeof(float),
+                               y_copy, 0, NULL, NULL);
+    ret = clEnqueueWriteBuffer(command_queue, mem_x_norm, CL_TRUE, 0,
+			       nn*sizeof(float),
+                               x_norm, 0, NULL, NULL);
+    ret = clSetKernelArg(kernel, 0, sizeof(int), (void *)&nn);
+    ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_y_copy);
+    ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_x_norm);
+
+    ret = clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
                                  global_item_size, local_item_size,
                                  0, NULL, NULL);
     ret = clEnqueueReadBuffer(command_queue, mem_x_norm, CL_TRUE, 0,
@@ -195,9 +268,11 @@ int main(int argc, char **argv)
     float *x_norm = (float*)calloc(sizeof(float),nn);
     x_norm[0] = 0.0;
     for(k=1;k<nn;k++) x_norm[k] = 1.0;
-
     printf("norm(n,x) = %f\n",cl_norm(nn,x_norm));
-    
+
+    float *y_copy = (float*)calloc(sizeof(float),nn);
+    cl_copy(nn,y_copy,x_norm);
+    printf("dot(n,y,x) = %f\n",cl_dot(nn,y_copy,x_norm));
 #endif // #####################################################################
     /* OpenCL Object Finalization */
 
