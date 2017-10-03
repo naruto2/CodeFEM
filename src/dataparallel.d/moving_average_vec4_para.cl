@@ -1,6 +1,6 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
-__kernel void cl_norm(int n,__global float *x)
+__kernel void cl_norm(int n,__global double *x)
 {
   int k, rank = get_global_id(0);
   if(!rank){
@@ -10,7 +10,7 @@ __kernel void cl_norm(int n,__global float *x)
   }
 }
 
-__kernel void cl_copy(int n,__global float *y, __global float *x)
+__kernel void cl_copy(int n,__global double *y, __global double *x)
 {
   int j, k;
   int np   = get_global_size(0);
@@ -21,7 +21,7 @@ __kernel void cl_copy(int n,__global float *y, __global float *x)
   if ( rank == 0 ) for(k=np*size;k<n;k++)  y[k] = x[k];
 }
 
-__kernel void cl_dot(int n,__global float *y, __global float *x)
+__kernel void cl_dot(int n,__global double *y, __global double *x)
 {
   int k, rank = get_global_id(0);
   if(!rank){

@@ -12,7 +12,7 @@ static size_t local_item_size[3];
 static cl_program program = NULL;
 static char *kernel_src_str;
 
-static float cl_norm(int n, float *x)
+static double cl_norm(int n, double *x)
 {
   static cl_mem mem_x = NULL;
   static cl_kernel kernel_norm = NULL;
@@ -24,10 +24,10 @@ static float cl_norm(int n, float *x)
   }
   if(!mem_x)
     mem_x  = clCreateBuffer(context, CL_MEM_READ_WRITE,
-				 n * sizeof(float), NULL, &ret);
+				 n * sizeof(double), NULL, &ret);
 
     ret = clEnqueueWriteBuffer(command_queue, mem_x, CL_TRUE, 0,
-			       n*sizeof(float),
+			       n*sizeof(double),
                                x, 0, NULL, NULL);
     ret = clSetKernelArg(kernel_norm, 0, sizeof(int), (void *)&n);
     ret = clSetKernelArg(kernel_norm, 1, sizeof(cl_mem), (void *)&mem_x);
@@ -35,13 +35,13 @@ static float cl_norm(int n, float *x)
                                  global_item_size, local_item_size,
                                  0, NULL, NULL);
     ret = clEnqueueReadBuffer(command_queue, mem_x, CL_TRUE, 0,
-                              1 * sizeof(float),
+                              1 * sizeof(double),
                               x,0, NULL, NULL);
     return x[0];
 }
 
 
-static void cl_copy(int n, float *y, float *x)
+static void cl_copy(int n, double *y, double *x)
 {
   static cl_mem mem_y = NULL;
   static cl_mem mem_x = NULL;
@@ -54,13 +54,13 @@ static void cl_copy(int n, float *y, float *x)
   }
   if(!mem_y)
     mem_y  = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-				 n * sizeof(float), NULL, &ret);
+				 n * sizeof(double), NULL, &ret);
   if(!mem_x)
     mem_x  = clCreateBuffer(context, CL_MEM_READ_ONLY,
-				 n * sizeof(float), NULL, &ret);
+				 n * sizeof(double), NULL, &ret);
 
     ret = clEnqueueWriteBuffer(command_queue, mem_x, CL_TRUE, 0,
-			       n*sizeof(float),
+			       n*sizeof(double),
                                x, 0, NULL, NULL);
     ret = clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
     ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_y);
@@ -70,12 +70,12 @@ static void cl_copy(int n, float *y, float *x)
                                  global_item_size, local_item_size,
                                  0, NULL, NULL);
     ret = clEnqueueReadBuffer(command_queue, mem_y, CL_TRUE, 0,
-                              n * sizeof(float),
+                              n * sizeof(double),
                               y,0, NULL, NULL);
 }
 
 
-static float cl_dot(int n, float *y, float *x)
+static double cl_dot(int n, double *y, double *x)
 {
   static cl_mem mem_y = NULL;
   static cl_mem mem_x = NULL;
@@ -88,16 +88,16 @@ static float cl_dot(int n, float *y, float *x)
   }
   if(!mem_y)
     mem_y  = clCreateBuffer(context, CL_MEM_READ_WRITE,
-				 n * sizeof(float), NULL, &ret);
+				 n * sizeof(double), NULL, &ret);
   if(!mem_x)
     mem_x  = clCreateBuffer(context, CL_MEM_READ_WRITE,
-				 n * sizeof(float), NULL, &ret);
+				 n * sizeof(double), NULL, &ret);
 
     ret = clEnqueueWriteBuffer(command_queue, mem_y, CL_TRUE, 0,
-			       n*sizeof(float),
+			       n*sizeof(double),
                                y, 0, NULL, NULL);
     ret = clEnqueueWriteBuffer(command_queue, mem_x, CL_TRUE, 0,
-			       n*sizeof(float),
+			       n*sizeof(double),
                                x, 0, NULL, NULL);
     ret = clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
     ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_y);
@@ -107,7 +107,7 @@ static float cl_dot(int n, float *y, float *x)
                                  global_item_size, local_item_size,
                                  0, NULL, NULL);
     ret = clEnqueueReadBuffer(command_queue, mem_x, CL_TRUE, 0,
-                              1 * sizeof(float),
+                              1 * sizeof(double),
                               x,0, NULL, NULL);
     return x[0];
 }
@@ -182,8 +182,8 @@ int main(int argc, char **argv)
   cl_init(argc,argv);
 
   int k, n = 65537;
-  float *x = (float*)malloc(sizeof(float)*n);
-  float *y = (float*)malloc(sizeof(float)*n);
+  double *x = (double*)malloc(sizeof(double)*n);
+  double *y = (double*)malloc(sizeof(double)*n);
 
   x[0] = 0.0; for(k=1;k<n;k++) x[k] = 1.0;
 
