@@ -20,3 +20,13 @@ __kernel void mynorm(int n,__global float *x)
     x[0] = sqrt(x[0]);
   }
 }
+
+__kernel void mycopy(int n,__global float *x)
+{
+  int k, rank = get_global_id(0);
+  if(!rank){
+    x[0] = 0.0;
+    for(k=1;k<n;k++) x[0] += x[k]*x[k];
+    x[0] = sqrt(x[0]);
+  }
+}

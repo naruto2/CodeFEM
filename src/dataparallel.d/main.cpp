@@ -19,20 +19,56 @@ int stock_array_many[NAME_NUM*DATA_NUM];
 
 #define MAX_SOURCE_SIZE (0x100000)
 
+static cl_context context = NULL;
+static cl_command_queue command_queue = NULL;
+static cl_uint work_dim = 1;
+static size_t global_item_size[3];
+static size_t local_item_size[3];
+static cl_program program = NULL;
+
+static float cl_norm(int nn, float *x_norm)
+{
+  static cl_mem mem_x_norm = NULL;
+  static cl_kernel kernel_norm = NULL;
+  int k, ret;
+
+  if(!kernel_norm) {
+    kernel_norm = clCreateKernel(program, "mynorm", &ret);
+    printf("kernel_norm=%d\n",ret);
+  }
+  if(!mem_x_norm)
+    mem_x_norm  = clCreateBuffer(context, CL_MEM_READ_WRITE,
+				 nn * sizeof(float), NULL, &ret);
+
+    ret = clEnqueueWriteBuffer(command_queue, mem_x_norm, CL_TRUE, 0,
+			       nn*sizeof(float),
+                               x_norm, 0, NULL, NULL);
+    ret = clSetKernelArg(kernel_norm, 0, sizeof(int), (void *)&nn);
+    ret = clSetKernelArg(kernel_norm, 1, sizeof(cl_mem), (void *)&mem_x_norm);
+    ret = clEnqueueNDRangeKernel(command_queue, kernel_norm, work_dim, NULL,
+                                 global_item_size, local_item_size,
+                                 0, NULL, NULL);
+    ret = clEnqueueReadBuffer(command_queue, mem_x_norm, CL_TRUE, 0,
+                              1 * sizeof(float),
+                              x_norm,0, NULL, NULL);
+    return x_norm[0];
+}
+
+
+
 int main(int argc, char **argv)
 {
     cl_platform_id platform_id = NULL;
     cl_uint ret_num_platforms;
     cl_device_id device_id = NULL;
     cl_uint ret_num_devices;
-    cl_context context = NULL;
-    cl_command_queue command_queue = NULL;
+
     cl_mem memobjIn = NULL;
     cl_mem memobjIn1 = NULL;
     cl_mem memobjIn2 = NULL;
     cl_mem memobjOut = NULL;
     cl_mem memobjOut1 = NULL;
-    cl_program program = NULL;
+
     cl_kernel kernel = NULL;
     size_t kernel_code_size;
     char *kernel_src_str;
@@ -128,9 +164,6 @@ int main(int argc, char **argv)
     ret = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&memobjOut1);
 
     /* Set parameters for data parallel processing (work item) */
-    cl_uint work_dim = 1;
-    size_t global_item_size[3];
-    size_t local_item_size[3];
 
     global_item_size[0] = 4; /* np Global number of work items */
     local_item_size[0] = 1;  /* Number of work items per work group */
@@ -163,40 +196,16 @@ int main(int argc, char **argv)
     x_norm[0] = 0.0;
     for(k=1;k<nn;k++) x_norm[k] = 1.0;
 
-
-
-
-    cl_mem mem_x_norm = NULL;
-    cl_kernel kernel_norm = NULL;
-    kernel_norm = clCreateKernel(program, "mynorm", &ret);
-    printf("kernel_norm=%d\n",ret);
-    mem_x_norm  = clCreateBuffer(context, CL_MEM_READ_WRITE,
-				 nn * sizeof(float), NULL, &ret);
-    ret = clEnqueueWriteBuffer(command_queue, mem_x_norm, CL_TRUE, 0,
-			       nn*sizeof(float),
-                               x_norm, 0, NULL, NULL);
-    ret = clSetKernelArg(kernel_norm, 0, sizeof(int), (void *)&nn);
-    ret = clSetKernelArg(kernel_norm, 1, sizeof(cl_mem), (void *)&mem_x_norm);
-    ret = clEnqueueNDRangeKernel(command_queue, kernel_norm, work_dim, NULL,
-                                 global_item_size, local_item_size,
-                                 0, NULL, NULL);
-    ret = clEnqueueReadBuffer(command_queue, mem_x_norm, CL_TRUE, 0,
-                              1 * sizeof(float),
-                              x_norm,0, NULL, NULL);
-
-    printf("norm(x) =%f\n",k,x_norm[0]);
+    printf("norm(n,x) = %f\n",cl_norm(nn,x_norm));
+    
 #endif // #####################################################################
     /* OpenCL Object Finalization */
 
     ret = clReleaseProgram(program);
-    ret = clReleaseMemObject(mem_x_norm);
-    ret = clReleaseKernel(kernel_norm);
     ret = clReleaseCommandQueue(command_queue);
     ret = clReleaseContext(context);
 
-
-
-    for (k=0;k<5;k++) printf("out[%d]=%d\n",k,result[k]);    
+    printf("np=%d\n",result[0]);    
     /* Deallocate memory on the host */
     free(result);
     free(kernel_src_str);
