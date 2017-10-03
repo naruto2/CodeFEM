@@ -21,7 +21,10 @@
 double cl_norm(int n, double *x);
 void   cl_copy(int n, double *y, double *x);
 void   cl_init(int argc, char **argv);
-double  cl_dot(int n, double *y, double *x);
+double cl_dot(int n, double *y, double *x);
+double cl_phase0(int n, double *r, 
+		 double *Aa, int *col_ind, int *row_ptr,
+		 double *x, double *rtilde, double *b, int w);
 void cl_phase1(int n, double *p, double *r, double *v,
 	       double beta, double omega);
 void cl_phase3(int n, double *s, double *r, double *v, double alpha);
@@ -165,7 +168,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
   double resid,rho_1,rho_2,alpha,beta,omega, normb = cl_norm(n,b);
   if (normb == 0.0) normb = 1;
 
-  if ((resid = phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b)/normb) <= tol) {
+  if ((resid = cl_phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b,w)/normb) <= tol) {
     tol = resid;
     max_iter = 0;
     return 0;

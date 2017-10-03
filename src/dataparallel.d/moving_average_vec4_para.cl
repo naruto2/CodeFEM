@@ -38,6 +38,29 @@ __kernel void cl_dot(int n,__global double *y, __global double *x,
 }
 
 
+__kernel void cl_phase0(int n, __global double *r,
+		   __global double *Aa, __global int *col_ind,
+		   __global int *row_ptr, __global double *x,
+		   __global double *rtilde, __global double *b,
+		   __global double *npa)
+{
+  int i,j=0, k;
+  int np   = get_global_size(0);
+  int size = n/np;
+  int rank = get_global_id(0);
+
+  if ( rank == 0){
+    npa[0]=0.0;
+    for ( k=1;k<n;k++ ) {
+      r[k] = 0.0;
+      for (int j=row_ptr[k];j<row_ptr[k+1];j++) r[k] += Aa[j] * x[col_ind[j]];
+      rtilde[k] = r[k] = b[k] - r[k];
+      npa[0] += r[k]*r[k];
+    }
+  }
+}
+
+
 __kernel void cl_phase1(int n,__global double *p, __global double *r,
 			__global double *v, double beta, double omega)
 {
