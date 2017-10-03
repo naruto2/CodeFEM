@@ -131,7 +131,6 @@ static void phase6(int n, double *x, double *s, double *r, double *t,
 int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 		     int &max_iter, double &tol)
 {
-  cl_init(0,NULL);
   static int nn, k, ww, w, *row_ptr, *col_ind, n = A.size();
   static double *r,*p,*phat,*s,*shat,*t,*v,*rtilde, *Aa;
 

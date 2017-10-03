@@ -506,7 +506,7 @@ void cl_init(int argc, char **argv)
     
   /* Set parameters for data parallel processing (work item) */
 
-  global_item_size[0] = 4; /* np Global number of work items */
+  global_item_size[0] = 64; /* np Global number of work items */
   local_item_size[0] = 1;  /* Number of work items per work group */
 
   if ( argc > 1 ) global_item_size[0] = atoi(argv[1]);    
@@ -527,9 +527,13 @@ void cl_init(int argc, char **argv)
   /* Create Context */
   context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
 
+
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   /* Create Command Queue */  
   command_queue = clCreateCommandQueue(context, device_id, 0, &ret);
-
+#pragma GCC diagnostic warning "-Wdeprecated-declarations"
+  
+  
   /* Read kernel source code */     
   fp = fopen("moving_average_vec4_para.cl", "r");
   kernel_code_size = fread(kernel_src_str, 1, MAX_SOURCE_SIZE, fp);

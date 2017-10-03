@@ -264,25 +264,49 @@ void makeMid(vector<xyc>&Mid,vector<xyc>&Z,vector<nde>&N) {
 
 void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc>&Z,vector<nde>&N,vector<xyc>&Mid)
 {
-  sparse::matrix<double> M, Ax, Ay, D, Hx, Hy;
+  static sparse::matrix<double> Aa, M, Ax, Ay, D, Hx, Hy;
   int i, j, num = 2*dimp2(N)+Z.size(), m = dimp2(N);
 
   U.resize(num);
   A.clear(); A.resize(num);
   b.clear(); b.resize(num);
 
-  makeM(M,Z,N);
+  static int init=0;
+  if(!init){
+    makeM(M,Z,N);
+    makeD(D,Z,N);
+    makeHx(Hx,Z,N);
+    makeHy(Hy,Z,N);
+    init = 1;
+    Aa.resize(num);
+    for (i=1; i<=m; i++) for (auto it : M[i]) { j = it.first;
+	Aa[  i][  j] = M[i][j]/tau();
+	Aa[m+i][m+j] = M[i][j]/tau();
+      }
+
+    for (i=1; i<=m; i++) for (auto it : D[i]) { j = it.first;
+	Aa[  i][  j] += D[i][j]/Re();
+	Aa[m+i][m+j] += D[i][j]/Re();
+      }
+
+    for (i=1; i<=m; i++) for (auto it : Hx[i]) { j = it.first;
+	Aa[    i][2*m+j] = -Hx[i][j];
+	Aa[2*m+j][    i] = -Hx[i][j];
+      }
+    
+    for (i=1; i<=m; i++) for (auto it : Hy[i]) { j = it.first;
+	Aa[  m+i][2*m+j] = -Hy[i][j];
+	Aa[2*m+j][  m+i] = -Hy[i][j];
+      }
+  }
+  fprintf(stderr,"#1");
+  for (i=1; i<num; i++) for (auto it : Aa[i]) { j = it.first;
+      A[i][j] = Aa[i][j];
+    }
+  fprintf(stderr,"#2");
   makeAx(Ax,U,Z,N);
   makeAy(Ay,U,Z,N);
-  makeD(D,Z,N);
-  makeHx(Hx,Z,N);
-  makeHy(Hy,Z,N);
-
-  for (i=1; i<=m; i++) for (auto it : M[i]) { j = it.first;
-      A[  i][  j] = M[i][j]/tau();
-      A[m+i][m+j] = M[i][j]/tau();
-    }
-
+  fprintf(stderr,"#3");
   for (i=1; i<=m; i++) for (auto it : Ax[i]) { j = it.first;
       A[  i][  j] += Ax[i][j];
       A[m+i][m+j] += Ax[i][j];
@@ -292,31 +316,16 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
       A[  i][  j] += Ay[i][j];
       A[m+i][m+j] += Ay[i][j];
     }
-
-  for (i=1; i<=m; i++) for (auto it : D[i]) { j = it.first;
-      A[  i][  j] += D[i][j]/Re();
-      A[m+i][m+j] += D[i][j]/Re();
-    }
-
-  for (i=1; i<=m; i++) for (auto it : Hx[i]) { j = it.first;
-      A[    i][2*m+j] = -Hx[i][j];
-      A[2*m+j][    i] = -Hx[i][j];
-    }
-
-  for (i=1; i<=m; i++) for (auto it : Hy[i]) { j = it.first;
-      A[  m+i][2*m+j] = -Hy[i][j];
-      A[2*m+j][  m+i] = -Hy[i][j];
-    }
-
+  fprintf(stderr,"#4");
   for (i=1; i<=m; i++) {
     b[  i] = 0.0;
     b[m+i] = 0.0;
-    for (j=1; j<=m; j++) { 
+    for (auto it:M[i] ) { j = it.first;
       b[  i] += M[i][j]*U[  j]/tau();
       b[m+i] += M[i][j]*U[m+j]/tau();
     }
   }
-  
+  fprintf(stderr,"#5");
   for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"v0")) {
       A[i].clear();
       A[i+m].clear();
@@ -447,7 +456,6 @@ void sparse__solve(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
 }
 
 
-
 void sparse__solve2(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
 {
   U = sparse__bicgstab(A,b);
@@ -458,8 +466,6 @@ void swapcolumn(sparse::matrix<double>&A,int p, int q)
 {
   for (int j=0; j<A.size(); j++) swap(A[j][p],A[j][q]);
 }
-
-
 
 
 void matrixreorder(map<int,int>&Aindex,sparse::matrix<double>&A)
@@ -580,6 +586,7 @@ int forful_(integer *ia, integer *l, integer *ma, integer *m,
 	    integer *ier);
 }
 
+
 sparse::matrix<double> T(sparse::matrix<double>&A)
 {
   int i, j, n = A.size();
@@ -591,13 +598,18 @@ sparse::matrix<double> T(sparse::matrix<double>&A)
     }
   return AT;
 }
+
+
 int stwart(sparse::matrix<double>&A);
 int GLU1(sparse::matrix<double>&A);
 int GSLV1(sparse::matrix<double>&A, vector<double>&b);
 int estiva__bicgstab(sparse::matrix<double>&,vector<double>&);
+void cl_init(int argc, char **argv);
+  
 
 int main(int argc, char **argv)
 {
+  cl_init(argc,argv);
   vector<xyc>Z; vector<nde>N; vector<xyc> Mid;
   f2mesh(fopen("cavity16.mesh","r"),Z,N); makeMid(Mid,Z,N);
 
@@ -605,11 +617,11 @@ int main(int argc, char **argv)
   map<int,int> Aindex;
 
   for(int k=1;k<1000;k++){
-    fprintf(stderr,"k=%d\n",k);
+    fprintf(stderr,"T");
     makeA(A,U,b,Z,N,Mid);
-    printf("A.size()=%d\n",A.size());
+    fprintf(stderr,"=");
     sparse__solve2(A,U,b);
-    //for(int i=1;i<b.size();i++)U[i] = b[i];
+    fprintf(stderr,"%d\n",k);
     plotuv(U,Z,N,Mid);
   }
   sleep(300);
