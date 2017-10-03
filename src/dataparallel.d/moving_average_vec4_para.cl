@@ -52,6 +52,7 @@ __kernel void cl_phase1(int n,__global double *p, __global double *r,
 		     p[k] = r[k] + beta * (p[k] - omega *v[k]);
 }
 
+
 __kernel void cl_phase3(int n,__global double *s, __global double *r,
 			__global double *v, double alpha)
 {
@@ -67,3 +68,17 @@ __kernel void cl_phase3(int n,__global double *s, __global double *r,
 }
 
 
+__kernel void cl_phase4(int n,__global double *x, __global double *phat,
+			double alpha)
+{
+  int j, k;
+  int np   = get_global_size(0);
+  int size = n/np;
+  int rank = get_global_id(0);
+
+  for(j = rank, k=j*size;k<(j+1)*size;k++)
+    x[k] = x[k] + alpha*phat[k];
+  
+  if ( rank == 0 ) for(k=np*size;k<n;k++)
+		     x[k] = x[k] + alpha*phat[k];
+}

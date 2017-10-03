@@ -25,6 +25,7 @@ double  cl_dot(int n, double *y, double *x);
 void cl_phase1(int n, double *p, double *r, double *v,
 	       double beta, double omega);
 void cl_phase3(int n, double *s, double *r, double *v, double alpha);
+void cl_phase4(int n, double *s, double *phat, double alpha);
 
 static double norm(int n, double *x)
 {
@@ -184,7 +185,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
     cl_phase3(n,s,r,v,alpha);
     
     if ((resid = cl_norm(n,s)/normb) < tol) {
-      phase4(n,x,phat,alpha);
+      cl_phase4(n,x,phat,alpha);
       tol = resid;
       return 0;
     }

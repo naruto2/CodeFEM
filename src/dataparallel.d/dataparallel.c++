@@ -215,7 +215,7 @@ void cl_phase3(int n, double *s, double *r, double *v,
   static cl_mem mem_r = NULL;
   static cl_mem mem_v = NULL;
   static cl_kernel kernel = NULL;
-  int k, ret;
+  int ret;
 
 
   if(!kernel) {
@@ -248,6 +248,48 @@ void cl_phase3(int n, double *s, double *r, double *v,
     ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_r);
     ret = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&mem_v);
     ret = clSetKernelArg(kernel, 4, sizeof(double), (void *)&alpha);
+    
+    ret = clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
+                                 global_item_size, local_item_size,
+                                 0, NULL, NULL);
+
+    ret = clEnqueueReadBuffer(command_queue, mem_s, CL_TRUE, 0,
+                              n * sizeof(double),
+                              s,0, NULL, NULL);
+}
+
+
+void cl_phase4(int n, double *s, double *phat, double alpha)
+{
+  static cl_mem mem_s = NULL;
+  static cl_mem mem_phat = NULL;
+  static cl_kernel kernel = NULL;
+  int ret;
+
+
+  if(!kernel) {
+    kernel = clCreateKernel(program, "cl_phase4", &ret);
+    printf("cl_phase4=%d\n",ret);
+  }
+  if(!mem_s)
+    mem_s  = clCreateBuffer(context, CL_MEM_READ_WRITE,
+			    n * sizeof(double), NULL, &ret);
+  if(!mem_phat)
+    mem_phat  = clCreateBuffer(context, CL_MEM_READ_ONLY,
+			    n * sizeof(double), NULL, &ret);
+
+  
+    ret = clEnqueueWriteBuffer(command_queue, mem_s, CL_TRUE, 0,
+			       n*sizeof(double),
+                               s, 0, NULL, NULL);
+    ret = clEnqueueWriteBuffer(command_queue, mem_phat, CL_TRUE, 0,
+			       n*sizeof(double),
+                               phat, 0, NULL, NULL);
+
+    ret = clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
+    ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_s);
+    ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_phat);
+    ret = clSetKernelArg(kernel, 3, sizeof(double), (void *)&alpha);
     
     ret = clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
                                  global_item_size, local_item_size,
