@@ -22,7 +22,8 @@ double cl_norm(int n, double *x);
 void   cl_copy(int n, double *y, double *x);
 void   cl_init(int argc, char **argv);
 double  cl_dot(int n, double *y, double *x);
-
+void cl_phase1(int n, double *p, double *r, double *v,
+	       double beta, double omega);
 
 static double norm(int n, double *x)
 {
@@ -175,7 +176,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
       cl_copy(n,p,r);
     else {
       beta = (rho_1/rho_2) * (alpha/omega);
-      phase1(n,p,r,v,beta,omega);
+      cl_phase1(n,p,r,v,beta,omega);
     }
     cl_copy(n,phat,p);
     alpha = rho_1/phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde);
