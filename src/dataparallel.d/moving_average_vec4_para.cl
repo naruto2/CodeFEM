@@ -1,4 +1,6 @@
-__kernel void mynorm(int n,__global float *x)
+#pragma OPENCL EXTENSION cl_khr_fp64 : enable
+
+__kernel void cl_norm(int n,__global float *x)
 {
   int k, rank = get_global_id(0);
   if(!rank){
