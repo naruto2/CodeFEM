@@ -12,7 +12,7 @@ $ cd src/xmesh.d; make
 # mkdir /usr/include/est
 # cp include/est/sparse.hpp   /usr/include/est
 # cp include/est/bicgstab.hpp /usr/include/est
-# cp src/dataparallel.d/cl_bicgstab_kernel.cl
+# cp src/dataparallel.d/cl_bicgstab_kernel.cl /usr/include/est
 # cp lib/libbicgstab.a /usr/lib
 # c++ sample.c++ -lbicgstab -lOpenCL
 # Usage: ./a.out [OPTION]
