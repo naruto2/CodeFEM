@@ -38,6 +38,29 @@ __kernel void cl_dot(int n,__global double *y, __global double *x,
 }
 
 
+__kernel void cl_matrixvector(int n, __global double *r,
+			      __global double *Aa, __global int *col_ind,
+			      __global int *row_ptr, __global double *b)
+{
+
+  int np   = get_global_size(0);
+  int size = n/np;
+  int rank = get_global_id(0);
+  int k, i = rank;
+
+  for(k=i*size;k<(i+1)*size;k++) if(k!=0){
+    r[k] = 0.0;
+    for (int j=row_ptr[k];j<row_ptr[k+1];j++) r[k] += Aa[j] * b[col_ind[j]];
+  }
+  if(rank==0)
+    for(k=np*size;k<n;k++) {
+      r[k] = 0.0;
+      for (int j=row_ptr[k];j<row_ptr[k+1];j++) r[k] += Aa[j] * b[col_ind[j]];
+    }
+}
+
+
+
 __kernel void cl_phase0(int n, __global double *r,
 		   __global double *Aa, __global int *col_ind,
 		   __global int *row_ptr, __global double *x,

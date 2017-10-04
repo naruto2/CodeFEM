@@ -22,6 +22,8 @@ double cl_norm(int n, double *x);
 void   cl_copy(int n, double *y, double *x);
 void   cl_init(int argc, char **argv);
 double cl_dot(int n, double *y, double *x);
+void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
+		     int *row_ptr, double *b, int w);
 double cl_phase0(int n, double *r, 
 		 double *Aa, int *col_ind, int *row_ptr,
 		 double *x, double *rtilde, double *b, int w);
@@ -82,6 +84,9 @@ static double phase2(int n, double *v,
 		     double *Aa, int *col_ind, int *row_ptr,
 		     double *phat, double *rtilde, int w)
 {
+  cl_matrixvector(n,v,Aa,col_ind,row_ptr,phat,w);
+  return cl_dot(n,rtilde,v);
+
   double tmp=0.0;
   for (int k=1;k<n;k++ ) {
     v[k] = 0.0;
