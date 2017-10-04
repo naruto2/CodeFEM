@@ -48,16 +48,24 @@ __kernel void cl_phase0(int n, __global double *r,
   int np   = get_global_size(0);
   int size = n/np;
   int rank = get_global_id(0);
+  i = rank;
 
-  if ( rank == 0){
-    npa[0]=0.0;
-    for ( k=1;k<n;k++ ) {
-      r[k] = 0.0;
-      for (int j=row_ptr[k];j<row_ptr[k+1];j++) r[k] += Aa[j] * x[col_ind[j]];
-      rtilde[k] = r[k] = b[k] - r[k];
-      npa[0] += r[k]*r[k];
-    }
+  npa[i]=0.0;
+  for(j = rank, k=j*size;k<(j+1)*size;k++) if(k!=0){
+    r[k] = 0.0;
+    for (int j=row_ptr[k];j<row_ptr[k+1];j++) r[k] += Aa[j] * x[col_ind[j]];
+    rtilde[k] = r[k] = b[k] - r[k];
+    npa[i] += r[k]*r[k];
   }
+  if ( rank == 0 )
+    for(k=np*size;k<n;k++)
+    {
+    r[k] = 0.0;
+    for (int j=row_ptr[k];j<row_ptr[k+1];j++) r[k] += Aa[j] * x[col_ind[j]];
+    rtilde[k] = r[k] = b[k] - r[k];
+    npa[i] += r[k]*r[k];
+  }
+
 }
 
 
