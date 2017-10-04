@@ -616,7 +616,7 @@ int main(int argc, char **argv)
   sparse::matrix<double> A; vector<double> U, b;
   map<int,int> Aindex;
 
-  for(int k=1;k<10000;k++){
+  for(int k=1;k<1000000;k++){
     fprintf(stderr,"T");
     makeA(A,U,b,Z,N,Mid);
     fprintf(stderr,"=");
