@@ -1,9 +1,9 @@
 #include <cstdio>
 #include <cmath>
 #include "est/sparse.hpp"
-#include "bicgstab.hpp"
+#include "cl_bicgstab.hpp"
 
-vector<double> sparse__bicgstab(sparse::matrix<double>& A, vector<double>& b){
+vector<double> cl_bicgstab(sparse::matrix<double>& A, vector<double>& b){
   static vector<double>x(b.size());
   int max_iter = 1000000;
   double tol = 0.0000001;

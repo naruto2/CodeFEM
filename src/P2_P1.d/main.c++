@@ -14,7 +14,8 @@
 #include "dij.hpp"
 #include "hxij.hpp"
 #include "hyij.hpp"
-#include "est/sparse.hpp"
+#include <est/sparse.hpp>
+#include <est/bicgstab.hpp>
 #include "est/xmesh.hpp"
 #include "est/foreach.hpp"
 #include "est/solver.hpp"
@@ -458,7 +459,7 @@ void sparse__solve(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
 
 void sparse__solve2(sparse::matrix<double>&A,vector<double>&U,vector<double>&b)
 {
-  U = sparse__bicgstab(A,b);
+  U = cl_bicgstab(A,b);
 }
 
 
@@ -604,12 +605,10 @@ int stwart(sparse::matrix<double>&A);
 int GLU1(sparse::matrix<double>&A);
 int GSLV1(sparse::matrix<double>&A, vector<double>&b);
 int estiva__bicgstab(sparse::matrix<double>&,vector<double>&);
-void cl_init(int argc, char **argv);
-  
 
 int main(int argc, char **argv)
 {
-  cl_init(argc,argv);
+  cl_bicgstab_init(argc,argv);
   vector<xyc>Z; vector<nde>N; vector<xyc> Mid;
   f2mesh(fopen("cavity32.mesh","r"),Z,N); makeMid(Mid,Z,N);
 

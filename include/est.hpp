@@ -10,5 +10,6 @@
 #include "est/esolver.hpp"
 #include "est/foreach.hpp"
 #include "est/sparse.hpp"
+#include "est/bicgstab.hpp"
 
 #endif

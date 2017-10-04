@@ -26,7 +26,7 @@ double cl_norm(int n, double *x)
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_norm", &ret);
-    printf("cl_norm=%d\n",ret);
+    if(ret) printf("cl_norm=%d\n",ret);
   }
   if(!mem_x)
     mem_x  = clCreateBuffer(context, CL_MEM_READ_ONLY,
@@ -73,7 +73,7 @@ void cl_copy(int n, double *y, double *x)
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_copy", &ret);
-    printf("cl_copy=%d\n",ret);
+    if(ret) printf("cl_copy=%d\n",ret);
   }
   if(!mem_y)
     mem_y  = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
@@ -112,7 +112,7 @@ double cl_dot(int n, double *y, double *x)
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_dot", &ret);
-    printf("cl_dot=%d\n",ret);
+    if(ret) printf("cl_dot=%d\n",ret);
   }
   if(!mem_y)
     mem_y  = clCreateBuffer(context, CL_MEM_READ_ONLY,
@@ -173,7 +173,7 @@ void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_matrixvector", &ret);
-    printf("cl_matrixvector=%d\n",ret);
+    if(ret) printf("cl_matrixvector=%d\n",ret);
  }
   if(!mem_r)
     mem_r  = clCreateBuffer(context, CL_MEM_READ_WRITE,
@@ -255,7 +255,7 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_phase0", &ret);
-    printf("cl_phase0=%d\n",ret);
+    if(ret) printf("cl_phase0=%d\n",ret);
  }
   if(!mem_r)
     mem_r  = clCreateBuffer(context, CL_MEM_READ_WRITE,
@@ -356,7 +356,7 @@ void cl_phase1(int n, double *p, double *r, double *v,
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_phase1", &ret);
-    printf("cl_phase1=%d\n",ret);
+    if(ret) printf("cl_phase1=%d\n",ret);
   }
   if(!mem_p)
     mem_p  = clCreateBuffer(context, CL_MEM_READ_WRITE,
@@ -423,7 +423,7 @@ double cl_phase2(int n, double *v,
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_phase2", &ret);
-    printf("cl_phase2=%d\n",ret);
+    if (ret) printf("cl_phase2=%d\n",ret);
  }
   if(!mem_v)
     mem_v  = clCreateBuffer(context, CL_MEM_READ_WRITE,
@@ -517,7 +517,7 @@ void cl_phase3(int n, double *s, double *r, double *v,
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_phase3", &ret);
-    printf("cl_phase3=%d\n",ret);
+    if (ret) printf("cl_phase3=%d\n",ret);
   }
   if(!mem_s)
     mem_s  = clCreateBuffer(context, CL_MEM_READ_WRITE,
@@ -566,7 +566,7 @@ void cl_phase4(int n, double *s, double *phat, double alpha)
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_phase4", &ret);
-    printf("cl_phase4=%d\n",ret);
+    if (ret) printf("cl_phase4=%d\n",ret);
   }
   if(!mem_s)
     mem_s  = clCreateBuffer(context, CL_MEM_READ_WRITE,
@@ -613,7 +613,7 @@ void cl_phase6(int n, double *x, double *s, double *r, double *t, double *phat,
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_phase6", &ret);
-    printf("cl_phase6=%d\n",ret);
+    if (ret) printf("cl_phase6=%d\n",ret);
   }
   if(!mem_x)
     mem_x  = clCreateBuffer(context, CL_MEM_READ_WRITE,
@@ -677,7 +677,7 @@ void cl_phase6(int n, double *x, double *s, double *r, double *t, double *phat,
 }
 
 
-void cl_init(int argc, char **argv)
+void cl_bicgstab_init(int argc, char **argv)
 {
 
   if (kernel_src_str != NULL ) return;
@@ -720,7 +720,7 @@ void cl_init(int argc, char **argv)
   
   
   /* Read kernel source code */     
-  fp = fopen("moving_average_vec4_para.cl", "r");
+  fp = fopen("/usr/include/est/cl_bicgstab_kernel.cl", "r");
   kernel_code_size = fread(kernel_src_str, 1, MAX_SOURCE_SIZE, fp);
   fclose(fp);
   
