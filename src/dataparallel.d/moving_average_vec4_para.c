@@ -1,1 +1,0 @@
-moving_average_vec4_para.cl
