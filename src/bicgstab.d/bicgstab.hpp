@@ -113,8 +113,11 @@ static void phase4(int n, double *x, double *phat, double alpha)
 
 static double phase5(int n, double *t, 
 		     double *Aa, int *col_ind, int *row_ptr,
-		     double *shat, double *s)
+		     double *shat, double *s, int w)
 {
+  cl_matrixvector(n,t,Aa,col_ind,row_ptr,shat,w);
+  return cl_dot(n,t,s)/cl_dot(n,t,t);
+
   double tmp=0.0, tmq=0.0;
   for (int k=1;k<n;k++ ) {
     t[k] = 0.0;
@@ -202,7 +205,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
       return 0;
     }
     cl_copy(n,shat,s);
-    omega = phase5(n,t,Aa,col_ind,row_ptr,shat,s);
+    omega = phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
     cl_phase6(n,x,s,r,t,phat,shat,alpha,omega);
     rho_2 = rho_1;
     if ((resid = cl_norm(n,r)/normb) < tol) {
