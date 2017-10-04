@@ -218,13 +218,13 @@ void makeHy(sparse::matrix<double>&Hy,vector<xyc>&Z,vector<nde>&N)
 
 double tau(void)
 {
-  return 0.07 ;
+  return 0.001 ;
 }
 
 
 double Re(void)
 {
-  return 100.0;
+  return 5000.0;
 }
 
 
@@ -611,12 +611,12 @@ int main(int argc, char **argv)
 {
   cl_init(argc,argv);
   vector<xyc>Z; vector<nde>N; vector<xyc> Mid;
-  f2mesh(fopen("cavity16.mesh","r"),Z,N); makeMid(Mid,Z,N);
+  f2mesh(fopen("cavity32.mesh","r"),Z,N); makeMid(Mid,Z,N);
 
   sparse::matrix<double> A; vector<double> U, b;
   map<int,int> Aindex;
 
-  for(int k=1;k<1000;k++){
+  for(int k=1;k<10000;k++){
     fprintf(stderr,"T");
     makeA(A,U,b,Z,N,Mid);
     fprintf(stderr,"=");
