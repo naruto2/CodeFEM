@@ -84,6 +84,30 @@ __kernel void cl_phase1(int n,__global double *p, __global double *r,
 }
 
 
+__kernel void cl_phase2(int n, __global double *v,
+			__global double *Aa, __global int *col_ind,
+			__global int *row_ptr, __global	double *phat,
+			__global double *rtilde, __global double *npa)
+{
+#if 1
+  int j, k;
+  int np   = get_global_size(0);
+  int size = n/np;
+  int rank = get_global_id(0);
+
+  if ( rank != 0 ) return;
+  npa[0]=0.0;
+  for (int k=1;k<n;k++ ) {
+    v[k] = 0.0;
+    for (int j=row_ptr[k];j<row_ptr[k+1];j++){
+      v[k] += Aa[j] * phat[col_ind[j]];
+    }
+    npa[0] += rtilde[k]*v[k];
+  }
+#endif
+}
+
+
 __kernel void cl_phase3(int n,__global double *s, __global double *r,
 			__global double *v, double alpha)
 {
