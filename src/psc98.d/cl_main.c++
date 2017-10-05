@@ -16,7 +16,7 @@ int main(int argc, char **argv){
   double tol = 0.000001;
 
   x = cl_bicgstab(A,b);
-
+  printf("A.size()=%d\n",A.size());
   check(x);
   return 0;
 }
