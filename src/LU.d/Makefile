@@ -3,4 +3,3 @@ clean: ;
 
 obj: ;
 	echo -n
-

@@ -1,12 +1,9 @@
-a.out: main.c++ 
-	c++ main.c++ lib/libmatrix.a lib/libsolver.a lib/libpsc98.a
-
 cl_a.out: main.c++ lib/libbicgstab.a
 	cc -c yosen.c
-	c++ cl_main.c++ cl_psc98.c++ yosen.o lib/libbicgstab.a -lOpenCL -o cl_a.out
+	c++ cl_main.c++ cl_psc98.c++ yosen.o -lbicgstab -lOpenCL -o cl_a.out
 
 clean: ;
-	rm -f a.out cl_a.out *.o lib/libpsc98.a
+	rm -f cl_a.out *.o lib/libpsc98.a
 
 obj: ;
 	cc -c yosen.c

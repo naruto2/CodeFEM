@@ -6,4 +6,7 @@ lib/libbicgstab.a: ;
 	(cd ../bicgstab.d/;make)
 
 clean: ;
-	rm ./a.out lib/libbicgstab.a
+	rm -f a.out lib/libbicgstab.a
+
+obj: ;
+	echo -n

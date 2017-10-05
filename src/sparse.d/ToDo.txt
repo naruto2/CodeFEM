@@ -1,1 +1,2 @@
-plotmatrix()の実装
+plotmatrix()の実装 ... done
+

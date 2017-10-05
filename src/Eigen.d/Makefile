@@ -6,3 +6,7 @@ yosen.o: yosen.c
 
 clean: ;
 	rm -f a.out *.o
+
+obj: ;
+	echo -n
+

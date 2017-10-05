@@ -1,17 +1,18 @@
 #include <stdlib.h>
 #include <CL/cl.h>
 #include <stdio.h>
-
+#include <vector>
+#include <est/sparse.hpp>
+#include <est/bicgstab.hpp>
 
 double cl_norm(int n, double *x);
 void   cl_copy(int n, double *y, double *x);
 double  cl_dot(int n, double *y, double *x);
-void   cl_init(int argc, char **argv);
-void cl_finalize(void);
+void    cl_finalize(void);
 
 int main(int argc, char **argv)
 {
-  cl_init(argc,argv);
+  cl_bicgstab_init(argc,argv);
 
   int k, n = 65537;
   double *x = (double*)malloc(sizeof(double)*n);

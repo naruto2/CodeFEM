@@ -1,3 +1,9 @@
-a.out: main.c++ dataparallel.c++ moving_average_vec4_para.cl
+a.out: main.c++ dataparallel.c++ cl_bicgstab_kernel.cl
 	c++ main.c++ dataparallel.c++ -lOpenCL
 	./a.out
+
+clean: ;
+	rm -f ./a.out
+
+obj: ;
+	echo -n

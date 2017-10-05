@@ -1,3 +1,5 @@
+#pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
+
 /* GLU1T.F -- translated by f2c (version 12.02.01).
    You must link the resulting object file with libf2c:
 	on Microsoft Windows system, link with libf2c.lib;
