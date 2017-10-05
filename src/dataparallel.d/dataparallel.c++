@@ -522,7 +522,7 @@ double cl_phase3(int n, double *s, double *r, double *v,
     mem_v  = clCreateBuffer(context, CL_MEM_READ_ONLY,
 			    n * sizeof(double), NULL, &ret);
   if(!mem_npa)
-    mem_npa  = clCreateBuffer(context, CL_MEM_READ_WRITE,
+    mem_npa  = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
 			      global_item_size[0] * sizeof(double),
 			      NULL, &ret);
   
@@ -536,9 +536,6 @@ double cl_phase3(int n, double *s, double *r, double *v,
     ret = clEnqueueWriteBuffer(command_queue, mem_v, CL_TRUE, 0,
 			       n*sizeof(double),
                                v, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_npa, CL_TRUE, 0,
-			       global_item_size[0]*sizeof(double),
-                               npa, 0, NULL, NULL);
   
     ret = clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
     ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_s);
