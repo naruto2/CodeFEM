@@ -192,19 +192,21 @@ __kernel void  cl_phase5(int n,__global double *t,__global double *Aa,
 __kernel void cl_phase6(int n,__global double *x, __global double *s,
 			__global double *r, __global double *t,
 			__global double *phat, __global double *shat,
-			double alpha, double omega)
+			double alpha, double omega, __global double *npa)
 {
   int   np = get_global_size(0);
   int    i = get_global_id(0); 
   int size = n/np;
 
-
+  npa[i] = 0.0;
   for (LOOP1) if( k) {
     x[k] = x[k] + alpha*phat[k] + omega*shat[k];
     r[k] = s[k] - omega * t[k];
+    npa[i] += r[k]*r[k];
   }
   if(!i) for (LOOP3) {
     x[k] = x[k] + alpha*phat[k] + omega*shat[k];
     r[k] = s[k] - omega * t[k];
+    npa[i] += r[k]*r[k];
   }
 }

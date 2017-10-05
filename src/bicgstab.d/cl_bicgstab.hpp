@@ -37,7 +37,7 @@ void cl_phase4(int n, double *s, double *phat, double alpha);
 double  cl_phase5(int n, double *t, 
 	       double *Aa, int *col_ind, int *row_ptr,
 	       double *shat, double *s, int w);
-void cl_phase6(int n, double *x, double *s, double *r, double *t,
+double cl_phase6(int n, double *x, double *s, double *r, double *t,
 	       double *phat, double *shat, double alpha, double omega);
 
 static double norm(int n, double *x)
@@ -130,13 +130,14 @@ static double phase5(int n, double *t,
   return tmp/tmq;
 }
 
-static void phase6(int n, double *x, double *s, double *r, double *t,
+static double phase6(int n, double *x, double *s, double *r, double *t,
 		   double *phat, double *shat, double alpha, double omega)
 {
   for(int k=1;k<n;k++) {
     x[k] = x[k] + alpha*phat[k] + omega*shat[k];
     r[k] = s[k] - omega * t[k];
   }
+  return norm(n,r);
 }
     
 
@@ -207,9 +208,8 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
     }
     cl_copy(n,shat,s);
     omega = cl_phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
-    cl_phase6(n,x,s,r,t,phat,shat,alpha,omega);
     rho_2 = rho_1;
-    if ((resid = cl_norm(n,r)/normb) < tol) {
+    if ((resid = cl_phase6(n,x,s,r,t,phat,shat,alpha,omega)/normb) < tol) {
       tol = resid;
       max_iter = i;
       return 0;
