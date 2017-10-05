@@ -118,9 +118,6 @@ static double phase5(int n, double *t,
 		     double *Aa, int *col_ind, int *row_ptr,
 		     double *shat, double *s, int w)
 {
-  cl_matrixvector(n,t,Aa,col_ind,row_ptr,shat,w);
-  return cl_dot(n,t,s)/cl_dot(n,t,t);
-
   double tmp=0.0, tmq=0.0;
   for (int k=1;k<n;k++ ) {
     t[k] = 0.0;

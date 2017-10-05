@@ -103,6 +103,21 @@ __kernel void cl_phase2(int n, __global double *v,
 			__global int *row_ptr, __global	double *phat,
 			__global double *rtilde, __global double *npa)
 {
+  int   np = get_global_size(0);
+  int    i = get_global_id(0);
+  int size = n/np;
+
+  npa[i] = 0.0;
+  for (LOOP1) if( k) {
+     v[k] = 0.0;
+     for (LOOP2) v[k] += Aa[j] * phat[col_ind[j]];
+     npa[i] += rtilde[k]*v[k];
+  }
+  if(!i) for (LOOP3) {
+     v[k] = 0.0;
+     for (LOOP2) v[k] += Aa[j] * phat[col_ind[j]];
+     npa[i] += rtilde[k]*v[k];
+  }
 }
 
 

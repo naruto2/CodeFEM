@@ -398,12 +398,8 @@ void cl_phase1(int n, double *p, double *r, double *v,
 
 double cl_phase2(int n, double *v,
 		 double *Aa, int *col_ind, int *row_ptr,
-		 double *phat, double *rtilde,int w)
+		 double *phat, double *rtilde, int w)
 {
-    for(int k=0;k<w;k++)
-      printf("Aa[%d]=%f col_ind[%d]=%d\n",
-	     k,Aa[k],k,col_ind[k]);
-
   static int ww = 0;
   static cl_mem mem_Aa= NULL;
   static cl_mem mem_col_ind = NULL;
@@ -423,10 +419,10 @@ double cl_phase2(int n, double *v,
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_phase2", &ret);
-    if (ret) printf("cl_phase2=%d\n",ret);
+    if (ret) { printf("cl_phase2=%d\n",ret); exit(ret); }
  }
   if(!mem_v)
-    mem_v  = clCreateBuffer(context, CL_MEM_READ_WRITE,
+    mem_v  = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
 			    n * sizeof(double), NULL, &ret);
 
   if ( ww < w){
@@ -439,7 +435,7 @@ double cl_phase2(int n, double *v,
     ww = w;
   }
 
-    if(!mem_row_ptr)
+  if(!mem_row_ptr)
     mem_row_ptr  = clCreateBuffer(context, CL_MEM_READ_ONLY,
 				  (n+1) * sizeof(double), NULL, &ret);
   if(!mem_phat)
@@ -449,13 +445,10 @@ double cl_phase2(int n, double *v,
     mem_rtilde  = clCreateBuffer(context, CL_MEM_READ_ONLY,
 			    n * sizeof(double), NULL, &ret);
   if(!mem_npa)
-    mem_npa  = clCreateBuffer(context, CL_MEM_READ_WRITE,
+    mem_npa  = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
 			      global_item_size[0] * sizeof(double),
 			      NULL, &ret);
   
-    ret = clEnqueueWriteBuffer(command_queue, mem_v, CL_TRUE, 0,
-			       n*sizeof(double),
-                               v, 0, NULL, NULL);
     ret = clEnqueueWriteBuffer(command_queue, mem_Aa, CL_TRUE, 0,
 			       w*sizeof(double),
                                Aa, 0, NULL, NULL);
@@ -471,9 +464,6 @@ double cl_phase2(int n, double *v,
     ret = clEnqueueWriteBuffer(command_queue, mem_rtilde, CL_TRUE, 0,
 			       n*sizeof(double),
                                rtilde, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_npa, CL_TRUE, 0,
-			       global_item_size[0]*sizeof(double),
-			       npa, 0, NULL, NULL);
 
     ret = clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
     ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_v);
@@ -496,12 +486,9 @@ double cl_phase2(int n, double *v,
 			      global_item_size[0] * sizeof(double),
 			      npa,0, NULL, NULL);
 
-			    
-
     for(k=1;k<global_item_size[0];k++) npa[0] += npa[k];
 
-
-    return sqrt(npa[0]);
+    return npa[0];
 }
 
 

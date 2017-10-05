@@ -19,3 +19,6 @@ time: ;
 	export PSC98=3; time ./cl_a.out 120
 	export PSC98=4; time ./cl_a.out 120
 	export PSC98=5; time ./cl_a.out 120
+
+lib/libbicgstab.a: ;
+	(cd ../bicgstab.d; make obj)
