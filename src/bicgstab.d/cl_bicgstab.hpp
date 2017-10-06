@@ -175,7 +175,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 	ii++;
       }
 
-  double resid,rho_1,rho_2,alpha,beta,omega,norms, normb = cl_norm(n,b);
+  double resid,rho_1,rho_2,alpha,beta,omega, normb = cl_norm(n,b);
   if (normb == 0.0) normb = 1;
 
   if ((resid = cl_phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b,w)/normb) <= tol) {
@@ -198,8 +198,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
     cl_copy(n,phat,p);
     alpha = rho_1/cl_phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde,w);
     
-    norms = cl_phase3(n,s,r,v,alpha);
-    if ((resid = norms/normb) < tol) {
+    if ((resid = cl_phase3(n,s,r,v,alpha)/normb) < tol) {
       cl_phase4(n,x,phat,alpha);
       tol = resid;
       return 0;

@@ -229,17 +229,15 @@ void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
                               n * sizeof(double),
                               r,0, NULL, NULL);
 }
-
-
-double cl_phase0(int n, double *r, double *Aa, int *col_ind,
-	       int *row_ptr, double *x, double *rtilde,
-	       double *b, int w)
-{
   static int ww = 0;
   static cl_mem mem_Aa= NULL;
   static cl_mem mem_col_ind = NULL;
   static cl_mem mem_row_ptr = NULL;
 
+double cl_phase0(int n, double *r, double *Aa, int *col_ind,
+	       int *row_ptr, double *x, double *rtilde,
+	       double *b, int w)
+{
   static double *npa = NULL;
   static cl_mem mem_r = NULL;
   static cl_mem mem_x = NULL;
@@ -400,10 +398,6 @@ double cl_phase2(int n, double *v,
 		 double *Aa, int *col_ind, int *row_ptr,
 		 double *phat, double *rtilde, int w)
 {
-  static int ww = 0;
-  static cl_mem mem_Aa= NULL;
-  static cl_mem mem_col_ind = NULL;
-  static cl_mem mem_row_ptr = NULL;
 
   static double *npa = NULL;
   static cl_mem mem_v = NULL;
@@ -605,11 +599,6 @@ void cl_phase4(int n, double *s, double *phat, double alpha)
 double cl_phase5(int n, double *t, double *Aa, int *col_ind,
 	       int *row_ptr, double *shat, double *s, int w)
 {
-  static int ww = 0;
-  static cl_mem mem_Aa= NULL;
-  static cl_mem mem_col_ind = NULL;
-  static cl_mem mem_row_ptr = NULL;
-
   static double *npa = NULL;
   static double *npb = NULL;
   
