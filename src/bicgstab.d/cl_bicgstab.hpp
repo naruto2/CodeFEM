@@ -50,8 +50,19 @@ static double norm(int n, double *x)
 
 static void copy(int n, double *p, double *q)
 {
-  return;
   for (int k=1;k<n;k++) p[k]=q[k];
+}
+
+static void presolve(int n, double *p, double *Aa, int *col_ind,
+		     int *row_ptr, double *q)
+{
+  for (int k=1;k<n;k++ )
+    for (int j=row_ptr[k];j<row_ptr[k+1];j++)
+      if ( k == col_ind[j] )
+	if ( Aa[j] != 0.0 )
+	  p[k] = q[col_ind[j]]/Aa[j];
+	else
+	  p[k] = q[col_ind[j]]/0.0000001;
 }
 
 
@@ -196,6 +207,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
       cl_phase1(n,p,r,v,beta,omega);
     }
     cl_copy(n,phat,p);
+    //presolve(n,phat,Aa,col_ind,row_ptr,p);
     alpha = rho_1/cl_phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde,w);
     
     if ((resid = cl_phase3(n,s,r,v,alpha)/normb) < tol) {
@@ -204,6 +216,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
       return 0;
     }
     cl_copy(n,shat,s);
+    //presolve(n,shat,Aa,col_ind,row_ptr,s);
     omega = cl_phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
     rho_2 = rho_1;
     if ((resid = cl_phase6(n,x,s,r,t,phat,shat,alpha,omega)/normb) < tol) {
