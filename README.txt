@@ -1,7 +1,7 @@
 CodeFEM - Codes for FEM
 
 ### 1st.
-$ cd bin/; ./mklink; cd ..
+$ cd bin/; ./mkall; cd ..
 
 ### 2nd.
 $ cd src/xmesh.d; make
