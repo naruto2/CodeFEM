@@ -422,6 +422,40 @@ void plotuv(vector<double>&U,vector<xyc>&Z,vector<nde>&N,vector<xyc>&Mid)
   fflush(pp);
 }
 
+
+void saveuv(vector<double>&U,vector<xyc>&Z,vector<nde>&N,vector<xyc>&Mid)
+{
+  static int T = 0;
+  static FILE *pp = NULL;
+  static char str[1000];
+
+  sprintf(str,"gzip -f>%05d.gz",T++);
+  if ( pp == NULL ) pp = popen(str,"w");
+  
+  double scale=0.4;
+  long arrow =1 ;
+  int i, m=Mid.size()-1;
+  
+  for (i=1; i<=m; i++)
+    fprintf(pp, "set arrow %ld from %f,%f to %f,%f\n",
+	    arrow++,Mid[i].x,Mid[i].y,Mid[i].x+U[i]*scale,Mid[i].y+U[i+m]*scale);
+  fprintf(pp,"set xrange [0:1]\n");
+  fprintf(pp,"set yrange [0:1]\n");
+  fprintf(pp,"plot '-' w l\n");
+  for(int e=1;e<N.size();e++){
+    fprintf(pp,"%f %f\n",Z[N[e].a].x,Z[N[e].a].y);
+    fprintf(pp,"%f %f\n",Z[N[e].b].x,Z[N[e].b].y);
+    fprintf(pp,"%f %f\n",Z[N[e].c].x,Z[N[e].c].y);
+    fprintf(pp,"%f %f\n\n",Z[N[e].a].x,Z[N[e].a].y);
+  }
+  fprintf(pp,"e\n");
+  fflush(pp);
+  pclose(pp);
+  pp = NULL;
+}
+
+
+
 vector<double> sparse__bicgstab(sparse::matrix<double>&, vector<double>&);
   
 
@@ -615,13 +649,14 @@ int main(int argc, char **argv)
   sparse::matrix<double> A; vector<double> U, b;
   map<int,int> Aindex;
 
-  for(int k=1;k<1000000;k++){
+  for(int k=0;k<=36000000;k++){
     fprintf(stderr,"T");
     makeA(A,U,b,Z,N,Mid);
     fprintf(stderr,"=");
-    sparse__solve2(A,U,b);
+    U = cl_bicgstab(A,b);
     fprintf(stderr,"%d\n",k);
-    plotuv(U,Z,N,Mid);
+    //plotuv(U,Z,N,Mid);
+    if ( 0 == (k%10)) saveuv(U,Z,N,Mid);
   }
   sleep(300);
   return 0;
