@@ -229,10 +229,13 @@ void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
                               n * sizeof(double),
                               r,0, NULL, NULL);
 }
-  static int ww = 0;
-  static cl_mem mem_Aa= NULL;
-  static cl_mem mem_col_ind = NULL;
-  static cl_mem mem_row_ptr = NULL;
+
+
+static int ww = 0;
+static cl_mem mem_Aa= NULL;
+static cl_mem mem_col_ind = NULL;
+static cl_mem mem_row_ptr = NULL;
+
 
 double cl_phase0(int n, double *r, double *Aa, int *col_ind,
 	       int *row_ptr, double *x, double *rtilde,
@@ -259,19 +262,27 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
     mem_r  = clCreateBuffer(context, CL_MEM_READ_WRITE,
 			    n * sizeof(double), NULL, &ret);
 
-  if ( ww < w){
+  if ( ww < w) {
     if(mem_Aa) ret = clReleaseMemObject(mem_Aa);
     mem_Aa  = clCreateBuffer(context, CL_MEM_READ_ONLY,
 			     w * sizeof(double), NULL, &ret);
     if(mem_col_ind) ret = clReleaseMemObject(mem_col_ind);
     mem_col_ind  = clCreateBuffer(context, CL_MEM_READ_ONLY,
 				  w * sizeof(int), NULL, &ret);
+    ret = clEnqueueWriteBuffer(command_queue, mem_Aa, CL_TRUE, 0,
+			       w*sizeof(double),
+                               Aa, 0, NULL, NULL);
+    ret = clEnqueueWriteBuffer(command_queue, mem_col_ind, CL_TRUE, 0,
+			       w*sizeof(int),
+                               col_ind, 0, NULL, NULL);
+    if(!mem_row_ptr) 
+      mem_row_ptr  = clCreateBuffer(context, CL_MEM_READ_ONLY,
+				  (n+1) * sizeof(double), NULL, &ret);
+      ret = clEnqueueWriteBuffer(command_queue, mem_row_ptr, CL_TRUE, 0,
+				 (n+1)*sizeof(int),
+				 row_ptr, 0, NULL, NULL);
     ww = w;
   }
-
-    if(!mem_row_ptr)
-    mem_row_ptr  = clCreateBuffer(context, CL_MEM_READ_ONLY,
-				  (n+1) * sizeof(double), NULL, &ret);
   if(!mem_x)
     mem_x  = clCreateBuffer(context, CL_MEM_READ_ONLY,
 			    n * sizeof(double), NULL, &ret);
@@ -289,15 +300,6 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
     ret = clEnqueueWriteBuffer(command_queue, mem_r, CL_TRUE, 0,
 			       n*sizeof(double),
                                r, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_Aa, CL_TRUE, 0,
-			       w*sizeof(double),
-                               Aa, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_col_ind, CL_TRUE, 0,
-			       w*sizeof(int),
-                               col_ind, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_row_ptr, CL_TRUE, 0,
-			       (n+1)*sizeof(int),
-                               row_ptr, 0, NULL, NULL);
     ret = clEnqueueWriteBuffer(command_queue, mem_x, CL_TRUE, 0,
 			       n*sizeof(double),
                                x, 0, NULL, NULL);
@@ -398,7 +400,6 @@ double cl_phase2(int n, double *v,
 		 double *Aa, int *col_ind, int *row_ptr,
 		 double *phat, double *rtilde, int w)
 {
-
   static double *npa = NULL;
   static cl_mem mem_v = NULL;
   static cl_mem mem_phat = NULL;
@@ -419,19 +420,28 @@ double cl_phase2(int n, double *v,
     mem_v  = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
 			    n * sizeof(double), NULL, &ret);
 
-  if ( ww < w){
+  if ( ww < w ) {
     if(mem_Aa) ret = clReleaseMemObject(mem_Aa);
     mem_Aa  = clCreateBuffer(context, CL_MEM_READ_ONLY,
 			     w * sizeof(double), NULL, &ret);
     if(mem_col_ind) ret = clReleaseMemObject(mem_col_ind);
     mem_col_ind  = clCreateBuffer(context, CL_MEM_READ_ONLY,
 				  w * sizeof(int), NULL, &ret);
+    ret = clEnqueueWriteBuffer(command_queue, mem_Aa, CL_TRUE, 0,
+			       w*sizeof(double),
+                               Aa, 0, NULL, NULL);
+    ret = clEnqueueWriteBuffer(command_queue, mem_col_ind, CL_TRUE, 0,
+			       w*sizeof(int),
+                               col_ind, 0, NULL, NULL);
+    if(!mem_row_ptr) 
+      mem_row_ptr  = clCreateBuffer(context, CL_MEM_READ_ONLY,
+				  (n+1) * sizeof(double), NULL, &ret);
+      ret = clEnqueueWriteBuffer(command_queue, mem_row_ptr, CL_TRUE, 0,
+				 (n+1)*sizeof(int),
+				 row_ptr, 0, NULL, NULL);
     ww = w;
   }
 
-  if(!mem_row_ptr)
-    mem_row_ptr  = clCreateBuffer(context, CL_MEM_READ_ONLY,
-				  (n+1) * sizeof(double), NULL, &ret);
   if(!mem_phat)
     mem_phat  = clCreateBuffer(context, CL_MEM_READ_ONLY,
 			    n * sizeof(double), NULL, &ret);
@@ -443,15 +453,6 @@ double cl_phase2(int n, double *v,
 			      global_item_size[0] * sizeof(double),
 			      NULL, &ret);
   
-    ret = clEnqueueWriteBuffer(command_queue, mem_Aa, CL_TRUE, 0,
-			       w*sizeof(double),
-                               Aa, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_col_ind, CL_TRUE, 0,
-			       w*sizeof(int),
-                               col_ind, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_row_ptr, CL_TRUE, 0,
-			       (n+1)*sizeof(int),
-                               row_ptr, 0, NULL, NULL);
     ret = clEnqueueWriteBuffer(command_queue, mem_phat, CL_TRUE, 0,
 			       n*sizeof(double),
                                phat, 0, NULL, NULL);
@@ -626,19 +627,28 @@ double cl_phase5(int n, double *t, double *Aa, int *col_ind,
     mem_t  = clCreateBuffer(context, CL_MEM_READ_WRITE,
 			    n * sizeof(double), NULL, &ret);
 
-  if ( ww < w){
+  if ( ww < w ) {
     if(mem_Aa) ret = clReleaseMemObject(mem_Aa);
     mem_Aa  = clCreateBuffer(context, CL_MEM_READ_ONLY,
 			     w * sizeof(double), NULL, &ret);
     if(mem_col_ind) ret = clReleaseMemObject(mem_col_ind);
     mem_col_ind  = clCreateBuffer(context, CL_MEM_READ_ONLY,
 				  w * sizeof(int), NULL, &ret);
+    ret = clEnqueueWriteBuffer(command_queue, mem_Aa, CL_TRUE, 0,
+			       w*sizeof(double),
+                               Aa, 0, NULL, NULL);
+    ret = clEnqueueWriteBuffer(command_queue, mem_col_ind, CL_TRUE, 0,
+			       w*sizeof(int),
+                               col_ind, 0, NULL, NULL);
+    if(!mem_row_ptr) 
+      mem_row_ptr  = clCreateBuffer(context, CL_MEM_READ_ONLY,
+				  (n+1) * sizeof(double), NULL, &ret);
+      ret = clEnqueueWriteBuffer(command_queue, mem_row_ptr, CL_TRUE, 0,
+				 (n+1)*sizeof(int),
+				 row_ptr, 0, NULL, NULL);
     ww = w;
   }
 
-  if(!mem_row_ptr)
-    mem_row_ptr  = clCreateBuffer(context, CL_MEM_READ_ONLY,
-				  (n+1) * sizeof(double), NULL, &ret);
   if(!mem_shat)
     mem_shat = clCreateBuffer(context, CL_MEM_READ_ONLY,
 			    n * sizeof(double), NULL, &ret);
@@ -658,15 +668,6 @@ double cl_phase5(int n, double *t, double *Aa, int *col_ind,
     ret = clEnqueueWriteBuffer(command_queue, mem_r, CL_TRUE, 0,
 			       n*sizeof(double),
                                t, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_Aa, CL_TRUE, 0,
-			       w*sizeof(double),
-                               Aa, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_col_ind, CL_TRUE, 0,
-			       w*sizeof(int),
-                               col_ind, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_row_ptr, CL_TRUE, 0,
-			       (n+1)*sizeof(int),
-                               row_ptr, 0, NULL, NULL);
     ret = clEnqueueWriteBuffer(command_queue, mem_shat, CL_TRUE, 0,
 			       n*sizeof(double),
                                shat, 0, NULL, NULL);
