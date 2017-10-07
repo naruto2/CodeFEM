@@ -10,7 +10,8 @@ int main(int argc, char **argv)
   double Re, dt;
 
   cl_bicgstab_init(argc,argv);
-  navierstokes_init("cavity32.mesh",Re=5000,dt=0.001);
+  if(0!=navierstokes_init("cavity32.mesh",Re=5000,dt=0.001))
+    return 0;
 
   sparse::matrix<double> A; vector<double> U, b;
 

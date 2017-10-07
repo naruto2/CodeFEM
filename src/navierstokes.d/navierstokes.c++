@@ -410,6 +410,7 @@ static void internal_plotuv(vector<double>&U,vector<xyc>&Z,vector<nde>&N,vector<
   for (i=1; i<=m; i++)
     fprintf(pp, "set arrow %ld from %f,%f to %f,%f\n",
 	    arrow++,Mid[i].x,Mid[i].y,Mid[i].x+U[i]*scale,Mid[i].y+U[i+m]*scale);
+  fprintf(pp,"set size square\n");
   fprintf(pp,"set xrange [0:1]\n");
   fprintf(pp,"set yrange [0:1]\n");
   fprintf(pp,"plot '-' w l\n");
@@ -440,6 +441,7 @@ void saveuv(vector<double>&U,vector<xyc>&Z,vector<nde>&N,vector<xyc>&Mid)
   for (i=1; i<=m; i++)
     fprintf(pp, "set arrow %ld from %f,%f to %f,%f\n",
 	    arrow++,Mid[i].x,Mid[i].y,Mid[i].x+U[i]*scale,Mid[i].y+U[i+m]*scale);
+  fprintf(pp,"set size square\n");
   fprintf(pp,"set xrange [0:1]\n");
   fprintf(pp,"set yrange [0:1]\n");
   fprintf(pp,"plot '-' w l\n");
@@ -645,10 +647,17 @@ static vector<xyc> staticZ;
 static vector<nde> staticN;
 static vector<xyc> staticMid;
 
-void navierstokes_init(const char *filename, double Re, double dt)
+int navierstokes_init(const char *filename, double Re, double dt)
 {
-  f2mesh(fopen("cavity32.mesh","r"),staticZ,staticN);
+  FILE *fp;
+  if ( NULL == (fp=fopen(filename,"r"))) {
+      fprintf(stderr,"Can't open the mesh file %s\n",filename);
+      return -1;
+    }
+
+  f2mesh(fp,staticZ,staticN);
   makeMid(staticMid,staticZ,staticN);
+  return 0;
 }
 
 
@@ -669,26 +678,3 @@ void fprintuv(vector<double>&U)
   saveuv(U,staticZ,staticN,staticMid);
 }
 
-#if 0
-int main(int argc, char **argv)
-{
-  cl_bicgstab_init(argc,argv);
-
-  double Re, dt;
-  navierstokes_init("cavity32.mesh",Re=5000, dt=0.001);
-  sparse::matrix<double> A; vector<double> U, b;
-
-  for(int T=0;T<=36000000;T++){
-    fprintf(stderr,"T");
-    navierstokes(A,U,b);
-
-    fprintf(stderr,"=");
-    U = cl_bicgstab(A,b);
-
-    fprintf(stderr,"%d\n",T);
-    plotuv(U);
-    if ( 0 == (T%1000)) fprintuv(U);
-  }
-  return 0;
-}
-#endif

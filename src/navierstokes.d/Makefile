@@ -2,7 +2,7 @@ a.out: main.c++
 	c++ main.c++ -lnavierstokes -lbicgstab -lxmesh -lforeach -lOpenCL
 
 clean: ;
-	rm -f a.out
+	rm -f a.out navierstokes.o
 
 obj: ;
 	c++ -c navierstokes.c++ 
