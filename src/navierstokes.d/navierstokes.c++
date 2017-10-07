@@ -216,16 +216,18 @@ void makeHy(sparse::matrix<double>&Hy,vector<xyc>&Z,vector<nde>&N)
   }
 }
 
+static double staticdt=0.001;
+static double staticRe=5000.0;
 
 double tau(void)
 {
-  return 0.001 ;
+  return staticdt;
 }
 
 
 double Re(void)
 {
-  return 5000.0;
+  return staticRe;
 }
 
 
@@ -657,6 +659,7 @@ int navierstokes_init(const char *filename, double Re, double dt)
 
   f2mesh(fp,staticZ,staticN);
   makeMid(staticMid,staticZ,staticN);
+  staticRe = Re; staticdt = dt;
   return 0;
 }
 
