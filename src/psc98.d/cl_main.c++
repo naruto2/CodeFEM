@@ -1,22 +1,15 @@
-#include <cstdlib>
+#include <vector>
 #include <est/sparse.hpp>
 #include <est/bicgstab.hpp>
+#include <est/psc98.hpp>
 
-void getprob(sparse::matrix<double>&A, vector<double>& b);
-void check(vector<double>& x);
 
 int main(int argc, char **argv){
   cl_bicgstab_init(argc,argv);
-  sparse::matrix<double> A;
-  vector<double> b;
-  getprob(A,b);
-  vector<double> x;
 
-  int max_iter = 100000;
-  double tol = 0.000001;
-
+  sparse::matrix<double> A; vector<double> x, b;
+  psc98_init(A,b);
   x = cl_bicgstab(A,b);
-  printf("A.size()=%d\n",A.size());
-  check(x);
+  psc98_check(x);
   return 0;
 }

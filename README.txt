@@ -59,7 +59,6 @@ int main(int argc, char **argv)
 #include <est/bicgstab.hpp>
 #include <est/navierstokes.hpp>
 
-
 int main(int argc, char **argv)
 {
   double Re, dt;
@@ -83,3 +82,74 @@ int main(int argc, char **argv)
   }
   return 0;
 }
+
+
+### 5th.
+# cp include/est/psc98.hpp   /usr/include/est
+# cp lib/libpsc98.a /usr/lib
+# c++ cl_main.c++ -lpsc98 -lbicgstab -lOpenCL -o cl_a.out
+# Usage: ./cl_a.out [OPTION]
+# argv[1] = Number of the PE. s.t. ./a.out 16
+
+### Those are Parallel Software Contest '98 (PSC98)'s problems.
+/* cl_main.c++ --- The problem solver of PSC98 by OpenCL. */
+#include <vector>
+#include <est/sparse.hpp>
+#include <est/bicgstab.hpp>
+#include <est/psc98.hpp>
+
+int main(int argc, char **argv){
+  cl_bicgstab_init(argc,argv);
+
+  sparse::matrix<double> A; vector<double> x, b;
+  psc98_init(A,b);
+  x = cl_bicgstab(A,b);
+  psc98_check(x);
+  return 0;
+}
+
+# cd src/psc98.d
+# make time
+export PSC98=0; time ./cl_a.out 120
+Problem NO : 0
+|b - Ax|_inf = 1.16993e-07  (OK)
+
+real 0m1.035s
+user 0m0.702s
+sys  0m0.334s
+export PSC98=1; time ./cl_a.out 120
+Problem NO : 1
+|b - Ax|_inf = 2.58968e-07  (OK)
+
+real 0m53.176s
+user 0m39.063s
+sys  0m14.147s
+export PSC98=2; time ./cl_a.out 120
+Problem NO : 2
+|b - Ax|_inf = 9.93914e-08  (OK)
+
+real 0m56.498s
+user 0m41.382s
+sys  0m15.151s
+export PSC98=3; time ./cl_a.out 120
+Problem NO : 3
+|b - Ax|_inf = 3.2271e-07  (OK)
+
+real 1m7.244s
+user 0m50.220s
+sys  0m17.066s
+export PSC98=4; time ./cl_a.out 120
+|b - Ax|_inf = 1.76181e-07  (OK)
+
+real 9m18.472s
+user 6m53.404s
+sys  2m25.411s
+export PSC98=5; time ./cl_a.out 120
+Problem NO : 5
+|b - Ax|_inf = 8.60549e+146  (NG)
+
+real 15m40.922s
+user 11m29.524s
+sys  4m11.966s
+
+# The problem NO.5 is ill condition matrix. So cl_bicgstab() can't solve it.

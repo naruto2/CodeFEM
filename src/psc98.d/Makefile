@@ -1,15 +1,18 @@
-cl_a.out: cl_main.c++ lib/libbicgstab.a
-	cc -c yosen.c
-	c++ cl_main.c++ cl_psc98.c++ yosen.o -lbicgstab -lOpenCL -o cl_a.out
+cl_a.out: cl_main.c++ lib/libbicgstab.a lib/libpsc98.a
+	c++ cl_main.c++ -lpsc98 -lbicgstab -lOpenCL -o cl_a.out
 
 clean: ;
 	rm -f cl_a.out *.o lib/libpsc98.a
+
+lib/libpsc98.a: obj
+	echo -n
 
 obj: ;
 	cc -c yosen.c
 	cc -c honsen.c
 	c++ -c psc98.c++
-	ar cr lib/libpsc98.a yosen.o honsen.o psc98.o
+	c++ -c cl_psc98.c++
+	ar cr lib/libpsc98.a yosen.o honsen.o psc98.o cl_psc98.o
 	rm *.o
 
 time: ;

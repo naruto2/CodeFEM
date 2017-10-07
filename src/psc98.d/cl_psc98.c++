@@ -6,7 +6,7 @@ extern "C" {
 }
 
 
-void getprob(sparse::matrix<double>& A, vector<double>& b) {
+static void getprob(sparse::matrix<double>& A, vector<double>& b) {
   vector<double> AA(10);
   double B;
   int    JA[10], i, j, n, w;
@@ -33,6 +33,16 @@ void getprob(sparse::matrix<double>& A, vector<double>& b) {
   }
 }
 
-void check(vector<double>& x) {
+void psc98_init(sparse::matrix<double>& A, vector<double>& b)
+{
+  getprob(A,b);
+}
+
+static void check(vector<double>& x) {
+  chkval(stdout,x.size()-1,&x[1]);
+}
+
+void psc98_check(vector<double>& x)
+{
   chkval(stdout,x.size()-1,&x[1]);
 }
