@@ -60,6 +60,14 @@ static int cl_mem_rw(int size, cl_mem &mem)
 }
 
 
+static int cl_run(cl_kernel kernel)
+{
+    return clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
+				  global_item_size, local_item_size,
+				  0, NULL, NULL);
+}
+
+
 double cl_norm(int n, double *x)
 {
   int k, ret;
@@ -86,9 +94,7 @@ double cl_norm(int n, double *x)
     ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_x);
     ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_npa);
 
-    ret = clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
-                                 global_item_size, local_item_size,
-                                 0, NULL, NULL);
+    ret = cl_run(kernel);
 
     ret = clEnqueueReadBuffer(command_queue, mem_npa, CL_TRUE, 0,
                               global_item_size[0] * sizeof(double),
@@ -120,9 +126,8 @@ void cl_copy(int n, double *y, double *x)
     ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_y);
     ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_x);
 
-    ret = clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
-                                 global_item_size, local_item_size,
-                                 0, NULL, NULL);
+    ret = cl_run(kernel);
+          
     ret = clEnqueueReadBuffer(command_queue, mem_y, CL_TRUE, 0,
                               n * sizeof(double),
                               y,0, NULL, NULL);
@@ -159,10 +164,8 @@ double cl_dot(int n, double *y, double *x)
     ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_x);
     ret = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&mem_npa);
 
-    
-    ret = clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
-                                 global_item_size, local_item_size,
-                                 0, NULL, NULL);
+    ret = cl_run(kernel);
+            
     ret = clEnqueueReadBuffer(command_queue, mem_npa, CL_TRUE, 0,
                               global_item_size[0] * sizeof(double),
                               npa,0, NULL, NULL);
@@ -224,11 +227,8 @@ void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
   ret = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&mem_col_ind);
   ret = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *)&mem_row_ptr);
   ret = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *)&mem_b);
-
     
-  ret = clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
-                                 global_item_size, local_item_size,
-                                 0, NULL, NULL);
+  ret = cl_run(kernel);
 
   ret = clEnqueueReadBuffer(command_queue, mem_r, CL_TRUE, 0,
                               n * sizeof(double),
@@ -312,11 +312,8 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
     ret = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *)&mem_rtilde);
     ret = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&mem_b);
     ret = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *)&mem_npa);
-
     
-    ret = clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
-                                 global_item_size, local_item_size,
-                                 0, NULL, NULL);
+    ret = cl_run(kernel);
 
     ret = clEnqueueReadBuffer(command_queue, mem_r, CL_TRUE, 0,
                               n * sizeof(double),
@@ -367,9 +364,7 @@ void cl_phase1(int n, double *p, double *r, double *v,
     ret = clSetKernelArg(kernel, 4, sizeof(double), (void *)&beta);
     ret = clSetKernelArg(kernel, 5, sizeof(double), (void *)&omega);
     
-    ret = clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
-                                 global_item_size, local_item_size,
-                                 0, NULL, NULL);
+    ret = cl_run(kernel);
 
     ret = clEnqueueReadBuffer(command_queue, mem_p, CL_TRUE, 0,
                               n * sizeof(double),
@@ -438,11 +433,8 @@ double cl_phase2(int n, double *v,
     ret = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *)&mem_phat);
     ret = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *)&mem_rtilde);
     ret = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&mem_npa);
-
     
-    ret = clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
-                                 global_item_size, local_item_size,
-                                 0, NULL, NULL);
+    ret = cl_run(kernel);
 
     ret = clEnqueueReadBuffer(command_queue, mem_v, CL_TRUE, 0,
                               n * sizeof(double),
@@ -496,9 +488,7 @@ double cl_phase3(int n, double *s, double *r, double *v,
     ret = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *)&mem_npa);
     
     
-    ret = clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
-                                 global_item_size, local_item_size,
-                                 0, NULL, NULL);
+    ret = cl_run(kernel);
 
     ret = clEnqueueReadBuffer(command_queue, mem_s, CL_TRUE, 0,
                               n * sizeof(double),
@@ -535,10 +525,8 @@ void cl_phase4(int n, double *s, double *phat, double alpha)
     ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_s);
     ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_phat);
     ret = clSetKernelArg(kernel, 3, sizeof(double), (void *)&alpha);
-    
-    ret = clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
-                                 global_item_size, local_item_size,
-                                 0, NULL, NULL);
+
+    ret = cl_run(kernel);
 
     ret = clEnqueueReadBuffer(command_queue, mem_s, CL_TRUE, 0,
                               n * sizeof(double),
@@ -614,10 +602,7 @@ double cl_phase5(int n, double *t, double *Aa, int *col_ind,
     ret = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&mem_npa);
     ret = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *)&mem_npb);
 
-    
-    ret = clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
-                                 global_item_size, local_item_size,
-                                 0, NULL, NULL);
+    ret = cl_run(kernel);
 
     ret = clEnqueueReadBuffer(command_queue, mem_t, CL_TRUE, 0,
                               n * sizeof(double),
@@ -693,10 +678,7 @@ double cl_phase6(int n, double *x, double *s, double *r, double *t,
     ret = clSetKernelArg(kernel, 8, sizeof(double), (void *)&omega);
     ret = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *)&mem_npa);
     
-    
-    ret = clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
-                                 global_item_size, local_item_size,
-                                 0, NULL, NULL);
+    ret = cl_run(kernel);
 
     ret = clEnqueueReadBuffer(command_queue, mem_x, CL_TRUE, 0,
                               n * sizeof(double),
