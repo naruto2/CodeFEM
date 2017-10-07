@@ -13,8 +13,15 @@ static size_t local_item_size[3];
 static cl_program program = NULL;
 static char *kernel_src_str;
 
+static void check_n_and_np(int n)
+{
+  if ( n<=global_item_size[0])
+    global_item_size[0] = n-1;
+}
+
 double cl_norm(int n, double *x)
 {
+  check_n_and_np(n);
   static cl_kernel kernel = NULL;
   static cl_mem mem_x = NULL;
   static cl_mem mem_npa = NULL;
@@ -66,6 +73,7 @@ double cl_norm(int n, double *x)
 
 void cl_copy(int n, double *y, double *x)
 {
+  check_n_and_np(n);
   static cl_mem mem_y = NULL;
   static cl_mem mem_x = NULL;
   static cl_kernel  kernel = NULL;
@@ -100,6 +108,7 @@ void cl_copy(int n, double *y, double *x)
 
 double cl_dot(int n, double *y, double *x)
 {
+  check_n_and_np(n);
   static cl_mem mem_y = NULL;
   static cl_mem mem_x = NULL;
   static cl_mem mem_npa = NULL;
@@ -160,6 +169,7 @@ double cl_dot(int n, double *y, double *x)
 void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
 		     int *row_ptr, double *b, int w)
 {
+  check_n_and_np(n);
   static int ww = 0;
   static cl_mem mem_r = NULL;
   static cl_mem mem_Aa= NULL;
@@ -241,6 +251,7 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
 	       int *row_ptr, double *x, double *rtilde,
 	       double *b, int w)
 {
+  check_n_and_np(n);
   static double *npa = NULL;
   static cl_mem mem_r = NULL;
   static cl_mem mem_x = NULL;
@@ -347,6 +358,7 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
 void cl_phase1(int n, double *p, double *r, double *v,
 	       double beta, double omega)
 {
+  check_n_and_np(n);
   static cl_mem mem_p = NULL;
   static cl_mem mem_r = NULL;
   static cl_mem mem_v = NULL;
@@ -400,6 +412,7 @@ double cl_phase2(int n, double *v,
 		 double *Aa, int *col_ind, int *row_ptr,
 		 double *phat, double *rtilde, int w)
 {
+  check_n_and_np(n);
   static double *npa = NULL;
   static cl_mem mem_v = NULL;
   static cl_mem mem_phat = NULL;
@@ -490,6 +503,7 @@ double cl_phase2(int n, double *v,
 double cl_phase3(int n, double *s, double *r, double *v,
 	       double alpha)
 {
+  check_n_and_np(n);
   static double *npa = NULL;
   
   static cl_mem mem_s = NULL;
@@ -558,6 +572,7 @@ double cl_phase3(int n, double *s, double *r, double *v,
 
 void cl_phase4(int n, double *s, double *phat, double alpha)
 {
+  check_n_and_np(n);
   static cl_mem mem_s = NULL;
   static cl_mem mem_phat = NULL;
   static cl_kernel kernel = NULL;
@@ -600,6 +615,7 @@ void cl_phase4(int n, double *s, double *phat, double alpha)
 double cl_phase5(int n, double *t, double *Aa, int *col_ind,
 	       int *row_ptr, double *shat, double *s, int w)
 {
+  check_n_and_np(n);
   static double *npa = NULL;
   static double *npb = NULL;
   
@@ -712,6 +728,7 @@ double cl_phase5(int n, double *t, double *Aa, int *col_ind,
 double cl_phase6(int n, double *x, double *s, double *r, double *t,
 		 double *phat, double *shat, double alpha, double omega)
 {
+  check_n_and_np(n);
   static double *npa = NULL;
 
   static cl_mem mem_x = NULL;
