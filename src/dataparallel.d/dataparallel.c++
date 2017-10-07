@@ -15,26 +15,39 @@ static char *kernel_src_str;
 
 static void check_n_and_np(int n)
 {
+  if ( global_item_size[0] < 0 )
+    global_item_size[0] = 1024;
+  if ( 1024 < global_item_size[0])
+    global_item_size[0] = 1024;
   if ( n<=global_item_size[0])
     global_item_size[0] = n-1;
 }
 
+
+static int cl_check_kernel(cl_kernel &kernel, const char *name)
+{
+  int ret;
+  kernel = clCreateKernel(program, name, &ret);
+  if(ret) { fprintf(stderr,"%d=%d\n",name,ret); exit(ret); }
+  return ret;
+}
+
+
 double cl_norm(int n, double *x)
 {
-  check_n_and_np(n);
+  int k, ret;
   static cl_kernel kernel = NULL;
+  check_n_and_np(n);
+  ret = cl_check_kernel(kernel,"cl_norm");
+
   static cl_mem mem_x = NULL;
   static cl_mem mem_npa = NULL;
   static double *npa;
   
-  int k, ret;
+
   if(!npa)
     npa = (double*)malloc(sizeof(double)*global_item_size[0]);
 
-  if(!kernel) {
-    kernel = clCreateKernel(program, "cl_norm", &ret);
-    if(ret) { printf("cl_norm=%d\n",ret); exit(ret);}
-  }
   if(!mem_x)
     mem_x  = clCreateBuffer(context, CL_MEM_READ_ONLY,
 			    n * sizeof(double), NULL, &ret);
@@ -73,16 +86,14 @@ double cl_norm(int n, double *x)
 
 void cl_copy(int n, double *y, double *x)
 {
+  int k, ret;
+  static cl_kernel  kernel = NULL;
   check_n_and_np(n);
+  ret = cl_check_kernel(kernel,"cl_copy");
+
   static cl_mem mem_y = NULL;
   static cl_mem mem_x = NULL;
-  static cl_kernel  kernel = NULL;
-  int k, ret;
 
-  if(!kernel) {
-    kernel = clCreateKernel(program, "cl_copy", &ret);
-    if(ret) { printf("cl_copy=%d\n",ret); exit(ret); }
-  }
   if(!mem_y)
     mem_y  = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
 				 n * sizeof(double), NULL, &ret);
@@ -108,21 +119,19 @@ void cl_copy(int n, double *y, double *x)
 
 double cl_dot(int n, double *y, double *x)
 {
+  int k, ret;
+  static cl_kernel  kernel = NULL;
   check_n_and_np(n);
+  ret = cl_check_kernel(kernel,"cl_dot");
+
   static cl_mem mem_y = NULL;
   static cl_mem mem_x = NULL;
   static cl_mem mem_npa = NULL;
-  static cl_kernel  kernel = NULL;
   static double *npa = NULL;
-  int k, ret;
 
   if(!npa)
     npa = (double*)malloc(sizeof(double)*global_item_size[0]);
 
-  if(!kernel) {
-    kernel = clCreateKernel(program, "cl_dot", &ret);
-    if(ret) { printf("cl_dot=%d\n",ret); exit(ret); }
-  }
   if(!mem_y)
     mem_y  = clCreateBuffer(context, CL_MEM_READ_ONLY,
 				 n * sizeof(double), NULL, &ret);
@@ -169,7 +178,11 @@ double cl_dot(int n, double *y, double *x)
 void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
 		     int *row_ptr, double *b, int w)
 {
+  int ret;
+  static cl_kernel kernel = NULL;
   check_n_and_np(n);
+  ret = cl_check_kernel(kernel,"cl_matrixvector");
+
   static int ww = 0;
   static cl_mem mem_r = NULL;
   static cl_mem mem_Aa= NULL;
@@ -177,14 +190,6 @@ void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
   static cl_mem mem_row_ptr = NULL;
   static cl_mem mem_b = NULL;
 
-  static cl_kernel kernel = NULL;
-  int ret;
-
-
-  if(!kernel) {
-    kernel = clCreateKernel(program, "cl_matrixvector", &ret);
-    if(ret) { printf("cl_matrixvector=%d\n",ret); exit(ret); }
- }
   if(!mem_r)
     mem_r  = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
 			    n * sizeof(double), NULL, &ret);
@@ -248,7 +253,11 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
 	       int *row_ptr, double *x, double *rtilde,
 	       double *b, int w)
 {
+  int k, ret;
+  static cl_kernel kernel = NULL;
   check_n_and_np(n);
+  ret = cl_check_kernel(kernel,"cl_phase0");
+
   static double *npa = NULL;
   static cl_mem mem_r = NULL;
   static cl_mem mem_x = NULL;
@@ -256,20 +265,15 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
   static cl_mem mem_b = NULL;
   static cl_mem mem_npa = NULL;
 
-  static cl_kernel kernel = NULL;
-  int k, ret;
+
+
 
   if(!npa)
     npa = (double*)malloc(sizeof(double)*global_item_size[0]);
 
-  if(!kernel) {
-    kernel = clCreateKernel(program, "cl_phase0", &ret);
-    if(ret) { printf("cl_phase0=%d\n",ret); exit(0); };
- }
   if(!mem_r)
     mem_r  = clCreateBuffer(context, CL_MEM_READ_WRITE,
 			    n * sizeof(double), NULL, &ret);
-
   if ( ww < w) {
     if(mem_Aa) ret = clReleaseMemObject(mem_Aa);
     mem_Aa  = clCreateBuffer(context, CL_MEM_READ_ONLY,
@@ -355,18 +359,14 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
 void cl_phase1(int n, double *p, double *r, double *v,
 	       double beta, double omega)
 {
+  int k, ret;
+  static cl_kernel kernel = NULL;
   check_n_and_np(n);
+  ret = cl_check_kernel(kernel,"cl_phase1");
   static cl_mem mem_p = NULL;
   static cl_mem mem_r = NULL;
   static cl_mem mem_v = NULL;
-  static cl_kernel kernel = NULL;
-  int k, ret;
 
-
-  if(!kernel) {
-    kernel = clCreateKernel(program, "cl_phase1", &ret);
-    if(ret) { printf("cl_phase1=%d\n",ret); exit(ret); }
-  }
   if(!mem_p)
     mem_p  = clCreateBuffer(context, CL_MEM_READ_WRITE,
 			    n * sizeof(double), NULL, &ret);
@@ -409,23 +409,20 @@ double cl_phase2(int n, double *v,
 		 double *Aa, int *col_ind, int *row_ptr,
 		 double *phat, double *rtilde, int w)
 {
+  int k, ret;
+  static cl_kernel kernel = NULL;  
   check_n_and_np(n);
+  ret = cl_check_kernel(kernel,"cl_phase2");
+
   static double *npa = NULL;
   static cl_mem mem_v = NULL;
   static cl_mem mem_phat = NULL;
   static cl_mem mem_rtilde = NULL;
   static cl_mem mem_npa = NULL;
 
-  static cl_kernel kernel = NULL;
-  int k, ret;
-
   if(!npa)
     npa = (double*)malloc(sizeof(double)*global_item_size[0]);
 
-  if(!kernel) {
-    kernel = clCreateKernel(program, "cl_phase2", &ret);
-    if (ret) { printf("cl_phase2=%d\n",ret); exit(ret); }
- }
   if(!mem_v)
     mem_v  = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
 			    n * sizeof(double), NULL, &ret);
@@ -500,24 +497,19 @@ double cl_phase2(int n, double *v,
 double cl_phase3(int n, double *s, double *r, double *v,
 	       double alpha)
 {
+  int k, ret;
+  static cl_kernel kernel = NULL;
   check_n_and_np(n);
+  ret = cl_check_kernel(kernel,"cl_phase3");
+
   static double *npa = NULL;
-  
   static cl_mem mem_s = NULL;
   static cl_mem mem_r = NULL;
   static cl_mem mem_v = NULL;
   static cl_mem mem_npa=NULL;
-  static cl_kernel kernel = NULL;
-
-  int k, ret;
 
   if(!npa)
     npa = (double*)malloc(sizeof(double)*global_item_size[0]);
-  
-  if(!kernel) {
-    kernel = clCreateKernel(program, "cl_phase3", &ret);
-    if (ret) { printf("cl_phase3=%d\n",ret); exit(0); }
-  }
   if(!mem_s)
     mem_s  = clCreateBuffer(context, CL_MEM_READ_WRITE,
 			    n * sizeof(double), NULL, &ret);
@@ -569,17 +561,13 @@ double cl_phase3(int n, double *s, double *r, double *v,
 
 void cl_phase4(int n, double *s, double *phat, double alpha)
 {
+  int ret;
+  static cl_kernel kernel = NULL;
   check_n_and_np(n);
+  ret = cl_check_kernel(kernel,"cl_phase4");
   static cl_mem mem_s = NULL;
   static cl_mem mem_phat = NULL;
-  static cl_kernel kernel = NULL;
-  int ret;
 
-
-  if(!kernel) {
-    kernel = clCreateKernel(program, "cl_phase4", &ret);
-    if (ret) printf("cl_phase4=%d\n",ret);
-  }
   if(!mem_s)
     mem_s  = clCreateBuffer(context, CL_MEM_READ_WRITE,
 			    n * sizeof(double), NULL, &ret);
@@ -612,7 +600,11 @@ void cl_phase4(int n, double *s, double *phat, double alpha)
 double cl_phase5(int n, double *t, double *Aa, int *col_ind,
 	       int *row_ptr, double *shat, double *s, int w)
 {
+  int k, ret;
+  static cl_kernel kernel = NULL;
   check_n_and_np(n);
+  ret = cl_check_kernel(kernel,"cl_phase5");
+  
   static double *npa = NULL;
   static double *npb = NULL;
   
@@ -622,20 +614,12 @@ double cl_phase5(int n, double *t, double *Aa, int *col_ind,
   static cl_mem mem_s = NULL;
   static cl_mem mem_npa = NULL;
   static cl_mem mem_npb = NULL;
-  
-  static cl_kernel kernel = NULL;
-  int k, ret;
-
   if(!npa)
     npa = (double*)malloc(sizeof(double)*global_item_size[0]);
 
   if(!npb)
     npb = (double*)malloc(sizeof(double)*global_item_size[0]);
 
-  if(!kernel) {
-    kernel = clCreateKernel(program, "cl_phase5", &ret);
-    if(ret) { printf("cl_phase5=%d\n",ret); exit(ret); }
- }
   if(!mem_t)
     mem_t  = clCreateBuffer(context, CL_MEM_READ_WRITE,
 			    n * sizeof(double), NULL, &ret);
@@ -725,7 +709,10 @@ double cl_phase5(int n, double *t, double *Aa, int *col_ind,
 double cl_phase6(int n, double *x, double *s, double *r, double *t,
 		 double *phat, double *shat, double alpha, double omega)
 {
+  int k, ret;
+  static cl_kernel kernel = NULL;
   check_n_and_np(n);
+  ret = cl_check_kernel(kernel,"cl_phase6");
   static double *npa = NULL;
 
   static cl_mem mem_x = NULL;
@@ -736,16 +723,10 @@ double cl_phase6(int n, double *x, double *s, double *r, double *t,
   static cl_mem mem_shat = NULL;
   static cl_mem mem_npa  = NULL;
   
-  static cl_kernel kernel = NULL;
-  int k, ret;
 
   if(!npa)
     npa = (double*)malloc(sizeof(double)*global_item_size[0]);
   
-  if(!kernel) {
-    kernel = clCreateKernel(program, "cl_phase6", &ret);
-    if (ret) printf("cl_phase6=%d\n",ret);
-  }
   if(!mem_npa)
     mem_npa  = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
 			      global_item_size[0] * sizeof(double),
