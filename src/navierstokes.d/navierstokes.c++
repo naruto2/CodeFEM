@@ -664,6 +664,12 @@ void plotuv(vector<double>&U)
 }
 
 
+void fprintuv(vector<double>&U)
+{
+  saveuv(U,staticZ,staticN,staticMid);
+}
+
+#if 0
 int main(int argc, char **argv)
 {
   cl_bicgstab_init(argc,argv);
@@ -681,6 +687,8 @@ int main(int argc, char **argv)
 
     fprintf(stderr,"%d\n",T);
     plotuv(U);
+    if ( 0 == (T%1000)) fprintuv(U);
   }
   return 0;
 }
+#endif

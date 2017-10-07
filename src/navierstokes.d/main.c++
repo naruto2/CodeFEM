@@ -17,10 +17,13 @@ int main(int argc, char **argv)
   for ( int T=0; T<= 36000000; T++) {
     fprintf(stderr,"T");
     navierstokes(A,U,b);
+
     fprintf(stderr,"=");
     U = cl_bicgstab(A,b);
+
     fprintf(stderr,"%05d\n",T);
-    if ( 0 == (k%1000)) fprintuv(U);
+    plotuv(U);
+    if ( 0 == (T%1000)) fprintuv(U);
   }
   return 0;
 }

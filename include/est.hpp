@@ -11,5 +11,6 @@
 #include "est/foreach.hpp"
 #include "est/sparse.hpp"
 #include "est/bicgstab.hpp"
+#include "est/navierstokes.hpp"
 
 #endif

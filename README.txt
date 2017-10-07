@@ -40,3 +40,45 @@ int main(int argc, char **argv)
   printf("x[2]=%f\n",x[2]);
   return 0;
 }
+
+
+### 4th.
+# cp include/est/navierstokes.hpp   /usr/include/est
+# cp lib/libnavierstokes.a /usr/lib
+# cp lib/libxmesh.a /usr/lib
+# cp lib/libforeach.a /usr/lib
+# c++ main.c++ -lbicgstab -lOpenCL -lnavierstokes -lxmesh -lforeach
+# Usage: ./a.out [OPTION]
+# argv[1] = Number of the PE. s.t. ./a.out 16
+
+### This is a simulation of Navier-Stokes equations.
+/* main.c++ --- A sample source for Navier-Stokes equations. */
+#include <cstdio>
+#include <vector>
+#include <est/sparse.hpp>
+#include <est/bicgstab.hpp>
+#include <est/navierstokes.hpp>
+
+
+int main(int argc, char **argv)
+{
+  double Re, dt;
+
+  cl_bicgstab_init(argc,argv);
+  navierstokes_init("cavity32.mesh",Re=5000,dt=0.001);
+
+  sparse::matrix<double> A; vector<double> U, b;
+
+  for ( int T=0; T<= 36000000; T++) {
+    fprintf(stderr,"T");
+    navierstokes(A,U,b);
+
+    fprintf(stderr,"=");
+    U = cl_bicgstab(A,b);
+
+    fprintf(stderr,"%05d\n",T);
+    plotuv(U);
+    if ( 0 == (T%1000)) fprintuv(U);
+  }
+  return 0;
+}
