@@ -185,4 +185,4 @@ sys  4m11.966s
 ダウンロード
 
 [ 8] については, http://kud.dip.jp/thesis.d/UEC_thesis.pdf
-
+[ 8] の付属CD-ROMは, http://kud.dip.jp/thesis.d/UEC_thesis.CD_ROM/
