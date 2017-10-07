@@ -33,7 +33,7 @@ double cl_norm(int n, double *x)
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_norm", &ret);
-    if(ret) printf("cl_norm=%d\n",ret);
+    if(ret) { printf("cl_norm=%d\n",ret); exit(ret);}
   }
   if(!mem_x)
     mem_x  = clCreateBuffer(context, CL_MEM_READ_ONLY,
@@ -81,7 +81,7 @@ void cl_copy(int n, double *y, double *x)
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_copy", &ret);
-    if(ret) printf("cl_copy=%d\n",ret);
+    if(ret) { printf("cl_copy=%d\n",ret); exit(ret); }
   }
   if(!mem_y)
     mem_y  = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
@@ -121,7 +121,7 @@ double cl_dot(int n, double *y, double *x)
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_dot", &ret);
-    if(ret) printf("cl_dot=%d\n",ret);
+    if(ret) { printf("cl_dot=%d\n",ret); exit(ret); }
   }
   if(!mem_y)
     mem_y  = clCreateBuffer(context, CL_MEM_READ_ONLY,
@@ -183,10 +183,10 @@ void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_matrixvector", &ret);
-    if(ret) printf("cl_matrixvector=%d\n",ret);
+    if(ret) { printf("cl_matrixvector=%d\n",ret); exit(ret); }
  }
   if(!mem_r)
-    mem_r  = clCreateBuffer(context, CL_MEM_READ_WRITE,
+    mem_r  = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
 			    n * sizeof(double), NULL, &ret);
 
   if ( ww < w){
@@ -206,9 +206,6 @@ void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
     mem_b  = clCreateBuffer(context, CL_MEM_READ_ONLY,
 			    n * sizeof(double), NULL, &ret);
 
-  ret = clEnqueueWriteBuffer(command_queue, mem_r, CL_TRUE, 0,
-			       n*sizeof(double),
-                               r, 0, NULL, NULL);
   ret = clEnqueueWriteBuffer(command_queue, mem_Aa, CL_TRUE, 0,
 			       w*sizeof(double),
                                Aa, 0, NULL, NULL);
@@ -267,7 +264,7 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_phase0", &ret);
-    if(ret) printf("cl_phase0=%d\n",ret);
+    if(ret) { printf("cl_phase0=%d\n",ret); exit(0); };
  }
   if(!mem_r)
     mem_r  = clCreateBuffer(context, CL_MEM_READ_WRITE,
@@ -368,7 +365,7 @@ void cl_phase1(int n, double *p, double *r, double *v,
 
   if(!kernel) {
     kernel = clCreateKernel(program, "cl_phase1", &ret);
-    if(ret) printf("cl_phase1=%d\n",ret);
+    if(ret) { printf("cl_phase1=%d\n",ret); exit(ret); }
   }
   if(!mem_p)
     mem_p  = clCreateBuffer(context, CL_MEM_READ_WRITE,
