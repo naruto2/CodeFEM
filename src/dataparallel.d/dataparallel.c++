@@ -323,41 +323,33 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
 void cl_phase1(int n, double *p, double *r, double *v,
 	       double beta, double omega)
 {
-  int k, ret;
-  static cl_kernel kernel = NULL;
   check_np(n);
-  ret = cl_load(kernel,"cl_phase1");
-  static cl_mem mem_p = NULL;
-  static cl_mem mem_r = NULL;
-  static cl_mem mem_v = NULL;
 
-  ret = cl_mem_rw(n*sizeof(double), mem_p);
-  ret = cl_mem_r(n*sizeof(double), mem_r);
-  ret = cl_mem_r(n*sizeof(double), mem_v);
-  
-  ret = clEnqueueWriteBuffer(command_queue, mem_p, CL_TRUE, 0,
-			       n*sizeof(double),
-                               p, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_r, CL_TRUE, 0,
-			       n*sizeof(double),
-                               r, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_v, CL_TRUE, 0,
-			       n*sizeof(double),
-                               v, 0, NULL, NULL);
+  static cl_kernel kernel;
+  cl_load(kernel,"cl_phase1");
 
+  static cl_mem mem_p;
+  static cl_mem mem_r;
+  static cl_mem mem_v;
 
-    ret = clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
-    ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_p);
-    ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_r);
-    ret = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&mem_v);
-    ret = clSetKernelArg(kernel, 4, sizeof(double), (void *)&beta);
-    ret = clSetKernelArg(kernel, 5, sizeof(double), (void *)&omega);
-    
-    ret = cl_run(kernel);
+  cl_mem_rw(n*sizeof(double), mem_p);
+  cl_mem_r(n*sizeof(double), mem_r);
+  cl_mem_r(n*sizeof(double), mem_v);
 
-    ret = clEnqueueReadBuffer(command_queue, mem_p, CL_TRUE, 0,
-                              n * sizeof(double),
-                              p,0, NULL, NULL);
+  cl_send(n*sizeof(double), mem_p, p);
+  cl_send(n*sizeof(double), mem_r, r);
+  cl_send(n*sizeof(double), mem_v, v);
+
+  clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
+  clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_p);
+  clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_r);
+  clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&mem_v);
+  clSetKernelArg(kernel, 4, sizeof(double), (void *)&beta);
+  clSetKernelArg(kernel, 5, sizeof(double), (void *)&omega);
+
+  cl_run(kernel);
+
+  cl_get(n*sizeof(double), mem_p, p);
 }
 
 
