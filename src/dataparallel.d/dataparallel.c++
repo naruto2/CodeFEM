@@ -23,48 +23,68 @@ static void check_n_and_np(int n)
     global_item_size[0] = n-1;
 }
 
-
-static int cl_check_kernel(cl_kernel &kernel, const char *name)
+ 
+static int cl_load(cl_kernel &kernel, const char *name)
 {
   int ret;
   kernel = clCreateKernel(program, name, &ret);
-  if(ret) { fprintf(stderr,"%d=%d\n",name,ret); exit(ret); }
+  if (ret) { fprintf(stderr,"%s=%d\n",name,ret); abort(); }
   return ret;
 }
 
 static int cl_mem_r(int size, cl_mem &mem)
 {
   int ret;
-  if(!mem)
-    mem  = clCreateBuffer(context, CL_MEM_READ_ONLY,
-			  size, NULL, &ret);
+  if (!mem)  mem = clCreateBuffer(context, CL_MEM_READ_ONLY, size, NULL, &ret);
+  if (ret) { fprintf(stderr,"clCreateBuffer()=%d\n",ret); abort();}
   return ret;
 }
 
 static int cl_mem_w(int size, cl_mem &mem)
 {
   int ret;
-  if(!mem)
-    mem  = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-			  size, NULL, &ret);
+  if (!mem) mem = clCreateBuffer(context, CL_MEM_WRITE_ONLY, size, NULL, &ret);
+  if (ret) { fprintf(stderr,"clCreateBuffer()=%d\n",ret); abort();}
   return ret;
 }
 
 static int cl_mem_rw(int size, cl_mem &mem)
 {
   int ret;
-  if(!mem)
-    mem  = clCreateBuffer(context, CL_MEM_READ_WRITE,
-			  size, NULL, &ret);
+  if(!mem) mem = clCreateBuffer(context, CL_MEM_READ_WRITE, size, NULL, &ret);
+  if (ret) { fprintf(stderr,"clCreateBuffer()=%d\n",ret); abort();}
   return ret;
 }
 
 
 static int cl_run(cl_kernel kernel)
 {
-    return clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
+  int ret;
+  ret = clEnqueueNDRangeKernel(command_queue, kernel, work_dim, NULL,
 				  global_item_size, local_item_size,
 				  0, NULL, NULL);
+  if (ret) { fprintf(stderr,"clEnqueueNDRangeKernel()=%d\n",ret); abort();}
+  return ret;
+}
+
+
+static int cl_send(size_t size, cl_mem &mem_x, void *x)
+{
+  int ret;
+  ret = clEnqueueWriteBuffer(command_queue, mem_x, CL_TRUE, 0,
+			     size, x, 0, NULL, NULL);
+  if (ret) { fprintf(stderr,"clEnqueWriteBuffer()=%d\n",ret); abort();}
+  return ret;
+}
+
+
+static int cl_get(size_t size, cl_mem &mem_x, void *x)
+{
+  int ret;
+  ret = clEnqueueReadBuffer(command_queue, mem_x, CL_TRUE, 0,
+			    size, x,0, NULL, NULL);
+  if (ret) { fprintf(stderr,"clEnqueReadBuffer()=%d\n",ret); abort(); }
+  return ret;
 }
 
 
@@ -73,7 +93,7 @@ double cl_norm(int n, double *x)
   int k, ret;
   static cl_kernel kernel = NULL;
   check_n_and_np(n);
-  ret = cl_check_kernel(kernel,"cl_norm");
+  ret = cl_load(kernel,"cl_norm");
   static double *npa;
   if(!npa) npa = (double*)malloc(sizeof(double)*global_item_size[0]);
 
@@ -112,7 +132,7 @@ void cl_copy(int n, double *y, double *x)
   int k, ret;
   static cl_kernel  kernel = NULL;
   check_n_and_np(n);
-  ret = cl_check_kernel(kernel,"cl_copy");
+  ret = cl_load(kernel,"cl_copy");
 
   static cl_mem mem_y = NULL;
   static cl_mem mem_x = NULL;
@@ -139,7 +159,7 @@ double cl_dot(int n, double *y, double *x)
   int k, ret;
   static cl_kernel  kernel = NULL;
   check_n_and_np(n);
-  ret = cl_check_kernel(kernel,"cl_dot");
+  ret = cl_load(kernel,"cl_dot");
 
   static double *npa = NULL;
   if(!npa) npa = (double*)malloc(sizeof(double)*global_item_size[0]);
@@ -183,7 +203,7 @@ void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
   int ret;
   static cl_kernel kernel = NULL;
   check_n_and_np(n);
-  ret = cl_check_kernel(kernel,"cl_matrixvector");
+  ret = cl_load(kernel,"cl_matrixvector");
 
   static int ww = 0;
   static cl_mem mem_r = NULL;
@@ -249,7 +269,7 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
   int k, ret;
   static cl_kernel kernel = NULL;
   check_n_and_np(n);
-  ret = cl_check_kernel(kernel,"cl_phase0");
+  ret = cl_load(kernel,"cl_phase0");
 
   static double *npa = NULL;
   static cl_mem mem_r = NULL;
@@ -337,7 +357,7 @@ void cl_phase1(int n, double *p, double *r, double *v,
   int k, ret;
   static cl_kernel kernel = NULL;
   check_n_and_np(n);
-  ret = cl_check_kernel(kernel,"cl_phase1");
+  ret = cl_load(kernel,"cl_phase1");
   static cl_mem mem_p = NULL;
   static cl_mem mem_r = NULL;
   static cl_mem mem_v = NULL;
@@ -379,7 +399,7 @@ double cl_phase2(int n, double *v,
   int k, ret;
   static cl_kernel kernel = NULL;  
   check_n_and_np(n);
-  ret = cl_check_kernel(kernel,"cl_phase2");
+  ret = cl_load(kernel,"cl_phase2");
 
   static double *npa = NULL;
   static cl_mem mem_v = NULL;
@@ -455,7 +475,7 @@ double cl_phase3(int n, double *s, double *r, double *v,
   int k, ret;
   static cl_kernel kernel = NULL;
   check_n_and_np(n);
-  ret = cl_check_kernel(kernel,"cl_phase3");
+  ret = cl_load(kernel,"cl_phase3");
 
   static double *npa = NULL;
   static cl_mem mem_s = NULL;
@@ -507,7 +527,7 @@ void cl_phase4(int n, double *s, double *phat, double alpha)
   int ret;
   static cl_kernel kernel = NULL;
   check_n_and_np(n);
-  ret = cl_check_kernel(kernel,"cl_phase4");
+  ret = cl_load(kernel,"cl_phase4");
   static cl_mem mem_s = NULL;
   static cl_mem mem_phat = NULL;
 
@@ -539,7 +559,7 @@ double cl_phase5(int n, double *t, double *Aa, int *col_ind,
   int k, ret;
   static cl_kernel kernel = NULL;
   check_n_and_np(n);
-  ret = cl_check_kernel(kernel,"cl_phase5");
+  ret = cl_load(kernel,"cl_phase5");
   
   static double *npa = NULL;
   static double *npb = NULL;
@@ -629,7 +649,7 @@ double cl_phase6(int n, double *x, double *s, double *r, double *t,
   int k, ret;
   static cl_kernel kernel = NULL;
   check_n_and_np(n);
-  ret = cl_check_kernel(kernel,"cl_phase6");
+  ret = cl_load(kernel,"cl_phase6");
   static double *npa = NULL;
 
   static cl_mem mem_x = NULL;
