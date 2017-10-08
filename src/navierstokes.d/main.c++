@@ -3,7 +3,7 @@
 #include <est/sparse.hpp>
 #include <est/bicgstab.hpp>
 #include <est/navierstokes.hpp>
-
+#include <mcheck.h>
 
 int main(int argc, char **argv)
 {
@@ -20,8 +20,9 @@ int main(int argc, char **argv)
     navierstokes(A,U,b);
 
     fprintf(stderr,"=");
+    mtrace();
     U = cl_bicgstab(A,b);
-
+    muntrace();
     fprintf(stderr,"%05d\n",T);
     plotuv(U);
     if ( 0 == (T%1000)) fprintuv(U);

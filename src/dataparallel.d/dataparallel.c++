@@ -25,40 +25,50 @@ static void check_np(int n)
 }
 
  
-static int cl_load(cl_kernel &kernel, const char *name)
+static int cl_load_(cl_kernel *kernel, const char *name)
 {
   int ret;
-  kernel = clCreateKernel(program, name, &ret);
+  if (!*kernel)
+    *kernel = clCreateKernel(program, name, &ret);
   if (ret) { fprintf(stderr,"%s=%d\n",name,ret); abort(); }
+  fprintf(stderr,"%s()\n",name);
   return ret;
 }
+int ret;
+#define cl_load(kernel, name) if(!kernel) kernel=clCreateKernel(program, name, &ret)
 
-
-static int cl_mem_r(int size, cl_mem &mem)
+static int cl_mem_r_(int size, cl_mem *mem)
 {
   int ret;
-  if (!mem)  mem = clCreateBuffer(context, CL_MEM_READ_ONLY, size, NULL, &ret);
+  if (!*mem)
+    *mem = clCreateBuffer(context, CL_MEM_READ_ONLY, size, NULL, &ret);
   if (ret) { fprintf(stderr,"cl_mem_r() clCreateBuffer()=%d size=%n\n",ret,size);}
   return ret;
 }
 
 
-static int cl_mem_w(int size, cl_mem &mem)
+static int cl_mem_w_(int size, cl_mem *mem)
 {
   int ret;
-  if (!mem) mem = clCreateBuffer(context, CL_MEM_WRITE_ONLY, size, NULL, &ret);
+  if (!*mem)
+    *mem = clCreateBuffer(context, CL_MEM_WRITE_ONLY, size, NULL, &ret);
   if (ret) { fprintf(stderr,"cl_mem_w() clCreateBuffer()=%d size=%d\n",ret,size); }
   return ret;
 }
 
 
-static int cl_mem_rw(int size, cl_mem &mem)
+static int cl_mem_rw_(int size, cl_mem *mem)
 {
   int ret;
-  if(!mem) mem = clCreateBuffer(context, CL_MEM_READ_WRITE, size, NULL, &ret);
+  if(!*mem)
+    *mem = clCreateBuffer(context, CL_MEM_READ_WRITE, size, NULL, &ret);
   if (ret) { fprintf(stderr,"cl_mem_rw() clCreateBuffer()=%d size=%d\n",ret,size); }
   return ret;
 }
+
+#define cl_mem_r(size,mem) if(!mem) mem=clCreateBuffer(context, CL_MEM_READ_ONLY, size, NULL, &ret)
+#define cl_mem_w(size,mem) if(!mem) mem=clCreateBuffer(context, CL_MEM_WRITE_ONLY, size, NULL, &ret)
+#define cl_mem_rw(size,mem) if(!mem) mem=clCreateBuffer(context, CL_MEM_READ_WRITE, size, NULL, &ret)
 
 
 static int cl_run(cl_kernel kernel)
@@ -189,6 +199,7 @@ static cl_mem mem_row_ptr = NULL;
 
 int cl_send_A(int n,int w, double *Aa, int *col_ind, int *row_ptr)
 {
+  fprintf(stderr,"w=%d\n",w);
   if ( ww < w ) {
     if(mem_Aa)
       { clReleaseMemObject(mem_Aa); mem_Aa = NULL; }
