@@ -141,7 +141,7 @@ void cl_copy(int n, double *y, double *x)
 
   cl_run(kernel);
           
-  cl_get(n*sizoef(double), mem_y, y);
+  cl_get(n*sizeof(double), mem_y, y);
 }
 
 
