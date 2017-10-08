@@ -1,6 +1,6 @@
 obj: bicgstab.c++ bicgstab.hpp ../dataparallel.d/dataparallel.c++
 	rm -f lib/libbicgstab.a
-	c++ -c bicgstab.c++ ../dataparallel.d/dataparallel.c++
+	c++ -g -c bicgstab.c++ ../dataparallel.d/dataparallel.c++
 	ar cr lib/libbicgstab.a bicgstab.o dataparallel.o
 	rm -f *.o
 

@@ -52,8 +52,9 @@ static int cl_mem_w(int size, cl_mem &mem)
 static int cl_mem_rw(int size, cl_mem &mem)
 {
   int ret;
+  printf("size=%d\n",size);
   if(!mem) mem = clCreateBuffer(context, CL_MEM_READ_WRITE, size, NULL, &ret);
-  if (ret) { fprintf(stderr,"clCreateBuffer()=%d\n",ret); abort();}
+  if (ret) { fprintf(stderr,"clCreateBuffer()=%d\n",ret); }
   return ret;
 }
 
@@ -252,15 +253,18 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
   static double *npa;
   if (!npa) npa = (double*)malloc(np*sizeof(double));
 
-  static cl_mem mem_r;
+  static cl_mem mem_r = NULL;
   static cl_mem mem_x;
   static cl_mem mem_rtilde;
   static cl_mem mem_b;
   static cl_mem mem_npa;
 
-  cl_mem_rw(n*sizeof(double), mem_r);
+  int ret;
+  ret = cl_mem_rw(n*sizeof(double), mem_r);
+  if (ret) fprintf(stderr,"mem_r\n");
   cl_mem_r(n*sizeof(double), mem_x);
   cl_mem_rw(n*sizeof(double), mem_rtilde);
+  if (ret) fprintf(stderr,"mem_rtilde\n");
   cl_mem_r(n*sizeof(double), mem_b);
   cl_mem_w(np*sizeof(double), mem_npa);
   
