@@ -399,8 +399,7 @@ double cl_phase2(int n, double *v,
 }
 
 
-double cl_phase3(int n, double *s, double *r, double *v,
-	       double alpha)
+double cl_phase3(int n, double *s, double *r, double *v, double alpha)
 {
   check_np(n);
   
@@ -471,8 +470,9 @@ void cl_phase4(int n, double *s, double *phat, double alpha)
 double cl_phase5(int n, double *t, double *Aa, int *col_ind,
 	       int *row_ptr, double *shat, double *s, int w)
 {
-  int ret;
   check_np(n);
+
+  cl_send_A(n,w,Aa,col_ind,row_ptr);
 
   static cl_kernel kernel;
   cl_load(kernel,"cl_phase5");
@@ -489,28 +489,6 @@ double cl_phase5(int n, double *t, double *Aa, int *col_ind,
   static cl_mem mem_npa;
   static cl_mem mem_npb;
 
-  if ( ww < w) {
-    if(mem_Aa)
-      { ret = clReleaseMemObject(mem_Aa); mem_Aa = NULL; }
-    ret = cl_mem_r(w*sizeof(double), mem_Aa);
-    if(mem_col_ind)
-      { ret = clReleaseMemObject(mem_col_ind); mem_col_ind = NULL; }
-    ret = cl_mem_r(w*sizeof(double), mem_col_ind);
-
-    ret = clEnqueueWriteBuffer(command_queue, mem_Aa, CL_TRUE, 0,
-			       w*sizeof(double),
-                               Aa, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_col_ind, CL_TRUE, 0,
-			       w*sizeof(int),
-                               col_ind, 0, NULL, NULL);
-
-    ret = cl_mem_r((n+1)*sizeof(int), mem_row_ptr);
-
-    ret = clEnqueueWriteBuffer(command_queue, mem_row_ptr, CL_TRUE, 0,
-				 (n+1)*sizeof(int),
-				 row_ptr, 0, NULL, NULL);
-    ww = w;
-  }
   cl_mem_rw(n*sizeof(double), mem_t);
   cl_mem_r(n*sizeof(double), mem_shat);
   cl_mem_r(n*sizeof(double), mem_s);
