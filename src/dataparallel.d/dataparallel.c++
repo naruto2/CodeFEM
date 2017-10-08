@@ -472,23 +472,25 @@ double cl_phase5(int n, double *t, double *Aa, int *col_ind,
 	       int *row_ptr, double *shat, double *s, int w)
 {
   int k, ret;
-  static cl_kernel kernel = NULL;
   check_np(n);
-  ret = cl_load(kernel,"cl_phase5");
-  
-  static double *npa = NULL;
-  static double *npb = NULL;
-  
-  static cl_mem mem_t = NULL;
-  static cl_mem mem_r = NULL;
-  static cl_mem mem_shat = NULL;
-  static cl_mem mem_s = NULL;
-  static cl_mem mem_npa = NULL;
-  static cl_mem mem_npb = NULL;
-  if(!npa) npa = (double*)malloc(sizeof(double)*global_item_size[0]);
-  if(!npb) npb = (double*)malloc(sizeof(double)*global_item_size[0]);
 
-  ret = cl_mem_rw(n*sizeof(double), mem_t);
+  static cl_kernel kernel;
+  cl_load(kernel,"cl_phase5");
+
+  static double *npa;
+  static double *npb;
+
+  if (!npa) npa = (double*)malloc(np*sizeof(double));
+  if (!npb) npb = (double*)malloc(np*sizeof(double));
+  
+  static cl_mem mem_t;
+  static cl_mem mem_r;
+  static cl_mem mem_shat;
+  static cl_mem mem_s;
+  static cl_mem mem_npa;
+  static cl_mem mem_npb;
+
+
 
   if ( ww < w) {
     if(mem_Aa)
@@ -512,6 +514,7 @@ double cl_phase5(int n, double *t, double *Aa, int *col_ind,
 				 row_ptr, 0, NULL, NULL);
     ww = w;
   }
+  ret = cl_mem_rw(n*sizeof(double), mem_t);
   ret = cl_mem_r(n*sizeof(double), mem_shat);
   ret = cl_mem_r(n*sizeof(double), mem_s);
   ret = cl_mem_w(global_item_size[0]*sizeof(double), mem_npa);
