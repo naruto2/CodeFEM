@@ -97,7 +97,7 @@ double cl_norm(int n, double *x)
   cl_load(kernel,"cl_norm");
 
   static double *npa;
-  if (!npa) npa = (double*)malloc(sizeof(double)*np);
+  if (!npa) npa = (double*)malloc(np*sizeof(double));
 
   static cl_mem mem_x;
   static cl_mem mem_npa;
@@ -147,63 +147,56 @@ void cl_copy(int n, double *y, double *x)
 
 double cl_dot(int n, double *y, double *x)
 {
-  int k, ret;
-  static cl_kernel  kernel = NULL;
   check_np(n);
-  ret = cl_load(kernel,"cl_dot");
-
-  static double *npa = NULL;
-  if(!npa) npa = (double*)malloc(sizeof(double)*global_item_size[0]);
-
-  static cl_mem mem_y = NULL;
-  static cl_mem mem_x = NULL;
-  static cl_mem mem_npa = NULL;
-
-  ret = cl_mem_r(n*sizeof(double), mem_y);
-  ret = cl_mem_r(n*sizeof(double), mem_x);
-  ret = cl_mem_w(global_item_size[0]*sizeof(double), mem_npa);
   
-    ret = clEnqueueWriteBuffer(command_queue, mem_y, CL_TRUE, 0,
-			       n*sizeof(double),
-                               y, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_x, CL_TRUE, 0,
-			       n*sizeof(double),
-                               x, 0, NULL, NULL);
+  static cl_kernel kernel;
+  cl_load(kernel,"cl_dot");
 
-    ret = clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
-    ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_y);
-    ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_x);
-    ret = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&mem_npa);
+  static double *npa;
+  if (!npa) npa = (double*)malloc(np*sizeof(double));
 
-    ret = cl_run(kernel);
-            
-    ret = clEnqueueReadBuffer(command_queue, mem_npa, CL_TRUE, 0,
-                              global_item_size[0] * sizeof(double),
-                              npa,0, NULL, NULL);
+  static cl_mem mem_y;
+  static cl_mem mem_x;
+  static cl_mem mem_npa;
+  cl_mem_r(n*sizeof(double), mem_y);
+  cl_mem_r(n*sizeof(double), mem_x);
+  cl_mem_w(np*sizeof(double), mem_npa);
+  
+  cl_send(n*sizeof(double), mem_y, y);
+  cl_send(n*sizeof(double), mem_x, x);
 
-    for(k=1;k<global_item_size[0];k++) npa[0] += npa[k];
+  clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
+  clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_y);
+  clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_x);
+  clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&mem_npa);
+
+  cl_run(kernel);
+
+  cl_get(np*sizeof(double), mem_npa, npa);            
+
+  for(int k=1;k<np;k++) npa[0] += npa[k];
     
-    return npa[0];
+  return npa[0];
 }
-
 
 
 void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
 		     int *row_ptr, double *b, int w)
 {
+  static int ww;
   int ret;
-  static cl_kernel kernel = NULL;
   check_np(n);
+
+  static cl_kernel kernel;
   ret = cl_load(kernel,"cl_matrixvector");
 
-  static int ww = 0;
-  static cl_mem mem_r = NULL;
-  static cl_mem mem_Aa= NULL;
-  static cl_mem mem_col_ind = NULL;
-  static cl_mem mem_row_ptr = NULL;
-  static cl_mem mem_b = NULL;
+  static cl_mem mem_r;
+  static cl_mem mem_Aa;
+  static cl_mem mem_col_ind;
+  static cl_mem mem_row_ptr;
+  static cl_mem mem_b;
 
-  ret = cl_mem_w(n*sizeof(double), mem_r);
+  cl_mem_w(n*sizeof(double), mem_r);
 
   if ( ww < w){
     if(mem_Aa)
@@ -215,8 +208,8 @@ void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
     ww = w;
   }
 
-  ret = cl_mem_r((n+1)*sizeof(double), mem_row_ptr);
-  ret = cl_mem_r(n*sizeof(double), mem_b);
+  cl_mem_r((n+1)*sizeof(double), mem_row_ptr);
+  cl_mem_r(n*sizeof(double), mem_b);
 
   ret = clEnqueueWriteBuffer(command_queue, mem_Aa, CL_TRUE, 0,
 			       w*sizeof(double),
@@ -252,93 +245,78 @@ static cl_mem mem_Aa= NULL;
 static cl_mem mem_col_ind = NULL;
 static cl_mem mem_row_ptr = NULL;
 
+static int cl_send_A(int n,int w, double *Aa, int *col_ind, int *row_ptr)
+{
+  if ( ww < w ) {
+    if(mem_Aa)
+      { clReleaseMemObject(mem_Aa); mem_Aa = NULL; }
+    cl_mem_r(w*sizeof(double), mem_Aa);
+    if(mem_col_ind)
+      { clReleaseMemObject(mem_col_ind); mem_col_ind = NULL; }
+    cl_mem_r(w*sizeof(double), mem_col_ind);
+
+    cl_send(w*sizeof(double), mem_Aa, Aa);
+    cl_send(w*sizeof(int), mem_col_ind, col_ind);
+    
+    cl_mem_r((n+1)*sizeof(int), mem_row_ptr);
+    cl_send((n+1)*sizeof(int), mem_row_ptr, row_ptr);
+
+    ww = w;
+  }
+  return 0;
+}
+
 
 double cl_phase0(int n, double *r, double *Aa, int *col_ind,
 	       int *row_ptr, double *x, double *rtilde,
 	       double *b, int w)
 {
-  int k, ret;
-  static cl_kernel kernel = NULL;
   check_np(n);
-  ret = cl_load(kernel,"cl_phase0");
 
-  static double *npa = NULL;
-  static cl_mem mem_r = NULL;
-  static cl_mem mem_x = NULL;
-  static cl_mem mem_rtilde = NULL;
-  static cl_mem mem_b = NULL;
-  static cl_mem mem_npa = NULL;
+  static cl_kernel kernel;
+  cl_load(kernel,"cl_phase0");
 
+  cl_send_A(n,w,Aa,col_ind,row_ptr);
 
-  if(!npa) npa = (double*)malloc(sizeof(double)*global_item_size[0]);
+  static double *npa;
+  if (!npa) npa = (double*)malloc(np*sizeof(double));
 
-  ret = cl_mem_rw(n*sizeof(double), mem_r);
+  static cl_mem mem_r;
+  static cl_mem mem_x;
+  static cl_mem mem_rtilde;
+  static cl_mem mem_b;
+  static cl_mem mem_npa;
 
-  if ( ww < w) {
-    if(mem_Aa)
-      { ret = clReleaseMemObject(mem_Aa); mem_Aa = NULL; }
-    ret = cl_mem_r(w*sizeof(double), mem_Aa);
-    if(mem_col_ind)
-      { ret = clReleaseMemObject(mem_col_ind); mem_col_ind = NULL; }
-    ret = cl_mem_r(w*sizeof(double), mem_col_ind);
-
-    ret = clEnqueueWriteBuffer(command_queue, mem_Aa, CL_TRUE, 0,
-			       w*sizeof(double),
-                               Aa, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_col_ind, CL_TRUE, 0,
-			       w*sizeof(int),
-                               col_ind, 0, NULL, NULL);
-
-    ret = cl_mem_r((n+1)*sizeof(int), mem_row_ptr);
-
-    ret = clEnqueueWriteBuffer(command_queue, mem_row_ptr, CL_TRUE, 0,
-				 (n+1)*sizeof(int),
-				 row_ptr, 0, NULL, NULL);
-    ww = w;
-  }
-  ret = cl_mem_r(n*sizeof(double), mem_x);
-  ret = cl_mem_rw(n*sizeof(double), mem_rtilde);
-  ret = cl_mem_r(n*sizeof(double), mem_b);
-  ret = cl_mem_w(global_item_size[0]*sizeof(double), mem_npa);
+  cl_mem_rw(n*sizeof(double), mem_r);
+  cl_mem_r(n*sizeof(double), mem_x);
+  cl_mem_rw(n*sizeof(double), mem_rtilde);
+  cl_mem_r(n*sizeof(double), mem_b);
+  cl_mem_w(np*sizeof(double), mem_npa);
   
-    ret = clEnqueueWriteBuffer(command_queue, mem_r, CL_TRUE, 0,
-			       n*sizeof(double),
-                               r, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_x, CL_TRUE, 0,
-			       n*sizeof(double),
-                               x, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_rtilde, CL_TRUE, 0,
-			       n*sizeof(double),
-                               rtilde, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_b, CL_TRUE, 0,
-			       n*sizeof(double),
-                               b, 0, NULL, NULL);
+  cl_send(n*sizeof(double), mem_r, r);
+  cl_send(n*sizeof(double), mem_x, x);
+  cl_send(n*sizeof(double), mem_rtilde, rtilde);
+  cl_send(n*sizeof(double), mem_b, b);
 
-    ret = clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
-    ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_r);
-    ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_Aa);
-    ret = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&mem_col_ind);
-    ret = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *)&mem_row_ptr);
-    ret = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *)&mem_x);
-    ret = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *)&mem_rtilde);
-    ret = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&mem_b);
-    ret = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *)&mem_npa);
+  clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
+  clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_r);
+  clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_Aa);
+  clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&mem_col_ind);
+  clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *)&mem_row_ptr);
+  clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *)&mem_x);
+  clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *)&mem_rtilde);
+  clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&mem_b);
+  clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *)&mem_npa);
     
-    ret = cl_run(kernel);
+  cl_run(kernel);
 
-    ret = clEnqueueReadBuffer(command_queue, mem_r, CL_TRUE, 0,
-                              n * sizeof(double),
-                              r,0, NULL, NULL);
-    ret = clEnqueueReadBuffer(command_queue, mem_rtilde, CL_TRUE, 0,
-                              n * sizeof(double),
-                              rtilde,0, NULL, NULL);
-    ret = clEnqueueReadBuffer(command_queue, mem_npa, CL_TRUE, 0,
-			      global_item_size[0] * sizeof(double),
-			      npa,0, NULL, NULL);
+  cl_get(n*sizeof(double), mem_r, r);
+  cl_get(n*sizeof(double), mem_rtilde, rtilde);
+  cl_get(np*sizeof(double), mem_npa, npa);
 
-    for(k=1;k<global_item_size[0];k++) npa[0] += npa[k];
+  for(int k=1;k<np;k++) npa[0] += npa[k];
 
-    return sqrt(npa[0]);
+  return sqrt(npa[0]);
 }
 
 
