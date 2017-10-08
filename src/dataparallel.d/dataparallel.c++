@@ -33,6 +33,7 @@ static int cl_load(cl_kernel &kernel, const char *name)
   return ret;
 }
 
+
 static int cl_mem_r(int size, cl_mem &mem)
 {
   int ret;
@@ -41,6 +42,7 @@ static int cl_mem_r(int size, cl_mem &mem)
   return ret;
 }
 
+
 static int cl_mem_w(int size, cl_mem &mem)
 {
   int ret;
@@ -48,6 +50,7 @@ static int cl_mem_w(int size, cl_mem &mem)
   if (ret) { fprintf(stderr,"cl_mem_w() clCreateBuffer()=%d size=%d\n",ret,size); }
   return ret;
 }
+
 
 static int cl_mem_rw(int size, cl_mem &mem)
 {
@@ -237,73 +240,13 @@ void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
 }
 
 
-#if 0
-double cl_phase0(int n, double *r, double *Aa, int *col_ind,
-	       int *row_ptr, double *x, double *rtilde,
-	       double *b, int w)
-{
-  static int TIMES;
-  fprintf(stderr,"TIMES=%d,w=%d, n=%d, np=%d\n",TIMES++,w,n,np);
-  check_np(n);
-
-  static cl_kernel kernel;
-  cl_load(kernel,"cl_phase0");
-
-  cl_send_A(n,w,Aa,col_ind,row_ptr);
-
-  static double *npa;
-  if (!npa) npa = (double*)malloc(np*sizeof(double));
-
-  static cl_mem mem_r;
-  static cl_mem mem_x;
-  static cl_mem mem_rtilde;
-  static cl_mem mem_b;
-  static cl_mem mem_npa;
-
-  int ret;
-  ret = cl_mem_rw(n*sizeof(double), mem_r);
-  fprintf(stderr,"mem_r n=%d mem_a=%d\n",n,mem_r);
-  cl_mem_r(n*sizeof(double), mem_x);
-  fprintf(stderr,"mem_x n=%d mem_a=%d\n",n,mem_x);
-  cl_mem_rw(n*sizeof(double), mem_rtilde);
-  fprintf(stderr,"mem_rtilde n=%d mem_a=%d\n",n,mem_rtilde);
-  cl_mem_r(n*sizeof(double), mem_b);
-  fprintf(stderr,"mem_b n=%d mem_a=%d\n",n,mem_b);
-  cl_mem_w(np*sizeof(double), mem_npa);
-  fprintf(stderr,"mem_npa np=%d mem_a=%d\n",np,mem_npa);  
-
-  cl_send(n*sizeof(double), mem_x, x);
-  cl_send(n*sizeof(double), mem_rtilde, rtilde);
-  cl_send(n*sizeof(double), mem_b, b);
-
-  clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
-  clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_r);
-  clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_Aa);
-  clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&mem_col_ind);
-  clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *)&mem_row_ptr);
-  clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *)&mem_x);
-  clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *)&mem_rtilde);
-  clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&mem_b);
-  clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *)&mem_npa);
-    
-  cl_run(kernel);
-
-  cl_get(n*sizeof(double), mem_r, r);
-  cl_get(n*sizeof(double), mem_rtilde, rtilde);
-  cl_get(np*sizeof(double), mem_npa, npa);
-
-  for(int k=1;k<np;k++) npa[0] += npa[k];
-
-  return sqrt(npa[0]);
-}
-#endif
-
 double cl_phase0(int n, double *r, double *Aa, int *col_ind,
 		 int *row_ptr, double *x, double *rtilde,
 		 double *b, int w)
 {
-  int k, ret;
   check_np(n);
+
+  cl_send_A(n,w,Aa,col_ind,row_ptr);
 
   static cl_kernel kernel;
   cl_load(kernel,"cl_phase0");
@@ -317,27 +260,6 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
   static cl_mem mem_b;
   static cl_mem mem_npa;
 
-  if ( ww < w) {
-    if(mem_Aa)
-      { ret = clReleaseMemObject(mem_Aa); mem_Aa = NULL; }
-    ret = cl_mem_r(w*sizeof(double), mem_Aa);
-    if(mem_col_ind)
-      { ret = clReleaseMemObject(mem_col_ind); mem_col_ind = NULL; }
-    ret = cl_mem_r(w*sizeof(double), mem_col_ind);
-
-    ret = clEnqueueWriteBuffer(command_queue, mem_Aa, CL_TRUE, 0,
-			       w*sizeof(double),
-			       Aa, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_col_ind, CL_TRUE, 0,
-			       w*sizeof(int),
-			       col_ind, 0, NULL, NULL);
-    ret = cl_mem_r((n+1)*sizeof(int), mem_row_ptr);
-
-    ret = clEnqueueWriteBuffer(command_queue, mem_row_ptr, CL_TRUE, 0,
-			       (n+1)*sizeof(int),
-			       row_ptr, 0, NULL, NULL);
-    ww = w;
-  }
   cl_mem_rw(n*sizeof(double), mem_r);
   cl_mem_r(n*sizeof(double), mem_x);
   cl_mem_rw(n*sizeof(double), mem_rtilde);
@@ -369,9 +291,6 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
 
   return sqrt(npa[0]);
 }
-
-
-
 
 
 void cl_phase1(int n, double *p, double *r, double *v,
