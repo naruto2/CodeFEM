@@ -123,28 +123,25 @@ double cl_norm(int n, double *x)
 
 void cl_copy(int n, double *y, double *x)
 {
-  int k, ret;
-  static cl_kernel  kernel = NULL;
   check_np(n);
-  ret = cl_load(kernel,"cl_copy");
+  
+  static cl_kernel  kernel;
+  cl_load(kernel,"cl_copy");
 
-  static cl_mem mem_y = NULL;
-  static cl_mem mem_x = NULL;
-  ret = cl_mem_w(n*sizeof(double), mem_y);
-  ret = cl_mem_r(n*sizeof(double), mem_x);
+  static cl_mem mem_y;
+  static cl_mem mem_x;
+  cl_mem_w(n*sizeof(double), mem_y);
+  cl_mem_r(n*sizeof(double), mem_x);
 
-    ret = clEnqueueWriteBuffer(command_queue, mem_x, CL_TRUE, 0,
-			       n*sizeof(double),
-                               x, 0, NULL, NULL);
-    ret = clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
-    ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_y);
-    ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_x);
+  cl_send(n*sizeof(double), mem_x, x);
 
-    ret = cl_run(kernel);
+  clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
+  clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_y);
+  clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_x);
+
+  cl_run(kernel);
           
-    ret = clEnqueueReadBuffer(command_queue, mem_y, CL_TRUE, 0,
-                              n * sizeof(double),
-                              y,0, NULL, NULL);
+  cl_get(n*sizoef(double), mem_y, y);
 }
 
 
