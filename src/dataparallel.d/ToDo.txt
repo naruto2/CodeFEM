@@ -3,3 +3,5 @@ cl_phase5() の　リニューアル ... done
 cl_phase6() の　リニューアル ... done
 cl_matrixvector() のリニューアル ... done
 if (ww < w) 問題の分析
+cl_bicgstab()が呼ばれた最初に cl_send_A()を一度だけ呼ぶ。
+転送は (ww < w)の場合に限らずに行う。これで、多分解決。
