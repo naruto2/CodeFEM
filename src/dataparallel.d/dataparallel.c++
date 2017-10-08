@@ -10,10 +10,11 @@ static cl_command_queue command_queue = NULL;
 static cl_uint work_dim = 1;
 static size_t global_item_size[3];
 static size_t local_item_size[3];
+static size_t np;
 static cl_program program = NULL;
 static char *kernel_src_str;
 
-static void check_n_and_np(int n)
+static void check_np(int n)
 {
   if ( global_item_size[0] < 0 )
     global_item_size[0] = 1024;
@@ -90,40 +91,33 @@ static int cl_get(size_t size, cl_mem &mem_x, void *x)
 
 double cl_norm(int n, double *x)
 {
-  int k, ret;
-  static cl_kernel kernel = NULL;
-  check_n_and_np(n);
-  ret = cl_load(kernel,"cl_norm");
+  check_np(n);
+
+  static cl_kernel kernel;
+  cl_load(kernel,"cl_norm");
+
   static double *npa;
-  if(!npa) npa = (double*)malloc(sizeof(double)*global_item_size[0]);
+  if (!npa) npa = (double*)malloc(sizeof(double)*np);
 
-  static cl_mem mem_x = NULL;
-  static cl_mem mem_npa = NULL;
-  ret = cl_mem_r(n*sizeof(double), mem_x);
-  ret = cl_mem_w(global_item_size[0]*sizeof(double), mem_npa);
+  static cl_mem mem_x;
+  static cl_mem mem_npa;
+
+  cl_mem_r(n*sizeof(double), mem_x);
+  cl_mem_w(np*sizeof(double), mem_npa);
   
-    ret = clEnqueueWriteBuffer(command_queue, mem_x, CL_TRUE, 0,
-			       n*sizeof(double),
-                               x, 0, NULL, NULL);
+  cl_send(n*sizeof(double), mem_x, x);
 
-    ret = clEnqueueWriteBuffer(command_queue, mem_npa, CL_TRUE, 0,
-			       global_item_size[0]*sizeof(double),
-                               npa, 0, NULL, NULL);
+  clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
+  clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_x);
+  clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_npa);
 
-    ret = clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
-    ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_x);
-    ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_npa);
+  cl_run(kernel);
 
-    ret = cl_run(kernel);
+  cl_get(np*sizeof(double), mem_npa, npa);
 
-    ret = clEnqueueReadBuffer(command_queue, mem_npa, CL_TRUE, 0,
-                              global_item_size[0] * sizeof(double),
-                              npa,0, NULL, NULL);
-
-    for(k=1;k<global_item_size[0];k++) npa[0] += npa[k];
-    npa[0] = sqrt(npa[0]);
-
-    return npa[0];
+  for(int k=1;k<np;k++) npa[0] += npa[k];
+  
+  return sqrt(npa[0]);
 }
 
 
@@ -131,7 +125,7 @@ void cl_copy(int n, double *y, double *x)
 {
   int k, ret;
   static cl_kernel  kernel = NULL;
-  check_n_and_np(n);
+  check_np(n);
   ret = cl_load(kernel,"cl_copy");
 
   static cl_mem mem_y = NULL;
@@ -158,7 +152,7 @@ double cl_dot(int n, double *y, double *x)
 {
   int k, ret;
   static cl_kernel  kernel = NULL;
-  check_n_and_np(n);
+  check_np(n);
   ret = cl_load(kernel,"cl_dot");
 
   static double *npa = NULL;
@@ -202,7 +196,7 @@ void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
 {
   int ret;
   static cl_kernel kernel = NULL;
-  check_n_and_np(n);
+  check_np(n);
   ret = cl_load(kernel,"cl_matrixvector");
 
   static int ww = 0;
@@ -268,7 +262,7 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
 {
   int k, ret;
   static cl_kernel kernel = NULL;
-  check_n_and_np(n);
+  check_np(n);
   ret = cl_load(kernel,"cl_phase0");
 
   static double *npa = NULL;
@@ -356,7 +350,7 @@ void cl_phase1(int n, double *p, double *r, double *v,
 {
   int k, ret;
   static cl_kernel kernel = NULL;
-  check_n_and_np(n);
+  check_np(n);
   ret = cl_load(kernel,"cl_phase1");
   static cl_mem mem_p = NULL;
   static cl_mem mem_r = NULL;
@@ -398,7 +392,7 @@ double cl_phase2(int n, double *v,
 {
   int k, ret;
   static cl_kernel kernel = NULL;  
-  check_n_and_np(n);
+  check_np(n);
   ret = cl_load(kernel,"cl_phase2");
 
   static double *npa = NULL;
@@ -474,7 +468,7 @@ double cl_phase3(int n, double *s, double *r, double *v,
 {
   int k, ret;
   static cl_kernel kernel = NULL;
-  check_n_and_np(n);
+  check_np(n);
   ret = cl_load(kernel,"cl_phase3");
 
   static double *npa = NULL;
@@ -526,7 +520,7 @@ void cl_phase4(int n, double *s, double *phat, double alpha)
 {
   int ret;
   static cl_kernel kernel = NULL;
-  check_n_and_np(n);
+  check_np(n);
   ret = cl_load(kernel,"cl_phase4");
   static cl_mem mem_s = NULL;
   static cl_mem mem_phat = NULL;
@@ -558,7 +552,7 @@ double cl_phase5(int n, double *t, double *Aa, int *col_ind,
 {
   int k, ret;
   static cl_kernel kernel = NULL;
-  check_n_and_np(n);
+  check_np(n);
   ret = cl_load(kernel,"cl_phase5");
   
   static double *npa = NULL;
@@ -648,7 +642,7 @@ double cl_phase6(int n, double *x, double *s, double *r, double *t,
 {
   int k, ret;
   static cl_kernel kernel = NULL;
-  check_n_and_np(n);
+  check_np(n);
   ret = cl_load(kernel,"cl_phase6");
   static double *npa = NULL;
 
@@ -733,7 +727,8 @@ void cl_bicgstab_init(int argc, char **argv)
   local_item_size[0] = 1;  /* Number of work items per work group */
 
   if ( argc > 1 ) global_item_size[0] = atoi(argv[1]);    
-    
+  np = global_item_size[0];
+
   /* --> global_item_size[0] / local_item_size[0] becomes 2, which indirectly sets the number of workgroups to 2*/
 
 
