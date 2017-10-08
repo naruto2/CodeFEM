@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     U = cl_bicgstab(A,b);
 
     fprintf(stderr,"%05d\n",T);
-    plotuv(U);
+    //plotuv(U);
     if ( 0 == (T%1000)) fprintuv(U);
   }
   return 0;

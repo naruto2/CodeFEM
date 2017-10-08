@@ -39,6 +39,7 @@ double  cl_phase5(int n, double *t,
 	       double *shat, double *s, int w);
 double cl_phase6(int n, double *x, double *s, double *r, double *t,
 	       double *phat, double *shat, double alpha, double omega);
+int cl_send_A(int n,int w, double *Aa, int *col_ind, int *row_ptr);
 
 static double norm(int n, double *x)
 {
@@ -185,7 +186,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 	col_ind[ii] = j.first;
 	ii++;
       }
-
+  cl_send_A(n,w,Aa,col_ind,row_ptr);
   double resid,rho_1,rho_2,alpha,beta,omega, normb = cl_norm(n,b);
   if (normb == 0.0) normb = 1;
 

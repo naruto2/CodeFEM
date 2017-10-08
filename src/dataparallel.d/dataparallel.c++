@@ -187,7 +187,7 @@ static cl_mem mem_Aa= NULL;
 static cl_mem mem_col_ind = NULL;
 static cl_mem mem_row_ptr = NULL;
 
-static int cl_send_A(int n,int w, double *Aa, int *col_ind, int *row_ptr)
+int cl_send_A(int n,int w, double *Aa, int *col_ind, int *row_ptr)
 {
   if ( ww < w ) {
     if(mem_Aa)
@@ -196,15 +196,12 @@ static int cl_send_A(int n,int w, double *Aa, int *col_ind, int *row_ptr)
     if(mem_col_ind)
       { clReleaseMemObject(mem_col_ind); mem_col_ind = NULL; }
     cl_mem_r(w*sizeof(double), mem_col_ind);
-
-    cl_send(w*sizeof(double), mem_Aa, Aa);
-    cl_send(w*sizeof(int), mem_col_ind, col_ind);
-    
     cl_mem_r((n+1)*sizeof(int), mem_row_ptr);
-    cl_send((n+1)*sizeof(int), mem_row_ptr, row_ptr);
-
     ww = w;
   }
+  cl_send(w*sizeof(double), mem_Aa, Aa);
+  cl_send(w*sizeof(int), mem_col_ind, col_ind);
+  cl_send((n+1)*sizeof(int), mem_row_ptr, row_ptr);
   return 0;
 }
 
@@ -214,8 +211,6 @@ void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
 {
   check_np(n);
   
-  cl_send_A(n,w,Aa,col_ind,row_ptr);
-
   static cl_kernel kernel;
   cl_load(kernel,"cl_matrixvector");
 
@@ -245,8 +240,6 @@ double cl_phase0(int n, double *r, double *Aa, int *col_ind,
 		 double *b, int w)
 {
   check_np(n);
-
-  cl_send_A(n,w,Aa,col_ind,row_ptr);
 
   static cl_kernel kernel;
   cl_load(kernel,"cl_phase0");
@@ -331,7 +324,6 @@ double cl_phase2(int n, double *v,
 		 double *phat, double *rtilde, int w)
 {
   check_np(n);
-  cl_send_A(n,w,Aa,col_ind,row_ptr);
 
   static cl_kernel kernel;
   cl_load(kernel,"cl_phase2");
@@ -444,8 +436,6 @@ double cl_phase5(int n, double *t, double *Aa, int *col_ind,
 	       int *row_ptr, double *shat, double *s, int w)
 {
   check_np(n);
-
-  cl_send_A(n,w,Aa,col_ind,row_ptr);
 
   static cl_kernel kernel;
   cl_load(kernel,"cl_phase5");
