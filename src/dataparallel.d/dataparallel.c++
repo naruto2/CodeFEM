@@ -443,34 +443,30 @@ double cl_phase3(int n, double *s, double *r, double *v,
 
 void cl_phase4(int n, double *s, double *phat, double alpha)
 {
-  int ret;
-  static cl_kernel kernel = NULL;
   check_np(n);
-  ret = cl_load(kernel,"cl_phase4");
-  static cl_mem mem_s = NULL;
-  static cl_mem mem_phat = NULL;
-
-  ret = cl_mem_rw(n*sizeof(double), mem_s);
-  ret = cl_mem_r(n*sizeof(double), mem_phat);
   
-    ret = clEnqueueWriteBuffer(command_queue, mem_s, CL_TRUE, 0,
-			       n*sizeof(double),
-                               s, 0, NULL, NULL);
-    ret = clEnqueueWriteBuffer(command_queue, mem_phat, CL_TRUE, 0,
-			       n*sizeof(double),
-                               phat, 0, NULL, NULL);
+  static cl_kernel kernel;
+  cl_load(kernel,"cl_phase4");
 
-    ret = clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
-    ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_s);
-    ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_phat);
-    ret = clSetKernelArg(kernel, 3, sizeof(double), (void *)&alpha);
+  static cl_mem mem_s;
+  static cl_mem mem_phat;
 
-    ret = cl_run(kernel);
+  cl_mem_rw(n*sizeof(double), mem_s);
+  cl_mem_r(n*sizeof(double), mem_phat);
+  
+  cl_send(n*sizeof(double), mem_s, s);
+  cl_send(n*sizeof(double), mem_phat, phat);
+  
+  clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
+  clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_s);
+  clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_phat);
+  clSetKernelArg(kernel, 3, sizeof(double), (void *)&alpha);
 
-    ret = clEnqueueReadBuffer(command_queue, mem_s, CL_TRUE, 0,
-                              n * sizeof(double),
-                              s,0, NULL, NULL);
+  cl_run(kernel);
+
+  cl_get(n*sizeof(double), mem_s, s);
 }
+
 
 double cl_phase5(int n, double *t, double *Aa, int *col_ind,
 	       int *row_ptr, double *shat, double *s, int w)
