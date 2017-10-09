@@ -156,35 +156,64 @@ sys  4m11.966s
 
 
 参考文献
+A-Z
+[ 1] 登坂 宣好, 角田 和彦: Navier-Stokes方程式の数値シミュレーション, 数理解析研究所講究録 第836巻, 1993.
 
-[ 1] 株式会社フィックスターズ: OpenCL入門, インプレスジャパン, 2010.
+[ 2] 青木 尊之: OpenCL, 東京工業大学大学院情報理工学研究科GPUコンピューティングNo.14, 2013.
 
-[ 2] JSPP PSC'98事務局: PSC98ホームページ, 並列処理シンポジウム JSPP, 1998.
+[ 3] 株式会社フィックスターズ: OpenCL入門, インプレスジャパン, 2010.
 
-[ 3] 小国 力 編著: 行列計算ソフトウェア, 丸善株式会社, 1992.
+[ 4] 薦田 登志矢, 三輪 忍, 中村 宏: OpenCLを用いたパイプライン並列プログラミングAPIの初期検討, 情報処理学会研究報告, 2011.
 
-[ 4] 中山 司: 流れ解析のための有限要素法入門, 東京大学出版会, 2008.
+[ 5] JSPP PSC'98事務局: PSC98ホームページ, 並列処理シンポジウム JSPP, 1998.
+あ
+か
+[ 6] 小国 力 編著: 行列計算ソフトウェア, 丸善株式会社, 1992.
 
-[ 5] 粂井康孝: 猫でもわかるC++プログラミング, ソフトバンク クリエイティブ株式会社, 2009.
+[ 7] 田口 圭一: 血液のキャビティ流れの有限要素解析, 高知工科大学工学部知能機械システム工学科卒業論文, 2004.	
+さ
+[ 8] 伊藤 祥司: 周期境界問題に対する並列計算機向きの前処理法(大規模線形方程式に対するスーパーコンピュータ向きの前処理法 第5章), 筑波大学工学研究科博士学位論文, 2001.
 
-[ 6] 佃 良生, 海津 聰: デローニー法によるFEM格子の自動形成, 数値流体力学会講演論文集, 1996.
+[ 9] 日本計算工学会 続・流れの有限要素法研究委員会 編: 有限要素法による流れのシミュレーション, シュプリンガー・フェアラーク東京, 2008.
+た
+[10] 佃 良生, 海津 聰: デローニー法によるFEM格子の自動形成, 数値流体力学会講演論文集, 1996.
+な
+[11] 中山 司: 流れ解析のための有限要素法入門, 東京大学出版会, 2008.
 
-[ 7] Richard Barrant/Michael Berry/Tony F. Chan/James Demmel/June Donato/Jack Dongarra/Victor Eijhout/Roldan Pozo/Charles Romine/Henk van der Vorst 著, 長谷川 里美/長谷川 秀彦/藤野 清次 訳: 反復法Templates, 朝倉書店, 1996.
+[12] 高見 利也: 流れ関数と渦度による二次元非圧縮流体の数値計算, 九州大学大学院システム情報科学府 仮想実験特論, 2010.
 
-[ 8] 儀我 美一, 儀我 美保: 非線形偏微分方程式, 共立出版株式会社, 1999.
+[13] 河村 哲成: 二訂 流れのシミュレーションの基礎！, インデックス出版, 2007.
 
-[ 9] 佃 良生: 複雑形状の領域における流れの数値計算について, 電気通信大学平成9年度情報工学科卒業論文, 1998.
+[14] 粂井康孝: 猫でもわかるC++プログラミング, ソフトバンク クリエイティブ株式会社, 2009.
+は
+[15] 儀我 美一, 儀我 美保: 非線形偏微分方程式, 共立出版株式会社, 1999.
 
-[10] 矢川 元基, 奥田 洋司, 中林 靖: 有限要素法流れ解析, 朝倉書店, 1998.
+[16] 金澤 靖: プログラムツールEigen 3次元コンピュータビジョン計算ハンドブック付録, 森北出版, 2016.
 
-[11] 日本計算工学会 流れの有限要素法研究委員会 編: 有限要素法による流れのシミュレーション, シュプリンガー・フェアラーク東京, 1998.
+[17] Richard Barrant/Michael Berry/Tony F. Chan/James Demmel/June Donato/Jack Dongarra/Victor Eijhout/Roldan Pozo/Charles Romine/Henk van der Vorst 著, 長谷川 里美/長谷川 秀彦/藤野 清次 訳: 反復法Templates, 朝倉書店, 1996.
 
-[12] 日本計算工学会 続・流れの有限要素法研究委員会 編: 有限要素法による流れのシミュレーション, シュプリンガー・フェアラーク東京, 2008.
+[18] 佃 良生: 複雑形状の領域における流れの数値計算について, 電気通信大学平成9年度情報工学科卒業論文, 1998.
 
-[13] 川原 睦人: 有限要素法流体解析, 日科技連, 1985.
+[19] 村松 一弘, 鷲尾 巧, 土肥 俊: 並列マシンCenju2による非圧縮性流体解析, 情報処理学会研究報告ハイパフォーマンスコンピューティング Vol.1994, No.22, p.p9-16, 1994.
+ま
+や
+[20] 矢川 元基, 奥田 洋司, 中林 靖: 有限要素法流れ解析, 朝倉書店, 1998.
+
+[21] 日本計算工学会 流れの有限要素法研究委員会 編: 有限要素法による流れのシミュレーション, シュプリンガー・フェアラーク東京, 1998.
+
+[22] 川原 睦人: 有限要素法流体解析, 日科技連, 1985.
 
 --
 ダウンロード
-[ 2] については, https://web.kudpc.kyoto-u.ac.jp/doc/HPC-WG/PSC98/
-[ 9] については, http://kud.dip.jp/thesis.d/UEC_thesis.pdf
-[ 9] の付属CD-ROMは, http://kud.dip.jp/thesis.d/UEC_thesis.CD_ROM/
+[ 1] については, http://www.kurims.kyoto-u.ac.jp/~kyodo/kokyuroku/contents/pdf/0836-13.pdf
+[ 2] については, http://www.ocw.titech.ac.jp/index.php?module=General&action=DownLoad&file=20131226717065-480-0-52.pdf&type=cal&JWC=20131226717065
+[ 4] については, https://ipsj.ixsq.nii.ac.jp/ej/?action=repository_action_common_download&item_id=79275&item_no=1&attribute_id=1&file_no=1
+[ 5] については, https://web.kudpc.kyoto-u.ac.jp/doc/HPC-WG/PSC98/
+[ 7] については, http://www.kochi-tech.ac.jp/library/ron/2003/2003mech/1040120.pdf
+[ 8] については, https://tsukuba.repo.nii.ac.jp/?action=repository_action_common_download&item_id=8784&item_no=1&attribute_id=17&file_no=7
+[12] については, http://dogra.csis.oita-u.ac.jp/tkm/lecture/sim2010/pdf/streamFunction.pdf
+[13] については, https://www.index-press.co.jp/books/science/ceslib2.pdf
+[16] については, https://www.morikita.co.jp/books/download/1574
+[18] については, http://kud.dip.jp/thesis.d/UEC_thesis.pdf
+[18] の付属CD-ROMは, http://kud.dip.jp/thesis.d/UEC_thesis.CD_ROM/
+[19] については, https://ipsj.ixsq.nii.ac.jp/ej/?action=repository_action_common_download&item_id=24237&item_no=1&attribute_id=1&file_no=1
