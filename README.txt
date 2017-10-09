@@ -59,12 +59,41 @@ int main(int argc, char **argv)
 #include <est/bicgstab.hpp>
 #include <est/navierstokes.hpp>
 
+double u(double x, double y)
+{
+  if ( islabel("v0")||islabel("v1")||islabel("v2")||islabel("v3") )
+    return 0.0;
+
+  if ( islabel("e0")||islabel("e1")||islabel("e3") )
+    return 0.0;
+
+  if ( islabel("e2") )
+    return 1.0;
+
+  fprintf(stderr,"A wrong label is exist.\n");
+  abort();
+}
+
+
+double v(double x, double y)
+{
+  if ( islabel("v0")||islabel("v1")||islabel("v2")||islabel("v3") )
+    return 0.0;
+
+  if ( islabel("e0")||islabel("e1")||islabel("e2")||islabel("e3") )
+    return 0.0;
+  
+  fprintf(stderr,"A wrong label is exist.\n");
+  abort();
+}
+
+
 int main(int argc, char **argv)
 {
   double Re, dt;
 
   cl_bicgstab_init(argc,argv);
-  if(0!=navierstokes_init("cavity32.mesh",Re=5000,dt=0.001))
+  if(0!=navierstokes_init("cavity32.mesh",Re=5000,dt=0.001, u, v))
     return 0;
 
   sparse::matrix<double> A; vector<double> U, b;
@@ -217,3 +246,4 @@ A-Z
 [18] については, http://kud.dip.jp/thesis.d/UEC_thesis.pdf
 [18] の付属CD-ROMは, http://kud.dip.jp/thesis.d/UEC_thesis.CD_ROM/
 [19] については, https://ipsj.ixsq.nii.ac.jp/ej/?action=repository_action_common_download&item_id=24237&item_no=1&attribute_id=1&file_no=1
+

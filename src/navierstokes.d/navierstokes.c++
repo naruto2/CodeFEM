@@ -266,6 +266,16 @@ void makeMid(vector<xyc>&Mid,vector<xyc>&Z,vector<nde>&N) {
 }  
 
 
+static double (*u)(double x, double y);
+static double (*v)(double x, double y);
+
+static char *label;
+
+int islabel(const char *str)
+{
+  return !strcmp(label,str);
+}
+
 void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc>&Z,vector<nde>&N,vector<xyc>&Mid)
 {
   static sparse::matrix<double> Aa, M, Ax, Ay, D, Hx, Hy;
@@ -329,7 +339,7 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
       b[m+i] += M[i][j]*U[m+j]/tau();
     }
   }
-
+#if 0
   for(i=1;i<=m;i++) if(!strcmp(Mid[i].label,"v0")) {
       A[i].clear();
       A[i+m].clear();
@@ -401,7 +411,18 @@ void makeA(sparse::matrix<double>&A,vector<double>&U,vector<double>&b,vector<xyc
       b[i] = 0.0;
       b[i+m] = 0.0;
     }
+#endif
 
+  for(i=1;i<=m;i++) if (strcmp(Mid[i].label,"")){
+      label=Mid[i].label;
+      A[i].clear();
+      A[i+m].clear();
+      A[i][i] = 1.0;
+      A[i+m][i+m] = 1.0;
+      b[i] = u(Mid[i].x,Mid[i].y);
+      b[i+m] = v(Mid[i].y,Mid[i].y);
+    }
+  
   A[2*m+1].clear();
   A[2*m+1][2*m+1] = 1.0;
   b[2*m+1] = 0.0;
@@ -658,9 +679,12 @@ static vector<xyc> staticZ;
 static vector<nde> staticN;
 static vector<xyc> staticMid;
 
-int navierstokes_init(const char *filename, double Re, double dt)
+int navierstokes_init(const char *filename, double Re, double dt,
+		      double (*upointer)(double x, double y),
+		      double (*vpointer)(double x, double y))
 {
   FILE *fp;
+  u = upointer; v = vpointer;
   if ( NULL == (fp=fopen(filename,"r"))) {
       fprintf(stderr,"Can't open the mesh file %s\n",filename);
       return -1;
@@ -689,4 +713,3 @@ void fprintuv(vector<double>&U)
 {
   saveuv(U,staticZ,staticN,staticMid);
 }
-
