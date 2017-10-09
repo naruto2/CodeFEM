@@ -10,10 +10,9 @@ lib/libpsc98.a: obj
 
 obj: ;
 	cc -c yosen.c
-	cc -c honsen.c
 	c++ -c psc98.c++
 	c++ -c cl_psc98.c++
-	ar cr lib/libpsc98.a yosen.o honsen.o psc98.o cl_psc98.o
+	ar cr lib/libpsc98.a yosen.o psc98.o cl_psc98.o
 	rm *.o
 
 time: ;
