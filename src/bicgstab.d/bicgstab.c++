@@ -8,7 +8,13 @@ vector<double> cl_bicgstab(sparse::matrix<double>& A, vector<double>& b){
   int max_iter = 1000000;
   double tol = 0.0000001;
 
-  sparse__BiCGSTAB(A, &x[0], &b[0], max_iter, tol);
+  vector<double> dinv(A.size());
+
+  for ( int k=1, n=A.size(); k<n; k++){
+    if (A[k][k] != 0.0) dinv[k] = 1.0/A[k][k];
+    else { dinv[1] = 0.0; break; }
+  }
+  sparse__BiCGSTAB(A, &x[0], &b[0], max_iter, tol, &dinv[0]);
 
   return x;
 }

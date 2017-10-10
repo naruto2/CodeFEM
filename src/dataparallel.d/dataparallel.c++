@@ -27,7 +27,7 @@ static void check_np(int n)
   if ( 1024 < global_item_size[0])
     global_item_size[0] = 1024;
   if ( n<=global_item_size[0])
-    global_item_size[0] = n-1;
+    np = global_item_size[0] = n-1;
 }
 
  
