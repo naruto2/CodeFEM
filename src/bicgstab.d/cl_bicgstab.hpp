@@ -55,25 +55,13 @@ static void copy(int n, double *p, double *q)
 }
 
 
-static void presolve(int n, double *x, double *dinv, double *d,
-		     double *a, double *b, double *c)
+static void presolve(int n, double *x, double *dinv, double *d)
 {
   if ( dinv[1] == 0.0 ) {
-    for (int k=1; k<n; k++ ) x[k] = d[k];
+    cl_copy(n,x,d);
   }
   else {
     for (int k=1; k<n; k++ ) x[k] = dinv[k]*d[k];
-    return;
-    int i;
-    vector<double> P(n), Q(n);
-      P[1] = b[1]/a[1];
-      Q[1] = d[1]/a[1];
-      
-      for( i=2;i<n; i++) P[i] = b[i]/(a[i]-c[i]*P[i-1]);
-      for( i=2;i<n; i++) Q[i] = (d[i]+c[i]*Q[i-1])/(a[i]-c[i]*P[i-1]);
-
-      x[n-1] = Q[n-1];
-      for ( i=n-2; i>0; i--) x[i] = P[i]*x[i+1]+Q[i];
   }
 }
 
@@ -162,8 +150,8 @@ static double phase6(int n, double *x, double *s, double *r, double *t,
     
 
 int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
-		     int &max_iter, double &tol, double *dinv,
-		     double *a_, double *b_, double *c_)
+		     int &max_iter, double &tol, double *dinv)
+	
 {
   static int nn, k, ww, w, *row_ptr, *col_ind, n = A.size();
   static double *r,*p,*phat,*s,*shat,*t,*v,*rtilde, *Aa;
@@ -218,8 +206,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
       beta = (rho_1/rho_2) * (alpha/omega);
       cl_phase1(n,p,r,v,beta,omega);
     }
-    //cl_copy(n,phat,p);
-    presolve(n,phat,dinv,p,a_,b_,c_);
+    presolve(n,phat,dinv,p);
     alpha = rho_1/cl_phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde,w);
     
     if ((resid = cl_phase3(n,s,r,v,alpha)/normb) < tol) {
@@ -227,8 +214,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
       tol = resid;
       return 0;
     }
-    //cl_copy(n,shat,s);
-    presolve(n,shat,dinv,s,a_,b_,c_);
+    presolve(n,shat,dinv,s);
     omega = cl_phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
     rho_2 = rho_1;
     if ((resid = cl_phase6(n,x,s,r,t,phat,shat,alpha,omega)/normb) < tol) {
