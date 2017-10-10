@@ -139,12 +139,12 @@ int main(int argc, char **argv){
 
 # cd src/psc98.d
 # make time
-Problem NO : 0 real	real	0m1.124s
-Problem NO : 1 real	real	0m56.116s
-Problem NO : 2 real	real	1m0.044s
-Problem NO : 3 real	real	1m4.875s
-Problem NO : 4 real	real	1m23.242s
-Problem NO : 5 real	real	0m0.145s
+Problem NO : 0 real	0m1.103s
+Problem NO : 1 real	0m55.720s
+Problem NO : 2 real	0m59.835s
+Problem NO : 3 real	1m7.788s
+Problem NO : 4 real	1m19.511s
+Problem NO : 5 real	0m0.129s
 
 
 参考文献
