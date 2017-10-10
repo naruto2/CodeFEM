@@ -139,13 +139,12 @@ int main(int argc, char **argv){
 
 # cd src/psc98.d
 # make time
-Problem NO : 0 real	0m1.051s
-Problem NO : 1 real	0m54.792s
-Problem NO : 2 real	0m59.898s
-Problem NO : 3 real	1m4.213s
-Problem NO : 4 real	1m24.094s
-Problem NO : 5 real	15m over (not available)
-# The problem NO.5 is an ill conditional matrix. So cl_bicgstab() can't solve it.
+Problem NO : 0 real	real	0m1.124s
+Problem NO : 1 real	real	0m56.116s
+Problem NO : 2 real	real	1m0.044s
+Problem NO : 3 real	real	1m4.875s
+Problem NO : 4 real	real	1m23.242s
+Problem NO : 5 real	real	0m0.145s
 
 
 参考文献

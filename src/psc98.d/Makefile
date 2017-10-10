@@ -1,6 +1,6 @@
 cl_a.out: cl_main.c++ lib/libbicgstab.a lib/libpsc98.a
 	(cd ../bicgstab.d; make obj)
-	c++ cl_main.c++ -lpsc98 -lbicgstab -lOpenCL -o cl_a.out
+	c++ cl_main.c++ ../TDMA.d/main.c++ -lpsc98 -lbicgstab -lOpenCL -o cl_a.out
 
 clean: ;
 	rm -f cl_a.out *.o lib/libpsc98.a

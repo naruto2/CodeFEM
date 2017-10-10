@@ -3,6 +3,7 @@
 #include <est/sparse.hpp>
 #include <est/bicgstab.hpp>
 
+
 vector<double> TDMA(sparse::matrix<double>&A,vector<double>&d)
 {
   int i, n = A.size();
@@ -26,6 +27,7 @@ vector<double> TDMA(sparse::matrix<double>&A,vector<double>&d)
 }
 
 
+#if 0
 main(int argc, char **argv){
   cl_bicgstab_init(argc,argv);
   int i, n = 512;
@@ -43,3 +45,4 @@ main(int argc, char **argv){
 
   for (i=1;i<=n;i++) printf("%f\n", x[i] );
 }
+#endif
