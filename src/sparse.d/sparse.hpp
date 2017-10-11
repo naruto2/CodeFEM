@@ -40,6 +40,7 @@ namespace sparse {
     fprintf(pp,"unset xtics\n");
     fprintf(pp,"set xrange [0:%d]\n",n);
     fprintf(pp,"set yrange [%d:0]\n",n);
+    fprintf(pp,"set size square\n");
     
     for(i=1;i<n;i++){
       for( auto it : A[i]){
