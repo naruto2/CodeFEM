@@ -1,0 +1,414 @@
+http://gm3d.blog.fc2.com/blog-entry-15.html
+http://www.opaquelight.com/MultiQueue1.tgz
+ブログパスワード: vm0R8lr7r4iV
+
+
+改めて、CUDA BY EXAMPLEのサンプルをOpenCLで
+標題の通り、CUDA BY EXAMPLEという書籍がある。原著はAddison-Wesley、日本語版はインプレスジャパンから出ている。NVIDIAの技術者によって書かれているだけあって、薄い本ながらいかにして並列処理の性能を引き出すかについて注意が払われている。
+
+私の今使用している環境は主にLinux + OpenCLなので、この本のサンプルのうち何度も取り上げられているベクトルの内積の例を自分の環境に合わせて翻案し、テストしてみたい。
+
+ということで、まずは原型として、chapter05/dot.cuに相当するプログラムを作成する。CUDA Cではホスト(CPU)側コードもデバイス(GPU)側コードも同一のソースに記述することになるが、OpenCLではGLSLのようなシェーダー言語を使う場合に似て、両者を別々のファイルで管理することになる。ついでに言えば、OpenCLのAPIはデバイス側のリソース管理は基本的にOpenGLでのテクスチャオブジェクトやバッファオブジェクト等とよく似た形式で管理されるので、OpenGLに馴染みがある人はOpenCLのAPIにもすぐ親しみがわくであろう。
+
+というわけで、まずホスト側コード(main.cpp)
+
+#include <iostream>
+#include <CL/opencl.h>
+#include "myCLUtils.h"
+#include "myCLManager2.h"
+
+#define N (33 * 1024)
+#define THREADSPERBLOCK 256
+#define imin(a, b) (a < b ? a : b)
+#define expectedSum(x) (x * (x + 1)*(2 * x + 1) / 3)
+
+int main(int argc, char **argv)
+{
+  cl_int ret;
+  int i, n = N;
+  const int queueNum = 1, debug = 0;
+  const int threadsPerBlock = THREADSPERBLOCK;
+  const int blocksPerGrid 
+    = imin(32, (N + THREADSPERBLOCK - 1) / THREADSPERBLOCK);
+  const size_t globalWorkSize[1] = {N};
+  const size_t localWorkSize[1] = {threadsPerBlock};
+
+  float *a, *b, *partial_c;
+  cl_mem dev_a, dev_b, dev_partial_c;
+  myCLManager2 clm(queueNum, debug);
+  clm.register_program("dotSource", "dotProduct.cl");
+  cl_program program = clm.get_program("dotSource");
+  cl_kernel dotKernel = clCreateKernel(program, "dotProduct", &ret);
+  myCLUtils::report_error(__FUNCTION__, "clCreateKernel", ret);
+  a = new float[N];
+  b = new float[N];
+  partial_c = new float[blocksPerGrid];
+  for(i = 0; i < N; i++){
+    a[i] = i;
+    b[i] = i * 2;
+  }
+  dev_a = clCreateBuffer(clm.context,
+             CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR,
+             N * sizeof(float), a, &ret);
+  myCLUtils::report_error(__FUNCTION__, "clCreateBuffer", ret);
+  dev_b = clCreateBuffer(clm.context,
+             CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR,
+             N * sizeof(float), b, &ret);
+  myCLUtils::report_error(__FUNCTION__, "clCreateBuffer", ret);
+  dev_partial_c = clCreateBuffer(clm.context,
+                 CL_MEM_WRITE_ONLY,
+                 blocksPerGrid * sizeof(float), NULL, &ret);
+  myCLUtils::report_error(__FUNCTION__, "clCreateBuffer", ret);
+  i = 0;
+  ret = clSetKernelArg(dotKernel, i++, sizeof(dev_a), &dev_a);
+  myCLUtils::report_error(__FUNCTION__, "clSetKernelArg", ret);
+  ret = clSetKernelArg(dotKernel, i++, sizeof(dev_b), &dev_b);
+  myCLUtils::report_error(__FUNCTION__, "clSetKernelArg", ret);
+  ret = clSetKernelArg(dotKernel, i++, sizeof(dev_partial_c), &dev_partial_c);
+  myCLUtils::report_error(__FUNCTION__, "clSetKernelArg", ret);
+  ret = clSetKernelArg(dotKernel, i++, sizeof(n), &n);
+  myCLUtils::report_error(__FUNCTION__, "clSetKernelArg", ret);
+  ret = clSetKernelArg(dotKernel, i++, 
+               sizeof(threadsPerBlock), &threadsPerBlock);
+  myCLUtils::report_error(__FUNCTION__, "clSetKernelArg", ret);
+  ret = clSetKernelArg(dotKernel, i++, 
+               sizeof(blocksPerGrid), &blocksPerGrid);
+  myCLUtils::report_error(__FUNCTION__, "clSetKernelArg", ret);
+  ret = clEnqueueNDRangeKernel(clm.queues[0],
+                   dotKernel,
+                   1,
+                   NULL,
+                   globalWorkSize,
+                   localWorkSize,
+                   0, NULL, NULL);
+  myCLUtils::report_error(__FUNCTION__, "clEnqueueNDRangeKernel", ret);
+  ret = clEnqueueReadBuffer(clm.queues[0],
+                dev_partial_c,
+                CL_TRUE,
+                0,
+                blocksPerGrid * sizeof(float),
+                partial_c,
+                0, NULL, NULL);
+  myCLUtils::report_error(__FUNCTION__, "clEnqueueReadBuffer", ret);
+  float c = 0;
+  for(int i = 0; i < blocksPerGrid; i++){
+    c += partial_c[i];
+  }
+  delete a;
+  delete b;
+  delete partial_c;
+  ret = clReleaseMemObject(dev_a);
+  myCLUtils::report_error(__FUNCTION__, "clReleaseMemObject", ret);
+  clReleaseMemObject(dev_b);
+  myCLUtils::report_error(__FUNCTION__, "clReleaseMemObject", ret);
+  clReleaseMemObject(dev_partial_c);
+  myCLUtils::report_error(__FUNCTION__, "clReleaseMemObject", ret);
+  cout << "Blocks per Grid = " << blocksPerGrid << "\n";
+  cout << "Threads per Block = " << threadsPerBlock << "\n";
+  cout << "GPU sum  = " << c << "\n";
+  cout << "Expected = " << expectedSum((float)(N - 1)) << endl;
+  return 0;
+}
+
+そして、GPU側コード(dotProduct.cl)
+
+#pragma OPENCL EXTENSION cl_khr_fp64: enable
+#define THREADSPERBLOCK 256
+
+__kernel void dotProduct(__global const float* a,
+             __global const float* b,
+             __global float *partial_c,
+             int n,
+             int threadsPerBlock,
+             int blocksPerGrid)
+{
+  int i;
+  local float cache[THREADSPERBLOCK];
+  int tid = get_global_id(0);
+  int cacheIndex = get_local_id(0);
+  int gid = get_group_id(0);
+  float temp = 0;
+
+  while(tid < n){
+    temp += a[tid] * b[tid];
+    tid += threadsPerBlock * blocksPerGrid;
+  }
+
+  cache[cacheIndex] = temp;
+  barrier(CLK_LOCAL_MEM_FENCE);
+
+  i = threadsPerBlock / 2;
+
+  while( i != 0 ){
+    if(cacheIndex < i)
+      cache[cacheIndex] += cache[cacheIndex + i];
+    barrier(CLK_LOCAL_MEM_FENCE);
+    i /= 2;
+  }
+
+  if(cacheIndex == 0){
+    partial_c[gid] = cache[0];
+  }
+}
+
+あまり高度なことはしていない。エラー処理関数はmyCLUtils名前空間で定義してある。ヘルパークラスとしてmyCLDevice、myCLPlatform、myCLManager2の３つを作成、使用している。myCLDeviceとmyCLPlatformは単にそれぞれデバイスとプラットフォームに関して取得した情報のostreamへの出力を定義しているだけである。
+myCLManager2では、内部でOpenCLコンテキストを作成し、それに対して、コンストラクタ引数で指定された個数のコマンドキューを作成するようにしている。
+
+myCLManageer2::MyCLManager2(const int numQueues = 1, const int verbose = 0);
+
+というシグネチャになっていて、第一引数がキューの数、第二引数は単にデバッグのための情報出力フラグである。なお、このサンプルではまだキューは一つだけしか使わない。
+
+特に他人が動かすことを想定しているわけではないが、一応全体のソースはopaquelight.com/MultiQueue1.tgzに置いておくことにする。出力はおおむねこのようになるはずである。
+
+$ ./multiqueue1 
+Blocks per Grid = 32
+Threads per Block = 256
+GPU sum  = 2.57236e+13
+Expected = 2.57236e+13
+
+これだけでは何の意味もないが、この後上述の書籍の例に沿ってこのサンプルを変更していき、パフォーマンスの検討などをしてみることにしよう。
+   
+スポンサーサイト
+
+テーマ : プログラミング
+ジャンル : title="コンピュータ">コンピュータ
+2011-05-24 : OpenCL/CUDA : コメント : 0 : トラックバック : 0
+
+
+
+
+
+結構間違っておった＋エラー処理を変更
+前掲のソース(main.cpp)、2箇所ほど間違っていた。まず、
+
+#define N (33 * 1024)  は #define N (33 * 1024 * 1024) が正しい。33*1024ではいかにも小さすぎて並列処理の意味もない。
+
+そして、トータルのスレッド数を規定するグローバルワークサイズの指定が間違っていた。
+
+const size_t globalWorkSize[1] = {N}
+
+としていたが、これだと入力データ配列の一要素に対して１スレッドを起動することになる。このサンプルでは、256スレッドからなるブロックを32個(あるいは、それでは多すぎる場合はN/256の切り上げ)起動し、一つのスレッドが、例えばa[i] * b[i]の演算のあるi(例えば3としよう)を担当するならば、同じスレッドの内部でループして、
+
+i = 3
+i = 3 + 256 * 32
+i = 3 + 2 * 256 * 32
+....
+と i < N であるかぎりループしていくというアルゴリズムになっているので、スレッドをN個起動するのはやりすぎである。ということで、
+
+const size_t globalWorkSize[1] = {threadsPerBlock * blocksPerGrid};
+
+と修正。これで実行結果は
+
+$ ./multiqueue1 
+Blocks per Grid = 32
+Threads per Block = 256
+GPU sum  = 2.76217e+22
+Expected = 2.76217e+22
+
+となる。
+
+さて、間違いというのではないが、前掲のソースではいちいちエラー処理のためにOpenCLのAPI呼び出しに続いて毎回report_errorという自前の関数を呼び出していた。これだとソースが長くなってかなわないので、ちょっと考えてもう少しコンパクトに記述することにした。
+
+OpenCLのAPIは、エラーコードの返し方に注目すると二種類に分類できる。一つは、新しくなにがしかのOpenCLで使用するオブジェクトを新規に作成するためのAPIである。これは例えば、OpenCLコンテキストやコマンドキュー、カーネル、プログラムオブジェクト、メモリオブジェクトなどの作成が含まれる。このタイプのAPIは、使用する場合は
+
+cl_some_object_type obj;
+cl_int error;
+obj = clCreateSomeObject(args...、&error);
+if(error != CL_SUCCESS) {エラー処理}
+
+といった形になる。必ず最後の引数がエラーコードへのポインタという形式で統一されているようだ。一方、既に作成済みのOpenCLオブジェクトに対して何がしかの問い合わせや操作を行う場合は、返り値がcl_int型で、エラーコードを兼ねている。
+
+cl_int return_val;
+return_val = clDoSomething(args...);
+if(return_val != CL_SUCCESS){エラー処理}
+
+という形になる。そこで、この両者に対してそれぞれラッパーマクロを作ることにした。まず前回のreport_errorをもう少し拡張して
+
+void report_error(const char *modulename, const int linenum, const char *fname, const char *targetFunc, cl_int error);
+
+という形にした。やっていることは引数をすべて適当に整形してcerrに出力するだけである。そして、
+
+#define MYCLCHECK(fname, ...) ({cl_int ret; ret = fname(__VA_ARGS__); myCLUtils::report_error(__FILE__, __LINE__, __FUNCTION__, #fname, ret);})
+
+#define MYCLCREATE(retval, fname, ...) ({cl_int ret; retval = fname(__VA_ARGS__, &ret); myCLUtils::report_error(__FILE__, __LINE__, __FUNCTION__, #fname, ret);})
+
+という2種類のマクロを作成した。MYCLCREATEの方が新規オブジェクト作成API用で、MYCLCHECKの方はその他のAPI用である。使い方は、MYCLCREATEの方は
+
+  MYCLCREATE(dev_a, clCreateBuffer, clm.context, 
+         CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR,
+         N * sizeof(float), a);
+
+のようにする。これは、(見やすいように中途半端に展開すると)
+
+({cl_int ret;
+   dev_a = clCreateBuffer(clm.context,
+  CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, 
+  N * sizeof(float), a, &ret);
+  myCLUtils::report_error(__FILE__, __LINE__  , __FUNCTION__, "clCreateBuffer", ret);
+}) ;
+
+のように展開される。注意点としては、本来最後の引数として渡すエラーコードへのポインタは、マクロが勝手にブロック内変数へのポインタとして付加してくれるので、記述してはいけないという点である。
+
+第二の形式のAPIに対しては、MYCLCHECKマクロを、
+
+  MYCLCHECK(clSetKernelArg, dotKernel, i++, sizeof(dev_a), &dev_a);
+
+のように使う。これは、展開されると
+({
+  cl_int ret;
+  ret = clSetKernelArg(dotKernel, i++, sizeof(dev_a), &dev_a);
+  myCLUtils::report_error("main.cpp", 49, __FUNCTION__, "clSetKernelArg", ret);
+});
+
+のようになる。これらの定義はwww.opaquelight.com/MultiQueue1.tgz内のmyCLUtils.hで行っている。なお、MultiQueueといっているがキューはまだ一つだけである。そのうち複数キューにしてテストしてみることにする。
+とりあえずは、このマクロを使うことでエラー処理をしながらもソースの行数が倍加することは避けられる。
+
+もっときちんとエラー処理をしたければ、例外を発生させるべきなのだろうが、とりあえずはこれでよかろう。
+
+
+   
+スポンサーサイト
+リアルな海戦を体験！！超本格派オンライン海戦ゲーム！
+リアルな海戦を体験！！超本格派オンライン海戦ゲーム！
+リアルな海戦を体験！！超本格派オンライン海戦ゲーム！
+
+テーマ : プログラミング
+ジャンル : title="コンピュータ">コンピュータ
+2011-05-26 : OpenCL/CUDA : コメント : 0 : トラックバック : 0
+
+
+
+
+
+
+Ubuntu + NVIDIA CUDA Toolkit 4.1 上でのメモリオブジェクトの確保
+私の環境は、ハードウェア的にはホストメモリ3.2GB、GPUメモリ1GBである。この環境ではたしてメモリオブジェクトをどれだけ使用できるものか。
+
+APIとしては、clGetDeviceInfo()の引数に、CL_DEVICE_MAX_MEM_ALLOC_SIZEを指定して問い合わせを行うことでチェックできる。OpenCLの仕様によると、最低でも128MBか、あるいはGPUメモリサイズの1/4のどちらか大きい方の値ということである。ただしGPUメモリサイズというのは、正確には、clGetDeviceInfo()の引数にCL_DEVICE_GLOBAL_MEM_SIZEを指定して得られる値のことで。若干端数がハードウェア構成上の値と違う可能性はある。私の環境の場合、この値は1023MBであった。そしてCL_DEVICE_MAX_MEM_ALLOC_SIZEの返り値は255MB。
+
+では255MBを越えるメモリオブジェクトはまったく確保できないのかというと、実際に試してみると必ずしもそうとは限らないようである。
+
+以下のようなテストプログラムを実行してみた。
+
+
+
+#include "myCLManager2.h"
+#include "myCLUtils.h"
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <values.h>
+
+string sizeStr(size_t size)
+{
+  size_t rsize;
+  const char *unit;
+  if(size >= 1024 * 1024 * 1024){
+    rsize = size / (1024 * 1024 * 1024);
+    unit = "Gbytes";
+  }else if(size >= 1024 * 1024){
+    rsize = size / (1024 * 1024);
+    unit = "Mbytes";
+  }else if(size >= 1024){
+    rsize = size / 1024;
+    unit = "Kbytes";
+  }else{
+    rsize = size;
+    unit = "bytes";
+  }
+  stringstream s;
+  s << rsize << " " << unit;
+  return s.str();
+}
+
+int main(int argc, char **argv)
+{
+  myCLManager2 clm;
+  cl_mem mobj;
+  char *buf;
+  size_t size;
+  for(size = 256; size <= LONG_MAX; size<<=1 ){
+    buf = new char[size];
+    for(size_t i = 0; i < size; i++){
+      buf[i] = i % 100;
+    }
+    MYCLCREATE(mobj,
+               clCreateBuffer,
+               clm.context,
+               CL_MEM_READ_WRITE,
+               size * sizeof(char),
+               NULL);
+    clFlush(clm.queues[0]);
+    MYCLCHECK(clEnqueueWriteBuffer,
+              clm.queues[0],
+              mobj,
+              CL_TRUE,
+              0,
+              size * sizeof(char),
+              buf,
+              0, NULL, NULL);
+    clFlush(clm.queues[0]);
+    for(size_t i = 0; i < size; i++){
+      buf[i] = 0;
+    }
+    MYCLCHECK(clEnqueueReadBuffer,
+              clm.queues[0],
+              mobj,
+              CL_TRUE,
+              0,
+              size * sizeof(char),
+              buf,
+              0, NULL, NULL);
+    for(size_t i = 0; i < size; i++){
+      if(buf[i] != i % 100){
+        std::cout << "buffer contents don't match for" 
+                  << sizeStr(size) << ".\n";
+      }
+    }
+    clFlush(clm.queues[0]);
+    std::cout << "mobj allocation of " << sizeStr(size) << " succeeded.\n";
+    MYCLCHECK(clReleaseMemObject, mobj);
+    delete[] buf;
+  }
+  return 0;
+}
+
+やっていることは極めて単純である。myCLManager2は自分で作成した、OpenCLのコンテクストやキュー、プログラムオブジェクトの管理を行うヘルパークラスであるが、本質的ではない。単に普通にコンテクスト、キューの生成を行っていると思っていただければいい。
+
+MYCLCHECK、MYCLCREATEも以前のエントリに書いたが、単にエラー処理を組み込んだマクロである。OpenCLのAPIが正常終了しなかったときはexit()するようになっている。
+
+流れとしては、サイズを倍々にしながら、
+そのサイズ分のホストメモリを確保
+適当な内容で初期化
+同じサイズでメモリオブジェクトを作成
+clEnqueueWriteBufferでホストメモリからメモリオブジェクトに書き込み
+ホストメモリの内容をクリア
+メモリオブジェクトから先ほど書き込んだ内容をホストメモリに読み出し
+最初の内容と一致するかチェック
+
+ということを繰り返している。もし自分の環境で似たようなことをやりたい人がいたら、メモリを食いつぶしてシステムに影響が出ないとも限らないので、先に重要なファイルはセーブするなり何なりした上で十分心してやってもらいたい。
+
+でまあ、これをとりあえず実行してみるとこんなになった。
+
+mobj allocation of 256 bytes succeeded.
+mobj allocation of 512 bytes succeeded.
+mobj allocation of 1 Kbytes succeeded.
+mobj allocation of 2 Kbytes succeeded.
+(途中略)
+mobj allocation of 128 Mbytes succeeded.
+mobj allocation of 256 Mbytes succeeded.
+mobj allocation of 512 Mbytes succeeded.
+test7.cpp: 55 in main(): clEnqueueWriteBuffer failed due to CL_MEM_OBJECT_ALLOCATION_FAILURE
+
+というわけで、512MBまでは実際にメモリオブジェクトを確保、書き込み、読み出しを問題なく行うことができた。あくまで前述の255MBという値は、最低限保証されている値というわけである。この後もう少し細かくテストしてみるとちょっと思いがけないことも分かったのだが、それは別エントリに後で書こう。
+
+
+追記:
+遅ればせながらプログラムソースを見やすくするためにSyntaxHighlighterを導入させていただいた。導入にあたっては、Linux愛好者の独り言 fc2ブログでソースコードを綺麗に表示する。(SyntaxHighLighter 3.0)を参考にさせていただいた。ありがとうありがとう。
+   
+スポンサーサイト
+リアルな海戦を体験！！超本格派オンライン海戦ゲーム！
+リアルな海戦を体験！！超本格派オンライン海戦ゲーム！
+リアルな海戦を体験！！超本格派オンライン海戦ゲーム！
+
+2012-03-14 : OpenCL/CUDA : コメント : 1 : トラックバック : 0
