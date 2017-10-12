@@ -40,6 +40,8 @@ int main(int argc, char **argv)
   printf("x[2]=%f\n",x[2]);
   return 0;
 }
+# The performance analysis of cl_bicgstab() (in Japanese) is available.
+# http://kud.dip.jp/cl_bicgstab/
 
 
 ### 4th.

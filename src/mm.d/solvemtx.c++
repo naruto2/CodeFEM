@@ -12,10 +12,12 @@ int main(int argc, char **argv)
   cl_bicgstab_init(argc,argv);
 
   static double *val; static int *I, *J;
-  int M, N, nz;
+  int M, N, nz, ret;
 
-  mm_read_unsymmetric_sparse(getop("-f").c_str(),&M,&N,&nz,&val,&I,&J);
+  ret = mm_read_unsymmetric_sparse(getop("-f").c_str(),&M,&N,&nz,&val,&I,&J);
 
+  if ( ret != 0 ) printf("mm_read_unsymmetric_sparse()=%d %s\n",ret,
+			 getop("-f").c_str());
   if ( M != N ) return 0;
 
   sparse::matrix<double> A(N+1);
