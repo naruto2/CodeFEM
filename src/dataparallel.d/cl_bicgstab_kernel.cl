@@ -300,3 +300,15 @@ __kernel void gp_phase0(int n, __global double *r,
 }
 
 
+__kernel void gp_phase1(int n,__global double *p, __global double *r,
+			__global double *v, double beta, double omega)
+{
+  int   np = get_local_size(0);
+  int    i = get_local_id(0);
+  int size = n/np;
+
+  if (n<=i+1) return;
+  for (LOOP1) if( k) p[k] = r[k] + beta * (p[k] - omega *v[k]);
+  if(!i) for (LOOP3) p[k] = r[k] + beta * (p[k] - omega *v[k]);
+  barrier(CLK_GLOBAL_MEM_FENCE);
+}

@@ -24,6 +24,9 @@ void   gp_copy(int n, double *y, double *x);
 double gp_phase0(int n, double *r, 
 		 double *Aa, int *col_ind, int *row_ptr,
 		 double *x, double *rtilde, double *b, int w);
+void gp_phase1(int n, double *p, double *r, double *v,
+	       double beta, double omega);
+
 
 double cl_norm(int n, double *x);
 void   cl_copy(int n, double *y, double *x);
@@ -211,7 +214,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
       gp_copy(n,p,r);
     else {
       beta = (rho_1/rho_2) * (alpha/omega);
-      phase1(n,p,r,v,beta,omega);
+      gp_phase1(n,p,r,v,beta,omega);
     }
     presolve(n,phat,dinv,p);
     alpha = rho_1/phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde,w);
