@@ -262,3 +262,41 @@ __kernel void gp_copy(int n,__global double *y, __global double *x)
   if(!i) for (LOOP3) y[k] = x[k];
   barrier(CLK_GLOBAL_MEM_FENCE);
 }
+
+
+
+__kernel void gp_phase0(int n, __global double *r,
+		   __global double *Aa, __global int *col_ind,
+		   __global int *row_ptr, __global double *x,
+		   __global double *rtilde, __global double *b,
+		   __global double *result)
+{
+  __local double npa[NP];	
+  int   np = get_local_size(0);
+  int    i = get_local_id(0);
+  int size = n/np;
+
+  npa[i] = 0.0;
+  for (LOOP1) if( k) {
+    r[k] = 0.0;
+    for (LOOP2) r[k] += Aa[j] * x[col_ind[j]];
+    rtilde[k] = r[k] = b[k] - r[k];
+    npa[i] += r[k]*r[k];
+  }
+  if(!i) for (LOOP3) {
+    r[k] = 0.0;
+    for (LOOP2) r[k] += Aa[j] * x[col_ind[j]];
+    rtilde[k] = r[k] = b[k] - r[k];
+    npa[i] += r[k]*r[k];
+  }
+  barrier(CLK_LOCAL_MEM_FENCE);
+  if (!i) {
+        result[0] = 0.0;
+	for (int k=0;k<np;k++) result[0] += npa[k]; 
+	result[0] = sqrt(result[0]);	
+      }
+  barrier(CLK_LOCAL_MEM_FENCE);
+  barrier(CLK_GLOBAL_MEM_FENCE);
+}
+
+
