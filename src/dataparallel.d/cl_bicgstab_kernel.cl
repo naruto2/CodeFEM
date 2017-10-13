@@ -215,7 +215,7 @@ __kernel void cl_phase6(int n,__global double *x, __global double *s,
 __kernel void gp_norm(int n,__global double *x,__global double *result)
 {
   __local double npa[NP];
-  int   np = get_global_size(0);
+  int   np = get_local_size(0);
   int    i = get_local_id(0);
   int size = n/np;
 
@@ -236,7 +236,7 @@ __kernel void gp_dot(int n,__global double *y, __global double *x,
 		     __global double *result)
 {
   __local double npa[NP];	
-  int   np = get_global_size(0);
+  int   np = get_local_size(0);
   int    i = get_local_id(0);
   int size = n/np;
 
@@ -254,7 +254,7 @@ __kernel void gp_dot(int n,__global double *y, __global double *x,
 
 __kernel void gp_copy(int n,__global double *y, __global double *x)
 {
-  int   np = get_global_size(0);
+  int   np = get_local_size(0);
   int    i = get_local_id(0);
   int size = n/np;
 
