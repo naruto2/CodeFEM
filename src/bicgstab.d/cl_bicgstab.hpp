@@ -18,6 +18,9 @@
 //      tol  --  the residual after the final iteration
 //  
 //*****************************************************************
+double gp_norm(int n, double *x);
+double gp_dot(int n, double *y, double *x);
+
 double cl_norm(int n, double *x);
 void   cl_copy(int n, double *y, double *x);
 void   cl_init(int argc, char **argv);
@@ -186,7 +189,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 	ii++;
       }
   cl_send_A(n,w,Aa,col_ind,row_ptr);
-  double resid,rho_1,rho_2,alpha,beta,omega, normb = norm(n,b);
+  double resid,rho_1,rho_2,alpha,beta,omega, normb = gp_norm(n,b);
   if (normb == 0.0) normb = 1;
 
   if ((resid = phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b,w)/normb) <= tol) {
@@ -195,9 +198,9 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
     return 0;
   }
   for (int i = 1; i <= max_iter; i++) {
-    rho_1 = dot(n,rtilde,r);
+    rho_1 = gp_dot(n,rtilde,r);
     if (rho_1 == 0) {
-      tol = norm(n,r)/normb;
+      tol = gp_norm(n,r)/normb;
       return 2;
     }
     if (i == 1)
@@ -223,7 +226,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
       return 0;
     }
     if (omega == 0) {
-      tol = norm(n,r)/normb;
+      tol = gp_norm(n,r)/normb;
       return 3;
     }
   }

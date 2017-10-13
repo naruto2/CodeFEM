@@ -11,6 +11,7 @@ double  cl_dot(int n, double *y, double *x);
 void    cl_finalize(void);
 
 double gp_norm(int n, double *x);
+double gp_dot(int n, double *x, double *y);
 
 int main(int argc, char **argv)
 {
@@ -23,6 +24,8 @@ int main(int argc, char **argv)
   x[0] = 0.0; for(k=1;k<n;k++) x[k] = 1.0;
 
   printf("gp_norm(n,x) = %f\n",gp_norm(n,x));
+
+  printf("gp_dot(n,x,x) = %f\n",gp_dot(n,x,x));
   
   printf("norm(n,x) = %f\n",cl_norm(n,x));
 

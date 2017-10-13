@@ -634,3 +634,37 @@ double gp_norm(int n, double *x)
   cl_get(np*sizeof(double), mem_npa, npa);
   return npa[0];
 }
+
+
+double gp_dot(int n, double *y, double *x)
+{
+  check_np(n);
+  
+  static cl_kernel kernel;
+  cl_load(kernel,"gp_dot");
+
+  static double *npa;
+  if (!npa) npa = (double*)malloc(np*sizeof(double));
+
+  static cl_mem mem_y;
+  static cl_mem mem_x;
+  static cl_mem mem_npa;
+  cl_mem_r(n*sizeof(double), mem_y);
+  cl_mem_r(n*sizeof(double), mem_x);
+  cl_mem_w(np*sizeof(double), mem_npa);
+  
+  cl_send(n*sizeof(double), mem_y, y);
+  cl_send(n*sizeof(double), mem_x, x);
+
+  clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
+  clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_y);
+  clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_x);
+  clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&mem_npa);
+
+  cl_run(kernel);
+
+  cl_get(np*sizeof(double), mem_npa, npa);            
+    
+  return npa[0];
+}
+
