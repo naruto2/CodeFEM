@@ -260,4 +260,5 @@ __kernel void gp_copy(int n,__global double *y, __global double *x)
 
   for (LOOP1) if( k) y[k] = x[k];
   if(!i) for (LOOP3) y[k] = x[k];
+  barrier(CLK_GLOBAL_MEM_FENCE);
 }
