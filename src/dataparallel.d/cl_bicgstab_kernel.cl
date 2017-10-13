@@ -182,13 +182,14 @@ __kernel void gp_phase2(int n, __global double *v,
 }
 
 
-__kernel void gp_phase3(int n,__global double *s, __global double *r,
-			__global double *v, double alpha, __global double *result)
+static double _phase3(int n,__global double *s, __global double *r,
+		__global double *v, double alpha)
 {
   __local double npa[NP];	
   int   np = get_local_size(0);
   int    i = get_local_id(0);
   int size = n/np;
+  double tmp;
 
   npa[i] = 0.0;
   for (LOOP1) if( k) {
@@ -201,12 +202,18 @@ __kernel void gp_phase3(int n,__global double *s, __global double *r,
   }
   barrier(CLK_LOCAL_MEM_FENCE);
   if (!i) {
-        result[0] = 0.0;
-	for (int k=0;k<np;k++) result[0] += npa[k]; 
-	result[0] = sqrt(result[0]);
+        tmp = 0.0;
+	for (int k=0;k<np;k++) tmp += npa[k]; 
+	npa[0] = sqrt(tmp);
     }
-  barrier(CLK_LOCAL_MEM_FENCE);
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  return npa[0];
+}
+
+
+__kernel void gp_phase3(int n,__global double *s, __global double *r,
+		__global double *v, double alpha, __global double *result)
+{
+	result[0] = _phase3(n,s,r,v,alpha);
 }
 
 
