@@ -566,6 +566,32 @@ void cl_bicgstab_init(int argc, char **argv)
 
   /* Compile kernel */         
   ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
+
+  /* clGetDeviceInfoで設定可能なインデックス空間の情報を得る */
+  /* 株式会社フィックスターズ: OpenCL入門, インプレスジャパン p187, 2010. */
+  cl_uint work_item_dim;
+  size_t work_item_sizes[3];
+  size_t work_group_size;
+  cl_uint compute_unit = 0;
+
+  ret = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,
+			sizeof(cl_uint), &work_item_dim, NULL);
+  if (ret) abort();
+  ret = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_ITEM_SIZES,
+			sizeof(work_item_sizes), work_item_sizes, NULL);
+  if (ret) abort();
+  ret = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE,
+			sizeof(size_t), &work_group_size, NULL);
+  if (ret) abort();
+  ret = clGetDeviceInfo(device_id, CL_DEVICE_MAX_COMPUTE_UNITS,
+			sizeof(cl_uint), &compute_unit, NULL);
+  if ( 0 ) {
+    printf("work_item_dim: %d ",work_item_dim);
+    printf("work_item_sizez: %d %d %d ",
+	   work_item_sizes[0],work_item_sizes[1],work_item_sizes[2]);
+    printf("work_group_size: %d ",work_group_size);
+    printf("compute_unit: %d\n",compute_unit);
+  }
 }
 
 
