@@ -20,6 +20,7 @@
 //*****************************************************************
 double gp_norm(int n, double *x);
 double gp_dot(int n, double *y, double *x);
+void   gp_copy(int n, double *y, double *x);
 
 double cl_norm(int n, double *x);
 void   cl_copy(int n, double *y, double *x);
@@ -61,7 +62,7 @@ static void copy(int n, double *p, double *q)
 static void presolve(int n, double *x, double *dinv, double *d)
 {
   if ( dinv[1] == 0.0 ) {
-    copy(n,x,d);
+    gp_copy(n,x,d);
   }
   else {
     for (int k=1; k<n; k++ ) x[k] = dinv[k]*d[k];
@@ -204,7 +205,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
       return 2;
     }
     if (i == 1)
-      copy(n,p,r);
+      gp_copy(n,p,r);
     else {
       beta = (rho_1/rho_2) * (alpha/omega);
       phase1(n,p,r,v,beta,omega);

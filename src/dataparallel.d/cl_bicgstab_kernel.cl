@@ -24,7 +24,6 @@ __kernel void cl_copy(int n,__global double *y, __global double *x)
   int    i = get_global_id(0);
   int size = n/np;
 
-
   for (LOOP1) if( k) y[k] = x[k];
   if(!i) for (LOOP3) y[k] = x[k];
 }
@@ -253,3 +252,12 @@ __kernel void gp_dot(int n,__global double *y, __global double *x,
 }
 
 
+__kernel void gp_copy(int n,__global double *y, __global double *x)
+{
+  int   np = get_global_size(0);
+  int    i = get_local_id(0);
+  int size = n/np;
+
+  for (LOOP1) if( k) y[k] = x[k];
+  if(!i) for (LOOP3) y[k] = x[k];
+}

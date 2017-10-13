@@ -15,7 +15,7 @@ static size_t np;
 static cl_program program = NULL;
 static char *kernel_src_str;
 static int ret;
-#define cl_load(kernel, name) if(!kernel) kernel=clCreateKernel(program, name, &ret)
+#define cl_load(kernel, name) if(!kernel) kernel=clCreateKernel(program, name, &ret); if(ret) { printf("can't load %s()\n",name); exit(-1); }
 #define cl_mem_r(size,mem) if(!mem) mem=clCreateBuffer(context, CL_MEM_READ_ONLY, size, NULL, &ret)
 #define cl_mem_w(size,mem) if(!mem) mem=clCreateBuffer(context, CL_MEM_WRITE_ONLY, size, NULL, &ret)
 #define cl_mem_rw(size,mem) if(!mem) mem=clCreateBuffer(context, CL_MEM_READ_WRITE, size, NULL, &ret)
@@ -674,5 +674,29 @@ double gp_dot(int n, double *y, double *x)
   cl_get(np*sizeof(double), mem_npa, npa);            
     
   return npa[0];
+}
+
+
+void gp_copy(int n, double *y, double *x)
+{
+  check_np(n);
+  
+  static cl_kernel  kernel;
+  cl_load(kernel,"gp_copy");
+
+  static cl_mem mem_y;
+  static cl_mem mem_x;
+  cl_mem_w(n*sizeof(double), mem_y);
+  cl_mem_r(n*sizeof(double), mem_x);
+
+  cl_send(n*sizeof(double), mem_x, x);
+
+  clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
+  clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_y);
+  clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_x);
+
+  cl_run(kernel);
+          
+  cl_get(n*sizeof(double), mem_y, y);
 }
 
