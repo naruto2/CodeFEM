@@ -62,7 +62,7 @@ __kernel void gp_dot(int n,__global double *y, __global double *x,
 }
 
 
-__kernel void gp_copy(int n,__global double *y, __global double *x)
+static void _copy(int n,__global double *y, __global double *x)
 {
   int   np = get_local_size(0);
   int    i = get_local_id(0);
@@ -70,9 +70,13 @@ __kernel void gp_copy(int n,__global double *y, __global double *x)
 
   for (LOOP1) if( k) y[k] = x[k];
   if(!i) for (LOOP3) y[k] = x[k];
-  barrier(CLK_GLOBAL_MEM_FENCE);
 }
 
+
+__kernel void gp_copy(int n,__global double *y, __global double *x)
+{
+  _copy(n,y,x);
+}
 
 
 __kernel void gp_phase0(int n, __global double *r,

@@ -29,11 +29,6 @@ int main(int argc, char **argv)
   gp_copy(n,y,x);
   
   printf("gp_dot(n,y,x) = %f\n",gp_dot(n,y,x));
-  
-  printf("norm(n,x) = %f\n",cl_norm(n,x));
-
-  cl_copy(n,y,x);
-  printf("dot(n,y,x) = %f\n",cl_dot(n,y,x));
 
   cl_finalize();
   return 0;
