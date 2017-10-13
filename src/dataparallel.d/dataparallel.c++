@@ -574,7 +574,8 @@ void cl_bicgstab_init(int argc, char **argv)
   size_t work_item_sizes[3];
   size_t work_group_size;
   cl_uint compute_unit = 0;
-
+  cl_ulong local_mem_size = 0;
+  
   ret = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,
 			sizeof(cl_uint), &work_item_dim, NULL);
   if (ret) abort();
@@ -586,12 +587,18 @@ void cl_bicgstab_init(int argc, char **argv)
   if (ret) abort();
   ret = clGetDeviceInfo(device_id, CL_DEVICE_MAX_COMPUTE_UNITS,
 			sizeof(cl_uint), &compute_unit, NULL);
+  if (ret) abort();
+  ret = clGetDeviceInfo(device_id, CL_DEVICE_LOCAL_MEM_SIZE,
+			sizeof(cl_ulong), &local_mem_size, NULL);
+  if (ret) abort();
+
   if ( 0 ) {
     printf("work_item_dim: %d ",work_item_dim);
     printf("work_item_sizes: %d %d %d ",
 	   work_item_sizes[0],work_item_sizes[1],work_item_sizes[2]);
     printf("work_group_size: %d ",work_group_size);
     printf("compute_unit: %d\n",compute_unit);
+    printf("local_mem_size: %d\n",local_mem_size);
   }
 }
 
