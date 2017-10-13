@@ -212,23 +212,51 @@ __kernel void cl_phase6(int n,__global double *x, __global double *s,
 }
 
 
+static double norm(int n,__global double *x)
+{
+  local double npa[NP];
+  int   np = get_local_size(0);
+  int    i = get_local_id(0);
+  int size = n/np;
+  int    k;
+  double tmp = 0.0; 
+
+  npa[i] = 0.0;
+  for (LOOP1)  if( k)  npa[i] += x[k]*x[k];
+  if (!i) for (LOOP3)  npa[i] += x[k]*x[k]; 
+  barrier(CLK_LOCAL_MEM_FENCE);
+  if (!i) {
+        tmp = 0.0;
+	for (int k=0;k<np;k++) tmp += npa[k]; 
+ 	npa[0] = sqrt(tmp);
+   }
+   return  npa[0];
+}
+
+
 __kernel void gp_norm(int n,__global double *x,__global double *result)
+{
+  result[0] = norm(n,x);
+}
+
+
+__kernel void gp_norm_org(int n,__global double *x,__global double *result)
 {
   __local double npa[NP];
   int   np = get_local_size(0);
   int    i = get_local_id(0);
   int size = n/np;
+  double tmp;
 
   npa[i] = 0.0;
   for (LOOP1)  if( k) npa[i] += x[k]*x[k];
   if (!i) for (LOOP3) npa[i] += x[k]*x[k];
   barrier(CLK_LOCAL_MEM_FENCE);
   if (!i) {
-        result[0] = 0.0;
-	for (int k=0;k<np;k++) result[0] += npa[k]; 
-	result[0] = sqrt(result[0]);
+        tmp = 0.0;
+	for (int k=0;k<np;k++) tmp += npa[k]; 
+	result[0] = sqrt(tmp);
      }
-  barrier(CLK_LOCAL_MEM_FENCE);
 }
 
 
