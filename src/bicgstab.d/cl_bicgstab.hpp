@@ -58,7 +58,7 @@ static void copy(int n, double *p, double *q)
 static void presolve(int n, double *x, double *dinv, double *d)
 {
   if ( dinv[1] == 0.0 ) {
-    cl_copy(n,x,d);
+    copy(n,x,d);
   }
   else {
     for (int k=1; k<n; k++ ) x[k] = dinv[k]*d[k];
@@ -186,44 +186,44 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 	ii++;
       }
   cl_send_A(n,w,Aa,col_ind,row_ptr);
-  double resid,rho_1,rho_2,alpha,beta,omega, normb = cl_norm(n,b);
+  double resid,rho_1,rho_2,alpha,beta,omega, normb = norm(n,b);
   if (normb == 0.0) normb = 1;
 
-  if ((resid = cl_phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b,w)/normb) <= tol) {
+  if ((resid = phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b,w)/normb) <= tol) {
     tol = resid;
     max_iter = 0;
     return 0;
   }
   for (int i = 1; i <= max_iter; i++) {
-    rho_1 = cl_dot(n,rtilde,r);
+    rho_1 = dot(n,rtilde,r);
     if (rho_1 == 0) {
-      tol = cl_norm(n,r)/normb;
+      tol = norm(n,r)/normb;
       return 2;
     }
     if (i == 1)
-      cl_copy(n,p,r);
+      copy(n,p,r);
     else {
       beta = (rho_1/rho_2) * (alpha/omega);
-      cl_phase1(n,p,r,v,beta,omega);
+      phase1(n,p,r,v,beta,omega);
     }
     presolve(n,phat,dinv,p);
-    alpha = rho_1/cl_phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde,w);
+    alpha = rho_1/phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde,w);
     
-    if ((resid = cl_phase3(n,s,r,v,alpha)/normb) < tol) {
-      cl_phase4(n,x,phat,alpha);
+    if ((resid = phase3(n,s,r,v,alpha)/normb) < tol) {
+      phase4(n,x,phat,alpha);
       tol = resid;
       return 0;
     }
     presolve(n,shat,dinv,s);
-    omega = cl_phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
+    omega = phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
     rho_2 = rho_1;
-    if ((resid = cl_phase6(n,x,s,r,t,phat,shat,alpha,omega)/normb) < tol) {
+    if ((resid = phase6(n,x,s,r,t,phat,shat,alpha,omega)/normb) < tol) {
       tol = resid;
       max_iter = i;
       return 0;
     }
     if (omega == 0) {
-      tol = cl_norm(n,r)/normb;
+      tol = norm(n,r)/normb;
       return 3;
     }
   }

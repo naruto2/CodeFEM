@@ -10,6 +10,8 @@ void   cl_copy(int n, double *y, double *x);
 double  cl_dot(int n, double *y, double *x);
 void    cl_finalize(void);
 
+double gp_norm(int n, double *x);
+
 int main(int argc, char **argv)
 {
   cl_bicgstab_init(argc,argv);
@@ -20,6 +22,8 @@ int main(int argc, char **argv)
 
   x[0] = 0.0; for(k=1;k<n;k++) x[k] = 1.0;
 
+  printf("gp_norm(n,x) = %f\n",gp_norm(n,x));
+  
   printf("norm(n,x) = %f\n",cl_norm(n,x));
 
   cl_copy(n,y,x);

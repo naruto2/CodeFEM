@@ -210,3 +210,23 @@ __kernel void cl_phase6(int n,__global double *x, __global double *s,
     npa[i] += r[k]*r[k];
   }
 }
+
+
+__kernel void gp_norm(int n,__global double *x,__global double *result)
+{
+  __local double npa[1024];
+  int   np = get_global_size(0);
+  int    i = get_local_id(0);
+  int size = n/np;
+
+
+  npa[i] = 0.0;
+  for (LOOP1)  if( k) npa[i] += x[k]*x[k];
+  if (!i) for (LOOP3) npa[i] += x[k]*x[k];
+  barrier(CLK_LOCAL_MEM_FENCE);
+  if (!i) {
+        result[0] = 0.0;
+	for (int k=0;k<np;k++) result[0] += npa[k]; 
+	result[0] = sqrt(result[0]);
+     }
+}

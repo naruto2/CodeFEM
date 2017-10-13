@@ -526,11 +526,11 @@ void cl_bicgstab_init(int argc, char **argv)
     
   /* Set parameters for data parallel processing (work item) */
 
-  global_item_size[0] = 64; /* np Global number of work items */
-  local_item_size[0] = 1;  /* Number of work items per work group */
+  global_item_size[0] = 1024; /* np Global number of work items */
+  local_item_size[0] = 1024;
 
   if ( argc > 1 ) global_item_size[0] = atoi(argv[1]);    
-  np = global_item_size[0];
+  np = local_item_size[0] = global_item_size[0];
 
   /* --> global_item_size[0] / local_item_size[0] becomes 2, which indirectly sets the number of workgroups to 2*/
 
@@ -605,4 +605,32 @@ void cl_finalize(void)
 
     /* Deallocate memory on the host */
     free(kernel_src_str);
+}
+
+double gp_norm(int n, double *x)
+{
+  check_np(n);
+
+  static cl_kernel kernel;
+  cl_load(kernel,"gp_norm");
+
+  static double *npa;
+  if (!npa) npa = (double*)malloc(np*sizeof(double));
+
+  static cl_mem mem_x;
+  static cl_mem mem_npa;
+
+  cl_mem_r(n*sizeof(double), mem_x);
+  cl_mem_w(np*sizeof(double), mem_npa);
+  
+  cl_send(n*sizeof(double), mem_x, x);
+
+  clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
+  clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_x);
+  clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_npa);
+
+  cl_run(kernel);
+
+  cl_get(np*sizeof(double), mem_npa, npa);
+  return npa[0];
 }
