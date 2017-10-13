@@ -236,10 +236,9 @@ __kernel void gp_phase4(int n,__global double *x, __global double *phat,
 }
 
 
-__kernel void gp_phase5(int n,__global double *t,__global double *Aa,
+static double _phase5(int n,__global double *t,__global double *Aa,
 	 	 __global int *col_ind,__global int *row_ptr,
-		 __global double *shat,__global double *s,
-		 __global double *result,__global double *resuls)
+		 __global double *shat,__global double *s)
 {
   __local double npa[NP];
   __local double npb[NP];	
@@ -265,10 +264,18 @@ __kernel void gp_phase5(int n,__global double *t,__global double *Aa,
   if (!i) {
      	double tmpa = 0.0, tmpb = 0.0;
 	for (int k=0;k<np;k++) { tmpa += npa[k]; tmpb += npb[k]; }
-	result[0] = tmpa/tmpb;
+	npa[0] = tmpa/tmpb;
     }
-  barrier(CLK_LOCAL_MEM_FENCE);
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  return npa[0];
+}
+
+
+__kernel void gp_phase5(int n,__global double *t,__global double *Aa,
+	 	 __global int *col_ind,__global int *row_ptr,
+		 __global double *shat,__global double *s,
+		 __global double *result,__global double *resuls)
+{
+	result[0] = _phase5(n,t,Aa,col_ind,row_ptr,shat,s);
 }
 
 
