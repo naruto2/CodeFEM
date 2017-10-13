@@ -121,52 +121,23 @@ __kernel void gp_phase0(int n, __global double *r,
 	result[0] = _phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b);
 }
 
-__kernel void gp_phase0_org(int n, __global double *r,
-		   __global double *Aa, __global int *col_ind,
-		   __global int *row_ptr, __global double *x,
-		   __global double *rtilde, __global double *b,
-		   __global double *result)
+
+static void _phase1(int n,__global double *p, __global double *r,
+       		   __global double *v, double beta, double omega)
 {
-  __local double npa[NP];	
   int   np = get_local_size(0);
   int    i = get_local_id(0);
   int size = n/np;
 
-  npa[i] = 0.0;
-  for (LOOP1) if( k) {
-    r[k] = 0.0;
-    for (LOOP2) r[k] += Aa[j] * x[col_ind[j]];
-    rtilde[k] = r[k] = b[k] - r[k];
-    npa[i] += r[k]*r[k];
-  }
-  if(!i) for (LOOP3) {
-    r[k] = 0.0;
-    for (LOOP2) r[k] += Aa[j] * x[col_ind[j]];
-    rtilde[k] = r[k] = b[k] - r[k];
-    npa[i] += r[k]*r[k];
-  }
-  barrier(CLK_LOCAL_MEM_FENCE);
-  if (!i) {
-        result[0] = 0.0;
-	for (int k=0;k<np;k++) result[0] += npa[k]; 
-	result[0] = sqrt(result[0]);	
-      }
-  barrier(CLK_LOCAL_MEM_FENCE);
-  barrier(CLK_GLOBAL_MEM_FENCE);
+  for (LOOP1) if( k) p[k] = r[k] + beta * (p[k] - omega *v[k]);
+  if(!i) for (LOOP3) p[k] = r[k] + beta * (p[k] - omega *v[k]);
 }
 
 
 __kernel void gp_phase1(int n,__global double *p, __global double *r,
 			__global double *v, double beta, double omega)
 {
-  int   np = get_local_size(0);
-  int    i = get_local_id(0);
-  int size = n/np;
-
-  if (n<=i+1) return;
-  for (LOOP1) if( k) p[k] = r[k] + beta * (p[k] - omega *v[k]);
-  if(!i) for (LOOP3) p[k] = r[k] + beta * (p[k] - omega *v[k]);
-  barrier(CLK_GLOBAL_MEM_FENCE);
+   _phase1(n,p,r,v,beta,omega);
 }
 
 
