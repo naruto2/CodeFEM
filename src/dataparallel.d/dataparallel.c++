@@ -941,3 +941,58 @@ double gp_phase5(int n, double *t, double *Aa, int *col_ind,
 
   return npa[0];
 }
+
+
+
+double gp_phase6(int n, double *x, double *s, double *r, double *t,
+		 double *phat, double *shat, double alpha, double omega)
+{
+  check_np(n);
+
+  static cl_kernel kernel;
+  cl_load(kernel,"gp_phase6");
+
+  static double *npa;
+  if (!npa) npa = (double*)malloc(np*sizeof(double));
+
+  static cl_mem mem_x;
+  static cl_mem mem_s;
+  static cl_mem mem_r;
+  static cl_mem mem_t;
+  static cl_mem mem_phat;
+  static cl_mem mem_shat;
+  static cl_mem mem_npa; 
+  
+  cl_mem_rw(n*sizeof(double), mem_x);
+  cl_mem_r(n*sizeof(double), mem_s);
+  cl_mem_w(n*sizeof(double), mem_r);
+  cl_mem_r(n*sizeof(double), mem_t);
+  cl_mem_r(n*sizeof(double), mem_phat);
+  cl_mem_r(n*sizeof(double), mem_shat);
+  cl_mem_w(np*sizeof(double), mem_npa);
+  
+  cl_send(n*sizeof(double), mem_x, x);
+  cl_send(n*sizeof(double), mem_s, s);
+  cl_send(n*sizeof(double), mem_t, t);
+  cl_send(n*sizeof(double), mem_phat, phat);
+  cl_send(n*sizeof(double), mem_shat, shat);
+
+  clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
+  clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_x);
+  clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_s);
+  clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&mem_r);
+  clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *)&mem_t);
+  clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *)&mem_phat);
+  clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *)&mem_shat);
+  clSetKernelArg(kernel, 7, sizeof(double), (void *)&alpha);
+  clSetKernelArg(kernel, 8, sizeof(double), (void *)&omega);
+  clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *)&mem_npa);
+    
+  cl_run(kernel);
+
+  cl_get(n*sizeof(double), mem_x, x);
+  cl_get(n*sizeof(double), mem_r, r);
+  cl_get(np*sizeof(double), mem_npa, npa);
+
+  return npa[0];
+}

@@ -34,8 +34,8 @@ void   gp_phase4(int n, double *s, double *phat, double alpha);
 double gp_phase5(int n, double *t, 
 	       double *Aa, int *col_ind, int *row_ptr,
 	       double *shat, double *s, int w);
-
-
+double gp_phase6(int n, double *x, double *s, double *r, double *t,
+	       double *phat, double *shat, double alpha, double omega);
 
 
 double cl_norm(int n, double *x);
@@ -245,7 +245,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
     omega = gp_phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
     
     rho_2 = rho_1;
-    if ((resid = phase6(n,x,s,r,t,phat,shat,alpha,omega)/normb) < tol) {
+    if ((resid = gp_phase6(n,x,s,r,t,phat,shat,alpha,omega)/normb) < tol) {
       tol = resid;
       max_iter = i;
       return 0;
