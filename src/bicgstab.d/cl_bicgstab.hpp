@@ -19,8 +19,9 @@
 //  
 //*****************************************************************
 double gp_norm(int n, double *x);
-double gp_dot(int n, double *y, double *x);
 void   gp_copy(int n, double *y, double *x);
+double gp_dot(int n, double *y, double *x);
+void   gp_presolve_pointjacobi(int n, double *x, double *dinv, double *d);
 double gp_phase0(int n, double *r, 
 		 double *Aa, int *col_ind, int *row_ptr,
 		 double *x, double *rtilde, double *b, int w);
@@ -69,9 +70,23 @@ static double norm(int n, double *x)
 }
 
 
+static double dot(int n, double *p, double *q)
+{
+  double tmp=0.0;
+  for (int k=1; k<n; k++ ) tmp += p[k]*q[k];
+  return tmp;
+}
+
+
 static void copy(int n, double *p, double *q)
 {
   for (int k=1;k<n;k++) p[k]=q[k];
+}
+
+
+static void presolve_pointjacobi(int n, double *x, double *dinv, double *d)
+{
+  for (int k=1; k<n; k++ ) x[k] = dinv[k]*d[k];
 }
 
 
@@ -81,16 +96,10 @@ static void presolve(int n, double *x, double *dinv, double *d)
     gp_copy(n,x,d);
   }
   else {
-    for (int k=1; k<n; k++ ) x[k] = dinv[k]*d[k];
+    gp_presolve_pointjacobi(n,x,dinv,d);
   }
 }
 
-static double dot(int n, double *p, double *q)
-{
-  double tmp=0.0;
-  for (int k=1; k<n; k++ ) tmp += p[k]*q[k];
-  return tmp;
-}
 
 static double phase0(int n, double *r, 
 		     double *Aa, int *col_ind, int *row_ptr,

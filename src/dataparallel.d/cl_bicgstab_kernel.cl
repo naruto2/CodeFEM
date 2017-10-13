@@ -79,6 +79,25 @@ __kernel void gp_copy(int n,__global double *y, __global double *x)
 }
 
 
+static void _presolve_pointjacobi(int n,__global double *x,
+	 	     __global double *dinv,   __global double *d)
+{
+  int   np = get_local_size(0);
+  int    i = get_local_id(0);
+  int size = n/np;
+
+  for (LOOP1) if( k) x[k] = dinv[k]*d[k];
+  if(!i) for (LOOP3) x[k] = dinv[k]*d[k];
+}
+
+
+__kernel void gp_presolve_pointjacobi(int n,__global double *x,
+	 	     __global double *dinv,   __global double *d)
+{
+	  _presolve_pointjacobi(n,x,dinv,d);
+}
+
+
 static double _phase0(int n, __global double *r,
 		   __global double *Aa, __global int *col_ind,
 		   __global int *row_ptr, __global double *x,

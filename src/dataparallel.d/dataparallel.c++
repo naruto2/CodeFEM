@@ -701,6 +701,34 @@ void gp_copy(int n, double *y, double *x)
 }
 
 
+void gp_presolve_pointjacobi(int n, double *x, double *dinv, double *d)
+{
+  check_np(n);
+  
+  static cl_kernel  kernel;
+  cl_load(kernel,"gp_presolve_pointjacobi");
+
+  static cl_mem mem_x;
+  static cl_mem mem_dinv;
+  static cl_mem mem_d;
+  cl_mem_w(n*sizeof(double), mem_x);
+  cl_mem_r(n*sizeof(double), mem_dinv);
+  cl_mem_r(n*sizeof(double), mem_d);
+
+  cl_send(n*sizeof(double), mem_dinv, dinv);
+  cl_send(n*sizeof(double), mem_d, d);
+
+  clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
+  clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_x);
+  clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_dinv);
+  clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&mem_d);
+
+  cl_run(kernel);
+          
+  cl_get(n*sizeof(double), mem_x, x);
+}
+
+
 double gp_phase0(int n, double *r, double *Aa, int *col_ind,
 		 int *row_ptr, double *x, double *rtilde,
 		 double *b, int w)
