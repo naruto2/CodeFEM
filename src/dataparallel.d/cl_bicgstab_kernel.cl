@@ -98,6 +98,25 @@ __kernel void gp_presolve_pointjacobi(int n,__global double *x,
 }
 
 
+static void _presolve(int n,__global double *x,
+	 	     __global double *dinv,   __global double *d)
+{
+	if ( dinv[1] == 0.0 ) {
+	   _copy(n,x,d);
+    	}
+	else {
+	   _presolve_pointjacobi(n,x,dinv,d);
+	}
+}
+
+
+__kernel void gp_presolve(int n,__global double *x,
+	 	     __global double *dinv,   __global double *d)
+{
+	  _presolve(n,x,dinv,d);
+}
+
+
 static double _phase0(int n, __global double *r,
 		   __global double *Aa, __global int *col_ind,
 		   __global int *row_ptr, __global double *x,

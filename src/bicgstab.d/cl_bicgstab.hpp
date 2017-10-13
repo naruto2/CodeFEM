@@ -22,6 +22,8 @@ double gp_norm(int n, double *x);
 void   gp_copy(int n, double *y, double *x);
 double gp_dot(int n, double *y, double *x);
 void   gp_presolve_pointjacobi(int n, double *x, double *dinv, double *d);
+void   gp_presolve(int n, double *x, double *dinv, double *d);
+
 double gp_phase0(int n, double *r, 
 		 double *Aa, int *col_ind, int *row_ptr,
 		 double *x, double *rtilde, double *b, int w);
@@ -93,10 +95,10 @@ static void presolve_pointjacobi(int n, double *x, double *dinv, double *d)
 static void presolve(int n, double *x, double *dinv, double *d)
 {
   if ( dinv[1] == 0.0 ) {
-    gp_copy(n,x,d);
+    copy(n,x,d);
   }
   else {
-    gp_presolve_pointjacobi(n,x,dinv,d);
+    presolve_pointjacobi(n,x,dinv,d);
   }
 }
 
@@ -235,7 +237,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
       beta = (rho_1/rho_2) * (alpha/omega);
       gp_phase1(n,p,r,v,beta,omega);
     }
-    presolve(n,phat,dinv,p);
+    gp_presolve(n,phat,dinv,p);
     alpha = rho_1/gp_phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde,w);
     
     if ((resid = gp_phase3(n,s,r,v,alpha)/normb) < tol) {
@@ -243,7 +245,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
       tol = resid;
       return 0;
     }
-    presolve(n,shat,dinv,s);
+    gp_presolve(n,shat,dinv,s);
 
     if (0) {
       double cpu_omega =   phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
