@@ -864,3 +864,30 @@ double gp_phase3(int n, double *s, double *r, double *v, double alpha)
 
   return npa[0];
 }
+
+
+void gp_phase4(int n, double *s, double *phat, double alpha)
+{
+  check_np(n);
+  
+  static cl_kernel kernel;
+  cl_load(kernel,"gp_phase4");
+
+  static cl_mem mem_s;
+  static cl_mem mem_phat;
+
+  cl_mem_rw(n*sizeof(double), mem_s);
+  cl_mem_r(n*sizeof(double), mem_phat);
+  
+  cl_send(n*sizeof(double), mem_s, s);
+  cl_send(n*sizeof(double), mem_phat, phat);
+  
+  clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
+  clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&mem_s);
+  clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_phat);
+  clSetKernelArg(kernel, 3, sizeof(double), (void *)&alpha);
+
+  cl_run(kernel);
+
+  cl_get(n*sizeof(double), mem_s, s);
+}
