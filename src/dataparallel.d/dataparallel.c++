@@ -4,6 +4,7 @@
 #include <CL/cl.h>
 
 #define MAX_SOURCE_SIZE (0x100000)
+#define NP 128
 
 static cl_context context = NULL;
 static cl_command_queue command_queue = NULL;
@@ -23,9 +24,9 @@ static int ret;
 static void check_np(int n)
 {
   if ( global_item_size[0] < 0 )
-    global_item_size[0] = 1024;
-  if ( 1024 < global_item_size[0])
-    global_item_size[0] = 1024;
+    global_item_size[0] = NP;
+  if ( NP < global_item_size[0])
+    global_item_size[0] = NP;
   if ( n<=global_item_size[0])
     np = global_item_size[0] = n-1;
 }
@@ -526,8 +527,8 @@ void cl_bicgstab_init(int argc, char **argv)
     
   /* Set parameters for data parallel processing (work item) */
 
-  global_item_size[0] = 1024; /* np Global number of work items */
-  local_item_size[0] = 1024;
+  global_item_size[0] = NP; /* np Global number of work items */
+  local_item_size[0] =  NP;
 
   if ( argc > 1 ) global_item_size[0] = atoi(argv[1]);    
   np = local_item_size[0] = global_item_size[0];

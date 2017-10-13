@@ -1,5 +1,6 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
+#define NP 128
 #define LOOP1 int k=i*size, end=(i+1)*size; k<end; k++
 #define LOOP2 int j=row_ptr[k]; j<row_ptr[k+1]; j++
 #define LOOP3 int k=np*size; k<n; k++
@@ -214,7 +215,7 @@ __kernel void cl_phase6(int n,__global double *x, __global double *s,
 
 __kernel void gp_norm(int n,__global double *x,__global double *result)
 {
-  __local double npa[1024];
+  __local double npa[NP];
   int   np = get_global_size(0);
   int    i = get_local_id(0);
   int size = n/np;
@@ -235,7 +236,7 @@ __kernel void gp_norm(int n,__global double *x,__global double *result)
 __kernel void gp_dot(int n,__global double *y, __global double *x,
 		     __global double *result)
 {
-  __local double npa[1024];	
+  __local double npa[NP];	
   int   np = get_global_size(0);
   int    i = get_local_id(0);
   int size = n/np;
