@@ -384,3 +384,40 @@ __kernel void gp_phase4(int n,__global double *x, __global double *phat,
   if(!i) for (LOOP3) x[k] = x[k] + alpha*phat[k];
   barrier(CLK_GLOBAL_MEM_FENCE);
 }
+
+
+__kernel void gp_phase5(int n,__global double *t,__global double *Aa,
+	 	 __global int *col_ind,__global int *row_ptr,
+		 __global double *shat,__global double *s,
+		 __global double *result,__global double *resuls)
+{
+  __local double npa[NP];
+  __local double npb[NP];	
+  int   np = get_local_size(0);
+  int    i = get_local_id(0);
+  int size = n/np;
+
+  npa[i] = 0.0;
+  npb[i] = 0.0;
+  for (LOOP1) if( k) {
+    t[k] = 0.0;
+    for (LOOP2) t[k] += Aa[j] * shat[col_ind[j]];
+    npa[i] += t[k]*s[k];
+    npb[i] += t[k]*t[k];
+  }
+  if(!i) for (LOOP3) {
+    t[k] = 0.0;
+    for (LOOP2) t[k] += Aa[j] * shat[col_ind[j]];
+    npa[i] += t[k]*s[k];
+    npb[i] += t[k]*t[k];
+  }
+  barrier(CLK_LOCAL_MEM_FENCE);
+  if (!i) {
+     	double tmpa = 0.0, tmpb = 0.0;
+	for (int k=0;k<np;k++) { tmpa += npa[k]; tmpb += npb[k]; }
+	result[0] = tmpa/tmpb;
+    }
+  barrier(CLK_LOCAL_MEM_FENCE);
+  barrier(CLK_GLOBAL_MEM_FENCE);
+}
+

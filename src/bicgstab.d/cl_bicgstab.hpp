@@ -31,6 +31,11 @@ double gp_phase2(int n, double *v,
 		 double *phat, double *rtilde,int w);
 double gp_phase3(int n, double *s, double *r, double *v, double alpha);
 void   gp_phase4(int n, double *s, double *phat, double alpha);
+double gp_phase5(int n, double *t, 
+	       double *Aa, int *col_ind, int *row_ptr,
+	       double *shat, double *s, int w);
+
+
 
 
 double cl_norm(int n, double *x);
@@ -230,7 +235,15 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
       return 0;
     }
     presolve(n,shat,dinv,s);
-    omega = phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
+
+    if (0) {
+      double cpu_omega =   phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
+      double cl_omega = cl_phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
+      double gp_omega = gp_phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
+      printf("omega: cpu=%f cl=%f gp=%f\n",cpu_omega,cl_omega,gp_omega);
+    }
+    omega = gp_phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
+    
     rho_2 = rho_1;
     if ((resid = phase6(n,x,s,r,t,phat,shat,alpha,omega)/normb) < tol) {
       tol = resid;
