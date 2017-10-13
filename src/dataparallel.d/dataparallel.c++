@@ -585,9 +585,9 @@ void cl_bicgstab_init(int argc, char **argv)
   if (ret) abort();
   ret = clGetDeviceInfo(device_id, CL_DEVICE_MAX_COMPUTE_UNITS,
 			sizeof(cl_uint), &compute_unit, NULL);
-  if ( 0 ) {
+  if ( 1 ) {
     printf("work_item_dim: %d ",work_item_dim);
-    printf("work_item_sizez: %d %d %d ",
+    printf("work_item_sizes: %d %d %d ",
 	   work_item_sizes[0],work_item_sizes[1],work_item_sizes[2]);
     printf("work_group_size: %d ",work_group_size);
     printf("compute_unit: %d\n",compute_unit);
