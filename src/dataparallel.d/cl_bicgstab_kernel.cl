@@ -217,7 +217,7 @@ __kernel void gp_phase3(int n,__global double *s, __global double *r,
 }
 
 
-__kernel void gp_phase4(int n,__global double *x, __global double *phat,
+static void _phase4(int n,__global double *x, __global double *phat,
 			double alpha)
 {
   int   np = get_local_size(0);
@@ -226,7 +226,13 @@ __kernel void gp_phase4(int n,__global double *x, __global double *phat,
 
   for (LOOP1) if( k) x[k] = x[k] + alpha*phat[k];
   if(!i) for (LOOP3) x[k] = x[k] + alpha*phat[k];
-  barrier(CLK_GLOBAL_MEM_FENCE);
+}
+
+
+__kernel void gp_phase4(int n,__global double *x, __global double *phat,
+			double alpha)
+{
+     _phase4(n,x,phat,alpha);
 }
 
 
