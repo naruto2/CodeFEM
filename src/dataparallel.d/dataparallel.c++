@@ -544,7 +544,7 @@ void gp_phase4(int n, double *s, double *phat, double alpha)
   check_np(n);
   
   static cl_kernel kernel;
-  cl_load(kernel,"gp_phase4");
+  cl_load(kernel,"_phase4");
 
   static cl_mem mem_s;
   static cl_mem mem_phat;
@@ -572,13 +572,13 @@ double gp_phase5(int n, double *t, double *Aa, int *col_ind,
   check_np(n);
 
   static cl_kernel kernel;
-  cl_load(kernel,"gp_phase5");
+  cl_load(kernel,"_phase5");
 
   static double *npa;
   static double *npb;
 
-  if (!npa) npa = (double*)malloc(1*sizeof(double));
-  if (!npb) npb = (double*)malloc(1*sizeof(double));
+  if (!npa) npa = (double*)malloc(np*sizeof(double));
+  if (!npb) npb = (double*)malloc(np*sizeof(double));
   
   static cl_mem mem_t;
   static cl_mem mem_shat;
@@ -589,8 +589,8 @@ double gp_phase5(int n, double *t, double *Aa, int *col_ind,
   cl_mem_rw(n*sizeof(double), mem_t);
   cl_mem_r(n*sizeof(double), mem_shat);
   cl_mem_r(n*sizeof(double), mem_s);
-  cl_mem_w(1*sizeof(double), mem_npa);
-  cl_mem_w(1*sizeof(double), mem_npb);
+  cl_mem_w(np*sizeof(double), mem_npa);
+  cl_mem_w(np*sizeof(double), mem_npb);
   
   cl_send(n*sizeof(double), mem_t, t);
   cl_send(n*sizeof(double), mem_shat, shat);
@@ -609,10 +609,10 @@ double gp_phase5(int n, double *t, double *Aa, int *col_ind,
   cl_run(kernel);
 
   cl_get(n*sizeof(double), mem_t, t);
-  cl_get(1*sizeof(double), mem_npa, npa);
-  cl_get(1*sizeof(double), mem_npb, npb);
-
-  return npa[0];
+  cl_get(np*sizeof(double), mem_npa, npa);
+  cl_get(np*sizeof(double), mem_npb, npb);
+  for (int k=1; k<np; k++){ npa[0] += npa[k]; npb[0] += npb[k]; }
+  return npa[0]/npb[0];
 }
 
 
@@ -623,10 +623,10 @@ double gp_phase6(int n, double *x, double *s, double *r, double *t,
   check_np(n);
 
   static cl_kernel kernel;
-  cl_load(kernel,"gp_phase6");
+  cl_load(kernel,"_phase6");
 
   static double *npa;
-  if (!npa) npa = (double*)malloc(1*sizeof(double));
+  if (!npa) npa = (double*)malloc(np*sizeof(double));
 
   static cl_mem mem_x;
   static cl_mem mem_s;
@@ -642,7 +642,7 @@ double gp_phase6(int n, double *x, double *s, double *r, double *t,
   cl_mem_r(n*sizeof(double), mem_t);
   cl_mem_r(n*sizeof(double), mem_phat);
   cl_mem_r(n*sizeof(double), mem_shat);
-  cl_mem_w(1*sizeof(double), mem_npa);
+  cl_mem_w(np*sizeof(double), mem_npa);
   
   cl_send(n*sizeof(double), mem_x, x);
   cl_send(n*sizeof(double), mem_s, s);
@@ -665,9 +665,9 @@ double gp_phase6(int n, double *x, double *s, double *r, double *t,
 
   cl_get(n*sizeof(double), mem_x, x);
   cl_get(n*sizeof(double), mem_r, r);
-  cl_get(1*sizeof(double), mem_npa, npa);
-
-  return npa[0];
+  cl_get(np*sizeof(double), mem_npa, npa);
+  for (int k=1; k<np; k++) npa[0] += npa[k];
+  return sqrt(npa[0]);
 }
 
 

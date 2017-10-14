@@ -158,7 +158,7 @@ __kernel void _phase3(int n,__global double *s, __global double *r,
 }
 
 
-static void _phase4(int n,__global double *x, __global double *phat,
+__kernel void _phase4(int n,__global double *x, __global double *phat,
 			double alpha)
 {
   int   np = get_local_size(0);
@@ -170,19 +170,11 @@ static void _phase4(int n,__global double *x, __global double *phat,
 }
 
 
-__kernel void gp_phase4(int n,__global double *x, __global double *phat,
-			double alpha)
-{
-     _phase4(n,x,phat,alpha);
-}
-
-
-static double _phase5(int n,__global double *t,__global double *Aa,
+__kernel void _phase5(int n,__global double *t,__global double *Aa,
 	 	 __global int *col_ind,__global int *row_ptr,
-		 __global double *shat,__global double *s)
+		      __global double *shat,__global double *s,
+		      __global double *npa, __global double *npb)
 {
-  __local double npa[NP];
-  __local double npb[NP];	
   int   np = get_local_size(0);
   int    i = get_local_id(0);
   int size = n/np;
@@ -201,32 +193,14 @@ static double _phase5(int n,__global double *t,__global double *Aa,
     npa[i] += t[k]*s[k];
     npb[i] += t[k]*t[k];
   }
-  barrier(CLK_LOCAL_MEM_FENCE);
-  if (!i) {
-     	double tmpa = 0.0, tmpb = 0.0;
-	for (int k=0;k<np;k++) { tmpa += npa[k]; tmpb += npb[k]; }
-	npa[0] = tmpa/tmpb;
-    }
-  return npa[0];
 }
 
 
-__kernel void gp_phase5(int n,__global double *t,__global double *Aa,
-	 	 __global int *col_ind,__global int *row_ptr,
-		 __global double *shat,__global double *s,
-		 __global double *result,__global double *resuls)
-{
-    double tmpa = _phase5(n,t,Aa,col_ind,row_ptr,shat,s);
-    if (!get_local_id(0) ) result[0] = tmpa;
-}
-
-
-static double _phase6(int n,__global double *x, __global double *s,
+__kernel void _phase6(int n,__global double *x, __global double *s,
 			__global double *r, __global double *t,
 			__global double *phat, __global double *shat,
-			double alpha, double omega)
+		      double alpha, double omega, __global double *npa)
 {
-  __local double npa[NP];
   int   np = get_local_size(0);
   int    i = get_local_id(0); 
   int size = n/np;
@@ -242,21 +216,4 @@ static double _phase6(int n,__global double *x, __global double *s,
     r[k] = s[k] - omega * t[k];
     npa[i] += r[k]*r[k];
   }
-  barrier(CLK_LOCAL_MEM_FENCE);
-  if (!i) {
-        double tmpa = 0.0;
-	for (int k=0;k<np;k++) tmpa += npa[k]; 
-	npa[0] = sqrt(tmpa);
-    }
-  return npa[0];
-}
-
-
-__kernel void gp_phase6(int n,__global double *x, __global double *s,
-			__global double *r, __global double *t,
-			__global double *phat, __global double *shat,
-			double alpha, double omega, __global double *result)
-{
-    double tmpa = _phase6(n,x,s,r,t,phat,shat,alpha,omega);
-    if (!get_local_id(0) ) result[0] = tmpa;
 }
