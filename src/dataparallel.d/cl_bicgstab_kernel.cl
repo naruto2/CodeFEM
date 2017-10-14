@@ -417,7 +417,7 @@ __kernel void gp_bicgstab(int n,int w,__global double*Aa, __global int*col_ind,
   __global double *r, __global double *p, __global double *phat,
   __global double *s, __global double *shat, __global double *t,
   __global double *v, __global double *rtilde, __global double *dinv,
-  int max_iter, double tol, __global int *result)
+  int max_iter, double tol, __global double *result)
 {
   result[0] = _bicgstab(n, w, Aa, col_ind,
   	      row_ptr, x, b,

@@ -1052,3 +1052,74 @@ double gp_phase6(int n, double *x, double *s, double *r, double *t,
 
   return npa[0];
 }
+
+
+double  gp_bicgstab(int n,int w, double*Aa,  int*col_ind,
+		    int *row_ptr,  double *x,  double *b,
+		    double *r,  double *p,  double *phat,
+		    double *s,  double *shat,  double *t,
+		    double *v,  double *rtilde,  double *dinv,
+		    int max_iter, double tol)
+{
+  static cl_kernel kernel;
+  cl_load(kernel,"gp_bicgstab");
+
+  static double *result;
+  if (!result) result = (double*)malloc(3*sizeof(double));
+
+  static cl_mem mem_x;
+  static cl_mem mem_b;
+  static cl_mem mem_r;
+  static cl_mem mem_p;
+  static cl_mem mem_phat;
+  static cl_mem mem_s;
+  static cl_mem mem_shat;
+  static cl_mem mem_t;
+  static cl_mem mem_v;
+  static cl_mem mem_rtilde;
+  static cl_mem mem_dinv;
+  static cl_mem mem_result;
+
+  cl_mem_w(n*sizeof(double), mem_x);
+  cl_mem_r(n*sizeof(double), mem_b);
+  cl_mem_r(n*sizeof(double), mem_r);
+  cl_mem_r(n*sizeof(double), mem_p);
+  cl_mem_r(n*sizeof(double), mem_phat);
+  cl_mem_r(n*sizeof(double), mem_s);
+  cl_mem_r(n*sizeof(double), mem_shat);
+  cl_mem_r(n*sizeof(double), mem_t);
+  cl_mem_r(n*sizeof(double), mem_v);
+  cl_mem_r(n*sizeof(double), mem_rtilde);
+  cl_mem_r(n*sizeof(double), mem_dinv);
+  cl_mem_w(3*sizeof(double), mem_result);
+
+  cl_send(n*sizeof(double), mem_b, b);
+  cl_send(n*sizeof(double), mem_dinv, dinv);
+
+  clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
+  clSetKernelArg(kernel, 1, sizeof(int), (void *)&w);
+  clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_Aa);
+  clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&mem_col_ind);
+  clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *)&mem_row_ptr);
+  clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *)&mem_x);
+  clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *)&mem_b);
+  clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&mem_r);
+  clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *)&mem_p);
+  clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *)&mem_phat);
+  clSetKernelArg(kernel,10, sizeof(cl_mem), (void *)&mem_s);
+  clSetKernelArg(kernel,11, sizeof(cl_mem), (void *)&mem_shat);
+  clSetKernelArg(kernel,12, sizeof(cl_mem), (void *)&mem_t);
+  clSetKernelArg(kernel,13, sizeof(cl_mem), (void *)&mem_v);
+  clSetKernelArg(kernel,14, sizeof(cl_mem), (void *)&mem_rtilde);
+  clSetKernelArg(kernel,15, sizeof(cl_mem), (void *)&mem_dinv);
+  clSetKernelArg(kernel,16, sizeof(int), (void *)&max_iter);
+  clSetKernelArg(kernel,17, sizeof(double), (void *)&tol);
+  clSetKernelArg(kernel,18, sizeof(cl_mem), (void *)&result);
+
+  cl_run(kernel);
+
+  cl_get(n*sizeof(double), mem_x, x);
+  cl_get(3*sizeof(double), mem_result, result);
+
+  return result[0];
+}
