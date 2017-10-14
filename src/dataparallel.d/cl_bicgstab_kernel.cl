@@ -355,3 +355,74 @@ __kernel void gp_phase6(int n,__global double *x, __global double *s,
 {
 	result[0] = _phase6(n,x,s,r,t,phat,shat,alpha,omega);
 }
+
+
+static int _bicgstab(int n, int w, __global double *Aa, __global int *col_ind,
+  __global int *row_ptr, __global double *x, __global double *b,
+  __global double *r, __global double *p, __global double *phat,
+  __global double *s, __global double *shat, __global double *t,
+  __global double *v, __global double *rtilde, __global double *dinv,
+  int max_iter, double tol)
+{
+  double resid,rho_1,rho_2,alpha,beta,omega, normb = _norm(n,b);
+  if (normb == 0.0) normb = 1;
+    
+  if ((resid = _phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b)/normb) <= tol) {
+    tol = resid;
+    max_iter = 0;
+    return 0;
+  }
+  for (int i = 1; i <= max_iter; i++) {
+    rho_1 = _dot(n,rtilde,r);
+    if (rho_1 == 0) {
+          tol = _norm(n,r)/normb;
+	  return 2;
+     }
+    if (i == 1)
+      _copy(n,p,r);
+    else {
+      beta = (rho_1/rho_2) * (alpha/omega);
+      _phase1(n,p,r,v,beta,omega);
+    }
+    _presolve(n,phat,dinv,p);
+    alpha = rho_1/_phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde);
+
+    if ((resid = _phase3(n,s,r,v,alpha)/normb) < tol) {
+      _phase4(n,x,phat,alpha);
+      tol = resid;
+      return 0;
+    }
+    _presolve(n,shat,dinv,s);
+
+    omega = _phase5(n,t,Aa,col_ind,row_ptr,shat,s);
+    
+    rho_2 = rho_1;
+    if ((resid = _phase6(n,x,s,r,t,phat,shat,alpha,omega)/normb) < tol) {
+      tol = resid;
+      max_iter = i;
+      return 0;
+    }	
+    if (omega == 0) {
+      tol = _norm(n,r)/normb;
+      return 3;
+    }
+  }
+  tol = resid;
+  return 1;
+}
+
+
+__kernel void gp_bicgstab(int n,int w,__global double*Aa, __global int*col_ind,
+  __global int *row_ptr, __global double *x, __global double *b,
+  __global double *r, __global double *p, __global double *phat,
+  __global double *s, __global double *shat, __global double *t,
+  __global double *v, __global double *rtilde, __global double *dinv,
+  int max_iter, double tol, __global int *result)
+{
+  result[0] = _bicgstab(n, w, Aa, col_ind,
+  	      row_ptr, x, b,
+	      r, p, phat,
+	      s, shat, t,
+	      v, rtilde, dinv,
+	      max_iter,  tol);
+}
