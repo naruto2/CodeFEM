@@ -65,14 +65,7 @@ static void _presolve_pointjacobi(int n,__global double *x,
 }
 
 
-__kernel void gp_presolve_pointjacobi(int n,__global double *x,
-	 	     __global double *dinv,   __global double *d)
-{
-	  _presolve_pointjacobi(n,x,dinv,d);
-}
-
-
-static void _presolve(int n,__global double *x,
+__kernel void _presolve(int n,__global double *x,
 	 	     __global double *dinv,   __global double *d)
 {
 	if ( dinv[1] == 0.0 ) {
@@ -81,13 +74,6 @@ static void _presolve(int n,__global double *x,
 	else {
 	   _presolve_pointjacobi(n,x,dinv,d);
 	}
-}
-
-
-__kernel void gp_presolve(int n,__global double *x,
-	 	     __global double *dinv,   __global double *d)
-{
-	  _presolve(n,x,dinv,d);
 }
 
 

@@ -319,7 +319,7 @@ void gp_presolve_pointjacobi(int n, double *x, double *dinv, double *d)
   check_np(n);
   
   static cl_kernel  kernel;
-  cl_load(kernel,"gp_presolve_pointjacobi");
+  cl_load(kernel,"_presolve_pointjacobi");
 
   static cl_mem mem_x;
   static cl_mem mem_dinv;
@@ -348,7 +348,7 @@ void gp_presolve(int n, double *x, double *dinv, double *d)
   check_np(n);
   
   static cl_kernel  kernel;
-  cl_load(kernel,"gp_presolve");
+  cl_load(kernel,"_presolve");
 
   static cl_mem mem_x;
   static cl_mem mem_dinv;
