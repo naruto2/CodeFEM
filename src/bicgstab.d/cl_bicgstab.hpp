@@ -39,8 +39,13 @@ double gp_phase5(int n, double *t,
 	       double *shat, double *s, int w);
 double gp_phase6(int n, double *x, double *s, double *r, double *t,
 	       double *phat, double *shat, double alpha, double omega);
-
-
+double  gp_bicgstab(int n,int w, double*Aa,  int*col_ind,
+		    int *row_ptr,  double *x,  double *b,
+		    double *r,  double *p,  double *phat,
+		    double *s,  double *shat,  double *t,
+		    double *v,  double *rtilde,  double *dinv,
+		    int max_iter, double tol);
+  
 double cl_norm(int n, double *x);
 void   cl_copy(int n, double *y, double *x);
 void   cl_init(int argc, char **argv);
@@ -217,6 +222,14 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 	ii++;
       }
   cl_send_A(n,w,Aa,col_ind,row_ptr);
+
+  return gp_bicgstab(n, w, Aa, col_ind,
+		   row_ptr, x, b,
+		   r, p, phat,
+		   s, shat, t,
+		   v, rtilde, dinv,
+		   max_iter,  tol);
+
   double resid,rho_1,rho_2,alpha,beta,omega, normb = gp_norm(n,b);
   if (normb == 0.0) normb = 1;
 
