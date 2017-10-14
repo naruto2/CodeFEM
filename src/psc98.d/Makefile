@@ -16,12 +16,12 @@ obj: ;
 	rm *.o
 
 time: ;
-	export PSC98=0; time ./cl_a.out 64
-	export PSC98=1; time ./cl_a.out 64
-	export PSC98=2; time ./cl_a.out 64
-	export PSC98=3; time ./cl_a.out 64
-	export PSC98=4; time ./cl_a.out 64
-	export PSC98=5; time ./cl_a.out 64
+	export PSC98=0; time ./cl_a.out 128
+	export PSC98=1; time ./cl_a.out 128
+	export PSC98=2; time ./cl_a.out 128
+	export PSC98=3; time ./cl_a.out 128
+	export PSC98=4; time ./cl_a.out 128
+	export PSC98=5; time ./cl_a.out 128
 
 lib/libbicgstab.a: ;
 	(cd ../bicgstab.d; make obj)

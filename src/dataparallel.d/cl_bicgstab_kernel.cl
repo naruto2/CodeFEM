@@ -24,14 +24,14 @@ static double _norm(int n,__global double *x)
 	for (int k=0;k<np;k++) tmpa += npa[k]; 
  	npa[0] = sqrt(tmpa);
    }
-  barrier(CLK_LOCAL_MEM_FENCE);
   return  npa[0];
 }
 
 
 __kernel void gp_norm(int n,__global double *x,__global double *result)
 {
-  result[0] = _norm(n,x);
+  double tmpa = _norm(n,x);
+  if (!get_local_id(0)) result[0] = tmpa;
 }
 
 
@@ -52,7 +52,6 @@ static double  _dot(int n,__global double *y, __global double *x)
 	for (int k=0;k<np;k++) tmpa += npa[k]; 
         npa[0] = tmpa;
     }
-  barrier(CLK_LOCAL_MEM_FENCE);
   return npa[0];  
 }
 
@@ -60,7 +59,8 @@ static double  _dot(int n,__global double *y, __global double *x)
 __kernel void gp_dot(int n,__global double *y, __global double *x,
 		     __global double *result)
 {
-    result[0] = _dot(n,y,x);
+  double tmpa = _dot(n,y,x);
+  if (!get_local_id(0) ) result[0] = tmpa;
 }
 
 
@@ -72,7 +72,6 @@ static void _copy(int n,__global double *y, __global double *x)
 
   for (LOOP1) if( k) y[k] = x[k];
   if(!i) for (LOOP3) y[k] = x[k];
-  barrier(CLK_GLOBAL_MEM_FENCE);
 }
 
 
@@ -91,7 +90,6 @@ static void _presolve_pointjacobi(int n,__global double *x,
 
   for (LOOP1) if( k) x[k] = dinv[k]*d[k];
   if(!i) for (LOOP3) x[k] = dinv[k]*d[k];
-  barrier(CLK_GLOBAL_MEM_FENCE);
 }
 
 
@@ -151,8 +149,6 @@ static double _phase0(int n, __global double *r,
 	for (int k=0;k<np;k++) tmpa += npa[k]; 
 	npa[0] = sqrt(tmpa);	
       }
-  barrier(CLK_LOCAL_MEM_FENCE);
-  barrier(CLK_GLOBAL_MEM_FENCE);
   return npa[0];
 }
 
@@ -162,7 +158,8 @@ __kernel void gp_phase0(int n, __global double *r,
 		   __global double *rtilde, __global double *b,
 		   __global double *result)
 {
-	result[0] = _phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b);
+	double tmpa = _phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b);
+	if (!get_local_id(0) ) result[0] = tmpa;
 }
 
 
@@ -213,8 +210,6 @@ static double _phase2(int n, __global double *v,
 	for (int k=0;k<np;k++) tmpa += npa[k]; 
         npa[0] = tmpa;
     }
-  barrier(CLK_LOCAL_MEM_FENCE);
-  barrier(CLK_GLOBAL_MEM_FENCE);
   return npa[0];
 }
 
@@ -224,7 +219,9 @@ __kernel void gp_phase2(int n, __global double *v,
 			__global int *row_ptr, __global	double *phat,
 			__global double *rtilde, __global double *result)
 {
-  result[0] =  _phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde);
+
+  double tmpa =  _phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde);
+  if (!get_local_id(0) ) result[0] = tmpa;
 }
 
 
@@ -252,8 +249,6 @@ static double _phase3(int n,__global double *s, __global double *r,
 	for (int k=0;k<np;k++) tmpa += npa[k]; 
 	npa[0] = sqrt(tmpa);
     }
-  barrier(CLK_LOCAL_MEM_FENCE);
-  barrier(CLK_GLOBAL_MEM_FENCE);
   return npa[0];
 }
 
@@ -261,7 +256,8 @@ static double _phase3(int n,__global double *s, __global double *r,
 __kernel void gp_phase3(int n,__global double *s, __global double *r,
 		__global double *v, double alpha, __global double *result)
 {
-	result[0] = _phase3(n,s,r,v,alpha);
+	double tmpa = _phase3(n,s,r,v,alpha);
+	if ( !get_local_id(0) ) result[0] = tmpa;
 }
 
 
@@ -314,8 +310,6 @@ static double _phase5(int n,__global double *t,__global double *Aa,
 	for (int k=0;k<np;k++) { tmpa += npa[k]; tmpb += npb[k]; }
 	npa[0] = tmpa/tmpb;
     }
-  barrier(CLK_LOCAL_MEM_FENCE);
-  barrier(CLK_GLOBAL_MEM_FENCE);
   return npa[0];
 }
 
@@ -325,7 +319,8 @@ __kernel void gp_phase5(int n,__global double *t,__global double *Aa,
 		 __global double *shat,__global double *s,
 		 __global double *result,__global double *resuls)
 {
-	result[0] = _phase5(n,t,Aa,col_ind,row_ptr,shat,s);
+    double tmpa = _phase5(n,t,Aa,col_ind,row_ptr,shat,s);
+    if (!get_local_id(0) ) result[0] = tmpa;
 }
 
 
@@ -356,8 +351,6 @@ static double _phase6(int n,__global double *x, __global double *s,
 	for (int k=0;k<np;k++) tmpa += npa[k]; 
 	npa[0] = sqrt(tmpa);
     }
-  barrier(CLK_LOCAL_MEM_FENCE);
-  barrier(CLK_GLOBAL_MEM_FENCE);
   return npa[0];
 }
 
@@ -367,7 +360,8 @@ __kernel void gp_phase6(int n,__global double *x, __global double *s,
 			__global double *phat, __global double *shat,
 			double alpha, double omega, __global double *result)
 {
-	result[0] = _phase6(n,x,s,r,t,phat,shat,alpha,omega);
+    double tmpa = _phase6(n,x,s,r,t,phat,shat,alpha,omega);
+    if (!get_local_id(0) ) result[0] = tmpa;
 }
 
 

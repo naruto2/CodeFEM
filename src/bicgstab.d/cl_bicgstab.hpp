@@ -45,28 +45,7 @@ double  gp_bicgstab(int n,int w, double*Aa,  int*col_ind,
 		    double *s,  double *shat,  double *t,
 		    double *v,  double *rtilde,  double *dinv,
 		    int max_iter, double tol);
-  
-double cl_norm(int n, double *x);
-void   cl_copy(int n, double *y, double *x);
-void   cl_init(int argc, char **argv);
-double cl_dot(int n, double *y, double *x);
-void cl_matrixvector(int n, double *r, double *Aa, int *col_ind,
-		     int *row_ptr, double *b, int w);
-double cl_phase0(int n, double *r, 
-		 double *Aa, int *col_ind, int *row_ptr,
-		 double *x, double *rtilde, double *b, int w);
-void cl_phase1(int n, double *p, double *r, double *v,
-	       double beta, double omega);
-double cl_phase2(int n, double *v,
-		 double *Aa, int *col_ind, int *row_ptr,
-		 double *phat, double *rtilde,int w);
-double cl_phase3(int n, double *s, double *r, double *v, double alpha);
-void cl_phase4(int n, double *s, double *phat, double alpha);
-double  cl_phase5(int n, double *t, 
-	       double *Aa, int *col_ind, int *row_ptr,
-	       double *shat, double *s, int w);
-double cl_phase6(int n, double *x, double *s, double *r, double *t,
-	       double *phat, double *shat, double alpha, double omega);
+
 int cl_send_A(int n,int w, double *Aa, int *col_ind, int *row_ptr);
 
 static double norm(int n, double *x)
@@ -223,7 +202,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 	ii++;
       }
   cl_send_A(n,w,Aa,col_ind,row_ptr);
-  if ( np != 1 )
+  if ( 0 )
     return gp_bicgstab(n, w, Aa, col_ind,
 		       row_ptr, x, b,
 		       r, p, phat,
@@ -233,16 +212,16 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 
   double resid,rho_1,rho_2,alpha,beta,omega, normb = gp_norm(n,b);
   if (normb == 0.0) normb = 1;
-  printf("normb = %f\n",normb);
+
   if ((resid = gp_phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b,w)/normb) <= tol) {
     tol = resid;
     max_iter = 0;
     return 0;
   }
-  printf("resid = %f\n",resid);
+
   for (int i = 1; i <=max_iter; i++) {
     rho_1 = gp_dot(n,rtilde,r);
-    printf("rho_1 = %f\n",rho_1);
+
     if (rho_1 == 0) {
       tol = gp_norm(n,r)/normb;
       return 2;
@@ -255,27 +234,27 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
     }
     gp_presolve(n,phat,dinv,p);
     alpha = rho_1/gp_phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde,w);
-    printf("alpha = %f\n",alpha);
+
     if ((resid = gp_phase3(n,s,r,v,alpha)/normb) < tol) {
       gp_phase4(n,x,phat,alpha);
       tol = resid;
       return 0;
     }
-    printf("normb = %f\n",normb);
-    printf("resid = %f\n",resid);
+
+
     gp_presolve(n,shat,dinv,s);
 
     omega = gp_phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
-    printf("omega = %f\n",omega);
+
     rho_2 = rho_1;
-    printf("rho_2 = %f\n",rho_2);
+
     if ((resid = gp_phase6(n,x,s,r,t,phat,shat,alpha,omega)/normb) < tol) {
       tol = resid;
       max_iter = i;
       return 0;
     }
-    printf("resid = %f\n",resid);
-    printf("normb = %f\n",normb);
+
+
     if (omega == 0) {
       tol = gp_norm(n,r)/normb;
       return 3;
