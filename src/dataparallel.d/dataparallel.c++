@@ -262,17 +262,17 @@ double gp_dot(int n, double *y, double *x)
   check_np(n);
   
   static cl_kernel kernel;
-  cl_load(kernel,"gp_dot");
+  cl_load(kernel,"_dot");
 
   static double *npa;
-  if (!npa) npa = (double*)malloc(1*sizeof(double));
+  if (!npa) npa = (double*)malloc(np*sizeof(double));
 
   static cl_mem mem_y;
   static cl_mem mem_x;
   static cl_mem mem_npa;
   cl_mem_r(n*sizeof(double), mem_y);
   cl_mem_r(n*sizeof(double), mem_x);
-  cl_mem_w(1*sizeof(double), mem_npa);
+  cl_mem_w(np*sizeof(double), mem_npa);
   
   cl_send(n*sizeof(double), mem_y, y);
   cl_send(n*sizeof(double), mem_x, x);
@@ -284,8 +284,8 @@ double gp_dot(int n, double *y, double *x)
 
   cl_run(kernel);
 
-  cl_get(1*sizeof(double), mem_npa, npa);            
-    
+  cl_get(np*sizeof(double), mem_npa, npa);            
+  for ( int k=1; k<np; k++ ) npa[0] += npa[k];
   return npa[0];
 }
 

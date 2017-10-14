@@ -29,32 +29,16 @@ __kernel void _norm(int n,__global double *x,__global double *npa)
 }
 
 
-static double  _dot(int n,__global double *y, __global double *x)
+__kernel void _dot(int n,__global double *y, __global double *x,
+       	       __global double *npa)
 {
-  __local double npa[NP];	
   int   np = get_local_size(0);
   int    i = get_local_id(0);
   int size = n/np;
-  double tmpa;
 
   npa[i] = 0.0;
   for (LOOP1) if( k) npa[i] += y[k]*x[k];
   if(!i) for (LOOP3) npa[i] += y[k]*x[k];  
-  barrier(CLK_LOCAL_MEM_FENCE);
-  if (!i) {
-        tmpa = 0.0;
-	for (int k=0;k<np;k++) tmpa += npa[k]; 
-        npa[0] = tmpa;
-    }
-  return npa[0];  
-}
-
-
-__kernel void gp_dot(int n,__global double *y, __global double *x,
-		     __global double *result)
-{
-  double tmpa = _dot(n,y,x);
-  if (!get_local_id(0) ) result[0] = tmpa;
 }
 
 
