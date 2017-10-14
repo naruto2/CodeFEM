@@ -77,12 +77,12 @@ __kernel void _presolve(int n,__global double *x,
 }
 
 
-static double _phase0(int n, __global double *r,
+__kernel void _phase0(int n, __global double *r,
 		   __global double *Aa, __global int *col_ind,
 		   __global int *row_ptr, __global double *x,
-		   __global double *rtilde, __global double *b)
+		      __global double *rtilde, __global double *b,
+		      __global double *npa)
 {
-  __local double npa[NP];	
   int   np = get_local_size(0);
   int    i = get_local_id(0);
   int size = n/np;
@@ -101,23 +101,6 @@ static double _phase0(int n, __global double *r,
     rtilde[k] = r[k] = b[k] - r[k];
     npa[i] += r[k]*r[k];
   }
-  barrier(CLK_LOCAL_MEM_FENCE);
-  if (!i) {
-        tmpa = 0.0;
-	for (int k=0;k<np;k++) tmpa += npa[k]; 
-	npa[0] = sqrt(tmpa);	
-      }
-  return npa[0];
-}
-
-__kernel void gp_phase0(int n, __global double *r,
-		   __global double *Aa, __global int *col_ind,
-		   __global int *row_ptr, __global double *x,
-		   __global double *rtilde, __global double *b,
-		   __global double *result)
-{
-	double tmpa = _phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b);
-	if (!get_local_id(0) ) result[0] = tmpa;
 }
 
 
