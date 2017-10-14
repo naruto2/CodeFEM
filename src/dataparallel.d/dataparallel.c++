@@ -11,7 +11,7 @@ static cl_command_queue command_queue = NULL;
 static cl_uint work_dim = 1;
 static size_t global_item_size[3];
 static size_t local_item_size[3];
-static size_t np;
+size_t np;
 static cl_program program = NULL;
 static char *kernel_src_str;
 static int ret;
@@ -620,7 +620,7 @@ void cl_bicgstab_init(int argc, char **argv)
     printf("compute_unit: %d\n",compute_unit);
     printf("local_mem_size: %d\n",local_mem_size);
   }
-  if ( 1 ) {
+  if ( 0 ) {
     fprintf(stderr,"CL_DEVICE_MAX_READ_IMAGE_ARGS=%d\n",
 	    CL_DEVICE_MAX_READ_IMAGE_ARGS);
     fprintf(stderr,"CL_DEVICE_MAX_WRITE_IMAGE_ARGS=%d\n",
@@ -1178,6 +1178,8 @@ double  gp_bicgstab(int n,int w, double*Aa,  int*col_ind,
 
   cl_get(n*sizeof(double), mem_x, x);
   cl_get(3*sizeof(double), mem_result, result);
-
+  printf("result[0]: ret = %f\n",result[0]);
+  printf("result[1]: max_iter = %f\n",result[1]);
+  printf("result[2]: tol = %f\n",result[2]);
   return result[0];
 }

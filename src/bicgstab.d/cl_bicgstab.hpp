@@ -183,7 +183,8 @@ static double phase6(int n, double *x, double *s, double *r, double *t,
   }
   return norm(n,r);
 }
-    
+
+extern size_t np;
 
 int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 		     int &max_iter, double &tol, double *dinv)
@@ -222,24 +223,26 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 	ii++;
       }
   cl_send_A(n,w,Aa,col_ind,row_ptr);
-
-  return gp_bicgstab(n, w, Aa, col_ind,
-		   row_ptr, x, b,
-		   r, p, phat,
-		   s, shat, t,
-		   v, rtilde, dinv,
-		   max_iter,  tol);
+  if ( np != 1 )
+    return gp_bicgstab(n, w, Aa, col_ind,
+		       row_ptr, x, b,
+		       r, p, phat,
+		       s, shat, t,
+		       v, rtilde, dinv,
+		       max_iter,  tol);
 
   double resid,rho_1,rho_2,alpha,beta,omega, normb = gp_norm(n,b);
   if (normb == 0.0) normb = 1;
-
+  printf("normb = %f\n",normb);
   if ((resid = gp_phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b,w)/normb) <= tol) {
     tol = resid;
     max_iter = 0;
     return 0;
   }
-  for (int i = 1; i <= max_iter; i++) {
+  printf("resid = %f\n",resid);
+  for (int i = 1; i <=max_iter; i++) {
     rho_1 = gp_dot(n,rtilde,r);
+    printf("rho_1 = %f\n",rho_1);
     if (rho_1 == 0) {
       tol = gp_norm(n,r)/normb;
       return 2;
@@ -252,28 +255,27 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
     }
     gp_presolve(n,phat,dinv,p);
     alpha = rho_1/gp_phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde,w);
-    
+    printf("alpha = %f\n",alpha);
     if ((resid = gp_phase3(n,s,r,v,alpha)/normb) < tol) {
       gp_phase4(n,x,phat,alpha);
       tol = resid;
       return 0;
     }
+    printf("normb = %f\n",normb);
+    printf("resid = %f\n",resid);
     gp_presolve(n,shat,dinv,s);
 
-    if (0) {
-      double cpu_omega =   phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
-      double cl_omega = cl_phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
-      double gp_omega = gp_phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
-      printf("omega: cpu=%f cl=%f gp=%f\n",cpu_omega,cl_omega,gp_omega);
-    }
     omega = gp_phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
-    
+    printf("omega = %f\n",omega);
     rho_2 = rho_1;
+    printf("rho_2 = %f\n",rho_2);
     if ((resid = gp_phase6(n,x,s,r,t,phat,shat,alpha,omega)/normb) < tol) {
       tol = resid;
       max_iter = i;
       return 0;
     }
+    printf("resid = %f\n",resid);
+    printf("normb = %f\n",normb);
     if (omega == 0) {
       tol = gp_norm(n,r)/normb;
       return 3;
