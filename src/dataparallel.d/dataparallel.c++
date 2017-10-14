@@ -15,10 +15,10 @@ static size_t np;
 static cl_program program = NULL;
 static char *kernel_src_str;
 static int ret;
-#define cl_load(kernel, name) if(!kernel) kernel=clCreateKernel(program, name, &ret); if(ret) { printf("can't load %s()\n",name); exit(-1); }
-#define cl_mem_r(size,mem) if(!mem) mem=clCreateBuffer(context, CL_MEM_READ_ONLY, size, NULL, &ret)
-#define cl_mem_w(size,mem) if(!mem) mem=clCreateBuffer(context, CL_MEM_WRITE_ONLY, size, NULL, &ret)
-#define cl_mem_rw(size,mem) if(!mem) mem=clCreateBuffer(context, CL_MEM_READ_WRITE, size, NULL, &ret)
+#define cl_load(kernel, name) if(!kernel) kernel=clCreateKernel(program, name, &ret); if(ret) { fprintf(stderr,"Can't load %s()\n",name); exit(ret); }
+#define cl_mem_r(size,mem); if(!mem) mem=clCreateBuffer(context, CL_MEM_READ_ONLY, size, NULL, &ret); if(ret) { fprintf(stderr,"cl_mem_r=%d\n",ret); exit(ret); }
+#define cl_mem_w(size,mem) if(!mem) mem=clCreateBuffer(context, CL_MEM_WRITE_ONLY, size, NULL, &ret); if(ret) { fprintf(stderr,"cl_mem_r=%d\n",ret); exit(ret); }
+#define cl_mem_rw(size,mem) if(!mem) mem=clCreateBuffer(context, CL_MEM_READ_WRITE, size, NULL, &ret); if(ret) { fprintf(stderr,"cl_mem_rw=%d\n",ret); exit(ret); }
 
 
 static void check_np(int n)
@@ -59,7 +59,7 @@ static int cl_get(size_t size, cl_mem &mem_x, void *x)
   int ret;
   ret = clEnqueueReadBuffer(command_queue, mem_x, CL_TRUE, 0,
 			    size, x,0, NULL, NULL);
-  if (ret) { fprintf(stderr,"clEnqueReadBuffer()=%d\n",ret); abort(); }
+  if (ret) fprintf(stderr,"clEnqueReadBuffer()=%d\n",ret); 
   return ret;
 }
 
@@ -1061,6 +1061,7 @@ double  gp_bicgstab(int n,int w, double*Aa,  int*col_ind,
 		    double *v,  double *rtilde,  double *dinv,
 		    int max_iter, double tol)
 {
+  int ret;
   static cl_kernel kernel;
   cl_load(kernel,"gp_bicgstab");
 
@@ -1080,7 +1081,7 @@ double  gp_bicgstab(int n,int w, double*Aa,  int*col_ind,
   static cl_mem mem_dinv;
   static cl_mem mem_result;
 
-  cl_mem_w(n*sizeof(double), mem_x);
+  cl_mem_rw(n*sizeof(double), mem_x);
   cl_mem_r(n*sizeof(double), mem_b);
   cl_mem_r(n*sizeof(double), mem_r);
   cl_mem_r(n*sizeof(double), mem_p);
@@ -1093,28 +1094,57 @@ double  gp_bicgstab(int n,int w, double*Aa,  int*col_ind,
   cl_mem_r(n*sizeof(double), mem_dinv);
   cl_mem_w(3*sizeof(double), mem_result);
 
+  cl_send(n*sizeof(double), mem_x, x);
   cl_send(n*sizeof(double), mem_b, b);
+  cl_send(n*sizeof(double), mem_r, r);
+  cl_send(n*sizeof(double), mem_p, p);
+  cl_send(n*sizeof(double), mem_phat, phat);
+  cl_send(n*sizeof(double), mem_s, s);
+  cl_send(n*sizeof(double), mem_s, shat);
+  cl_send(n*sizeof(double), mem_t, t);
+  cl_send(n*sizeof(double), mem_v, v);
+  cl_send(n*sizeof(double), mem_rtilde, rtilde);
   cl_send(n*sizeof(double), mem_dinv, dinv);
 
-  clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
-  clSetKernelArg(kernel, 1, sizeof(int), (void *)&w);
-  clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_Aa);
-  clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&mem_col_ind);
-  clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *)&mem_row_ptr);
-  clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *)&mem_x);
-  clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *)&mem_b);
-  clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&mem_r);
-  clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *)&mem_p);
-  clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *)&mem_phat);
-  clSetKernelArg(kernel,10, sizeof(cl_mem), (void *)&mem_s);
-  clSetKernelArg(kernel,11, sizeof(cl_mem), (void *)&mem_shat);
-  clSetKernelArg(kernel,12, sizeof(cl_mem), (void *)&mem_t);
-  clSetKernelArg(kernel,13, sizeof(cl_mem), (void *)&mem_v);
-  clSetKernelArg(kernel,14, sizeof(cl_mem), (void *)&mem_rtilde);
-  clSetKernelArg(kernel,15, sizeof(cl_mem), (void *)&mem_dinv);
-  clSetKernelArg(kernel,16, sizeof(int), (void *)&max_iter);
-  clSetKernelArg(kernel,17, sizeof(double), (void *)&tol);
-  clSetKernelArg(kernel,18, sizeof(cl_mem), (void *)&result);
+
+  ret = clSetKernelArg(kernel, 0, sizeof(int), (void *)&n);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 0\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel, 1, sizeof(int), (void *)&w);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 1\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&mem_Aa);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 2\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&mem_col_ind);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 3\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *)&mem_row_ptr);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 4\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *)&mem_x);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 5\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *)&mem_b);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 6\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&mem_r);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 7\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *)&mem_p);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 8\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *)&mem_phat);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 9\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel,10, sizeof(cl_mem), (void *)&mem_s);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 10\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel,11, sizeof(cl_mem), (void *)&mem_shat);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 11\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel,12, sizeof(cl_mem), (void *)&mem_t);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 12\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel,13, sizeof(cl_mem), (void *)&mem_v);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 13\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel,14, sizeof(cl_mem), (void *)&mem_rtilde);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 14\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel,15, sizeof(cl_mem), (void *)&mem_dinv);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 15\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel,16, sizeof(int), (void *)&max_iter);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 16\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel,17, sizeof(double), (void *)&tol);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 17\n",ret); exit(ret); }
+  ret = clSetKernelArg(kernel,18, sizeof(cl_mem), (void *)&mem_result);
+    if (ret) { fprintf(stderr,"clSetKernelArg()=%d 18\n",ret); exit(ret); }
 
   cl_run(kernel);
 
