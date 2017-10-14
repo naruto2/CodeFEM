@@ -1,3 +1,14 @@
+#if 0
+#define __kernel
+#define __global
+#define __local
+#define CLK_LOCAL_MEM_FENCE
+#include <math.h>
+int get_local_size(int);
+int get_local_id(int);
+void barrier();
+#endif
+
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
 #define NP 128
@@ -6,32 +17,15 @@
 #define LOOP3 int k=np*size; k<n; k++
 
 
-static double _norm(int n,__global double *x)
+__kernel void _norm(int n,__global double *x,__global double *npa)
 {
-  __local double npa[NP];
   int   np = get_local_size(0);
   int    i = get_local_id(0);
   int size = n/np;
-  int    k;
-  double tmpa = 0.0; 
 
   npa[i] = 0.0;
   for (LOOP1)  if( k)  npa[i] += x[k]*x[k];
   if (!i) for (LOOP3)  npa[i] += x[k]*x[k]; 
-  barrier(CLK_LOCAL_MEM_FENCE);
-  if (!i) {
-        tmpa = 0.0;
-	for (int k=0;k<np;k++) tmpa += npa[k]; 
- 	npa[0] = sqrt(tmpa);
-   }
-  return  npa[0];
-}
-
-
-__kernel void gp_norm(int n,__global double *x,__global double *result)
-{
-  double tmpa = _norm(n,x);
-  if (!get_local_id(0)) result[0] = tmpa;
 }
 
 
@@ -362,84 +356,4 @@ __kernel void gp_phase6(int n,__global double *x, __global double *s,
 {
     double tmpa = _phase6(n,x,s,r,t,phat,shat,alpha,omega);
     if (!get_local_id(0) ) result[0] = tmpa;
-}
-
-
-static int _bicgstab(int n, int w, __global double *Aa, __global int *col_ind,
-  __global int *row_ptr, __global double *x, __global double *b,
-  __global double *r, __global double *p, __global double *phat,
-  __global double *s, __global double *shat, __global double *t,
-  __global double *v, __global double *rtilde, __global double *dinv,
-  int max_iter, double *tol)
-{
-  double resid,rho_1,rho_2,alpha,beta,omega, normb = _norm(n,b);
-  if (normb == 0.0) normb = 1;
-
-
-  if ((resid = _phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b)/normb) <= tol[0]) {
-    tol[0] = resid;
-    max_iter = 0;
-    return 0;
-  }
-
-  for (int i = 1; i <= max_iter; i++) {
-    rho_1 = _dot(n,rtilde,r);
-
-    if (rho_1 == 0) {	
-          tol[0] = _norm(n,r)/normb;
-	  return 2;
-     }
-    if (i == 1)
-      _copy(n,p,r);
-    else {
-      beta = (rho_1/rho_2) * (alpha/omega);
-      _phase1(n,p,r,v,beta,omega);
-    }
-    _presolve(n,phat,dinv,p);
-
-    alpha = rho_1/_phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde);
-
-   if ((resid = _phase3(n,s,r,v,alpha)/normb) < tol[0]) {
-      _phase4(n,x,phat,alpha);
-      tol[0] = resid;
-      return 0;
-    }
-
-    _presolve(n,shat,dinv,s);
-
-    omega = _phase5(n,t,Aa,col_ind,row_ptr,shat,s);
-
-    rho_2 = rho_1;
-
-  if ((resid = _phase6(n,x,s,r,t,phat,shat,alpha,omega)/normb) < tol[0]) {
-      tol[0] = resid;
-      max_iter = i;
-      return 0;
-    }	
-
-   if (omega == 0) {
-      tol[0] = _norm(n,r)/normb;
-      return 3;
-    }
-  }
-  tol[0] = resid;
-  return 1;
-}
-
-
-__kernel void gp_bicgstab(int n,int w,__global double*Aa, __global int*col_ind,
-  __global int *row_ptr, __global double *x, __global double *b,
-  __global double *r, __global double *p, __global double *phat,
-  __global double *s, __global double *shat, __global double *t,
-  __global double *v, __global double *rtilde, __global double *dinv,
-  int max_iter, double tol, __global double *result)
-{
-  result[0] = _bicgstab(n, w, Aa, col_ind,
-  	      row_ptr, x, b,
-	      r, p, phat,
-	      s, shat, t,
-	      v, rtilde,  dinv,
-	      max_iter,  &tol);
-  result[1] = max_iter;	      
-  result[2] = tol;
 }

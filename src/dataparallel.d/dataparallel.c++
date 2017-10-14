@@ -15,7 +15,15 @@ size_t np;
 static cl_program program = NULL;
 static char *kernel_src_str;
 static int ret;
-#define cl_load(kernel, name) if(!kernel) kernel=clCreateKernel(program, name, &ret); if(ret) { fprintf(stderr,"Can't load %s()\n",name); exit(ret); }
+#define cl_load(kernel, name) if(!kernel) kernel=clCreateKernel(program, name, &ret); if(ret) { fprintf(stderr,"Can't load %s()=%d\n",name,ret); \
+  if (ret == CL_INVALID_PROGRAM ) fprintf(stderr,"CL_INVALID_PROGRAM\n");\
+  if (ret == CL_INVALID_PROGRAM_EXECUTABLE ) fprintf(stderr,"CL_INVALID_PROGRAM_EXECUTABLE\n");\
+  if (ret == CL_INVALID_KERNEL_NAME ) fprintf(stderr,"CL_INVALID_KERNEL_NAME\n");\
+  if (ret == CL_INVALID_KERNEL_DEFINITION ) fprintf(stderr,"CL_INVALID_KERNEL_DEFINITION\n");\
+  if (ret == CL_INVALID_VALUE ) fprintf(stderr,"CL_INVALID_VALUE\n");\
+  if (ret == CL_OUT_OF_RESOURCES ) fprintf(stderr,"CL_OUT_OF_RESOURCES\n");\
+  if (ret == CL_OUT_OF_HOST_MEMORY ) fprintf(stderr,"CL_OUT_OF_HOST_MEMORY\n");\
+exit(ret); }
 #define cl_mem_r(size,mem); if(!mem) mem=clCreateBuffer(context, CL_MEM_READ_ONLY, size, NULL, &ret); if(ret) { fprintf(stderr,"cl_mem_r=%d\n",ret); exit(ret); }
 #define cl_mem_w(size,mem) if(!mem) mem=clCreateBuffer(context, CL_MEM_WRITE_ONLY, size, NULL, &ret); if(ret) { fprintf(stderr,"cl_mem_r=%d\n",ret); exit(ret); }
 #define cl_mem_rw(size,mem) if(!mem) mem=clCreateBuffer(context, CL_MEM_READ_WRITE, size, NULL, &ret); if(ret) { fprintf(stderr,"cl_mem_rw=%d\n",ret); exit(ret); }
@@ -222,16 +230,16 @@ double gp_norm(int n, double *x)
   check_np(n);
 
   static cl_kernel kernel;
-  cl_load(kernel,"gp_norm");
+  cl_load(kernel,"_norm");
 
   static double *npa;
-  if (!npa) npa = (double*)malloc(1*sizeof(double));
+  if (!npa) npa = (double*)malloc(np*sizeof(double));
 
   static cl_mem mem_x;
   static cl_mem mem_npa;
 
   cl_mem_r(n*sizeof(double), mem_x);
-  cl_mem_w(1*sizeof(double), mem_npa);
+  cl_mem_w(np*sizeof(double), mem_npa);
   
   cl_send(n*sizeof(double), mem_x, x);
 
@@ -241,8 +249,11 @@ double gp_norm(int n, double *x)
 
   cl_run(kernel);
 
-  cl_get(1*sizeof(double), mem_npa, npa);
-  return npa[0];
+  cl_get(np*sizeof(double), mem_npa, npa);
+
+  for (int k=1; k<np; k++) npa[0] += npa[k];
+  
+  return sqrt(npa[0]);
 }
 
 
