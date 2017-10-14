@@ -13,16 +13,16 @@ static double _norm(int n,__global double *x)
   int    i = get_local_id(0);
   int size = n/np;
   int    k;
-  double tmp = 0.0; 
+  double tmpa = 0.0; 
 
   npa[i] = 0.0;
   for (LOOP1)  if( k)  npa[i] += x[k]*x[k];
   if (!i) for (LOOP3)  npa[i] += x[k]*x[k]; 
   barrier(CLK_LOCAL_MEM_FENCE);
   if (!i) {
-        tmp = 0.0;
-	for (int k=0;k<np;k++) tmp += npa[k]; 
- 	npa[0] = sqrt(tmp);
+        tmpa = 0.0;
+	for (int k=0;k<np;k++) tmpa += npa[k]; 
+ 	npa[0] = sqrt(tmpa);
    }
    return  npa[0];
 }
@@ -40,16 +40,16 @@ static double  _dot(int n,__global double *y, __global double *x)
   int   np = get_local_size(0);
   int    i = get_local_id(0);
   int size = n/np;
-  double tmp;
+  double tmpa;
 
   npa[i] = 0.0;
   for (LOOP1) if( k) npa[i] += y[k]*x[k];
   if(!i) for (LOOP3) npa[i] += y[k]*x[k];  
   barrier(CLK_LOCAL_MEM_FENCE);
   if (!i) {
-        tmp = 0.0;
-	for (int k=0;k<np;k++) tmp += npa[k]; 
-        npa[0] = tmp;
+        tmpa = 0.0;
+	for (int k=0;k<np;k++) tmpa += npa[k]; 
+        npa[0] = tmpa;
     }
     return npa[0];  
 }
@@ -126,7 +126,7 @@ static double _phase0(int n, __global double *r,
   int   np = get_local_size(0);
   int    i = get_local_id(0);
   int size = n/np;
-  double tmp;
+  double tmpa;
 
   npa[i] = 0.0;
   for (LOOP1) if( k) {
@@ -143,9 +143,9 @@ static double _phase0(int n, __global double *r,
   }
   barrier(CLK_LOCAL_MEM_FENCE);
   if (!i) {
-        tmp = 0.0;
-	for (int k=0;k<np;k++) tmp += npa[k]; 
-	npa[0] = sqrt(tmp);	
+        tmpa = 0.0;
+	for (int k=0;k<np;k++) tmpa += npa[k]; 
+	npa[0] = sqrt(tmpa);	
       }
   return npa[0];
 }
@@ -188,7 +188,7 @@ static double _phase2(int n, __global double *v,
   int   np = get_local_size(0);
   int    i = get_local_id(0);
   int size = n/np;
-  double tmp;
+  double tmpa;
 
   npa[i] = 0.0;
   for (LOOP1) if( k) {
@@ -203,9 +203,9 @@ static double _phase2(int n, __global double *v,
   }
   barrier(CLK_LOCAL_MEM_FENCE);
   if (!i) {
-        tmp = 0.0;
-	for (int k=0;k<np;k++) tmp += npa[k]; 
-        npa[0] = tmp;
+        tmpa = 0.0;
+	for (int k=0;k<np;k++) tmpa += npa[k]; 
+        npa[0] = tmpa;
     }
   return npa[0];
 }
@@ -227,7 +227,7 @@ static double _phase3(int n,__global double *s, __global double *r,
   int   np = get_local_size(0);
   int    i = get_local_id(0);
   int size = n/np;
-  double tmp;
+  double tmpa;
 
   npa[i] = 0.0;
   for (LOOP1) if( k) {
@@ -240,9 +240,9 @@ static double _phase3(int n,__global double *s, __global double *r,
   }
   barrier(CLK_LOCAL_MEM_FENCE);
   if (!i) {
-        tmp = 0.0;
-	for (int k=0;k<np;k++) tmp += npa[k]; 
-	npa[0] = sqrt(tmp);
+        tmpa = 0.0;
+	for (int k=0;k<np;k++) tmpa += npa[k]; 
+	npa[0] = sqrt(tmpa);
     }
   return npa[0];
 }
@@ -340,9 +340,9 @@ static double _phase6(int n,__global double *x, __global double *s,
   }
   barrier(CLK_LOCAL_MEM_FENCE);
   if (!i) {
-        double tmp = 0.0;
-	for (int k=0;k<np;k++) tmp += npa[k]; 
-	npa[0] = sqrt(tmp);
+        double tmpa = 0.0;
+	for (int k=0;k<np;k++) tmpa += npa[k]; 
+	npa[0] = sqrt(tmpa);
     }
     return npa[0];
 }

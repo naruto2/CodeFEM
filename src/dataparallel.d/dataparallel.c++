@@ -59,7 +59,27 @@ static int cl_get(size_t size, cl_mem &mem_x, void *x)
   int ret;
   ret = clEnqueueReadBuffer(command_queue, mem_x, CL_TRUE, 0,
 			    size, x,0, NULL, NULL);
-  if (ret) fprintf(stderr,"clEnqueReadBuffer()=%d\n",ret); 
+  if (ret) fprintf(stderr,"clEnqueueReadBuffer()=%d\n",ret); 
+  if (ret == CL_INVALID_COMMAND_QUEUE)
+    fprintf(stderr,"CL_INVALID_COMMAND_QUEUE\n");
+  if (ret == CL_INVALID_CONTEXT)
+    fprintf(stderr,"CL_INVALID_CONTEXT\n");
+  if (ret == CL_INVALID_MEM_OBJECT)
+    fprintf(stderr,"CL_INVALID_MEM_OBJECT\n");
+  if (ret == CL_INVALID_VALUE)
+    fprintf(stderr,"CL_INVALID_VALUE\n");
+  if (ret == CL_INVALID_EVENT_WAIT_LIST)
+    fprintf(stderr,"CL_INVALID_EVENT_WAIT_LIST\n");
+  if (ret == CL_MISALIGNED_SUB_BUFFER_OFFSET)
+    fprintf(stderr,"CL_MISALIGNED_SUB_BUFFER_OFFSET\n");
+  if (ret == CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST)
+    fprintf(stderr,"CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST\n");
+  if (ret == CL_MEM_OBJECT_ALLOCATION_FAILURE)
+    fprintf(stderr,"CL_MEM_OBJECT_ALLOCATION_FAILURE\n");
+  if (ret == CL_OUT_OF_RESOURCES)
+    fprintf(stderr,"CL_OUT_OF_RESOURCES\n");
+  if (ret == CL_OUT_OF_HOST_MEMORY)
+    fprintf(stderr,"CL_OUT_OF_HOST_MEMORY\n");
   return ret;
 }
 
@@ -600,6 +620,14 @@ void cl_bicgstab_init(int argc, char **argv)
     printf("compute_unit: %d\n",compute_unit);
     printf("local_mem_size: %d\n",local_mem_size);
   }
+  if ( 1 ) {
+    fprintf(stderr,"CL_DEVICE_MAX_READ_IMAGE_ARGS=%d\n",
+	    CL_DEVICE_MAX_READ_IMAGE_ARGS);
+    fprintf(stderr,"CL_DEVICE_MAX_WRITE_IMAGE_ARGS=%d\n",
+	    CL_DEVICE_MAX_WRITE_IMAGE_ARGS);
+    fprintf(stderr,"CL_DEVICE_MAX_SAMPLERS=%d\n",
+	    CL_DEVICE_MAX_SAMPLERS);
+  }
 }
 
 
@@ -1082,17 +1110,17 @@ double  gp_bicgstab(int n,int w, double*Aa,  int*col_ind,
   static cl_mem mem_result;
 
   cl_mem_rw(n*sizeof(double), mem_x);
-  cl_mem_r(n*sizeof(double), mem_b);
-  cl_mem_r(n*sizeof(double), mem_r);
-  cl_mem_r(n*sizeof(double), mem_p);
-  cl_mem_r(n*sizeof(double), mem_phat);
-  cl_mem_r(n*sizeof(double), mem_s);
-  cl_mem_r(n*sizeof(double), mem_shat);
-  cl_mem_r(n*sizeof(double), mem_t);
-  cl_mem_r(n*sizeof(double), mem_v);
-  cl_mem_r(n*sizeof(double), mem_rtilde);
-  cl_mem_r(n*sizeof(double), mem_dinv);
-  cl_mem_w(3*sizeof(double), mem_result);
+  cl_mem_rw(n*sizeof(double), mem_b);
+  cl_mem_rw(n*sizeof(double), mem_r);
+  cl_mem_rw(n*sizeof(double), mem_p);
+  cl_mem_rw(n*sizeof(double), mem_phat);
+  cl_mem_rw(n*sizeof(double), mem_s);
+  cl_mem_rw(n*sizeof(double), mem_shat);
+  cl_mem_rw(n*sizeof(double), mem_t);
+  cl_mem_rw(n*sizeof(double), mem_v);
+  cl_mem_rw(n*sizeof(double), mem_rtilde);
+  cl_mem_rw(n*sizeof(double), mem_dinv);
+  cl_mem_rw(3*sizeof(double), mem_result);
 
   cl_send(n*sizeof(double), mem_x, x);
   cl_send(n*sizeof(double), mem_b, b);
