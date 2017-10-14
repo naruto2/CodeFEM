@@ -104,7 +104,7 @@ __kernel void _phase0(int n, __global double *r,
 }
 
 
-static void _phase1(int n,__global double *p, __global double *r,
+__kernel void _phase1(int n,__global double *p, __global double *r,
        		   __global double *v, double beta, double omega)
 {
   int   np = get_local_size(0);
@@ -113,13 +113,6 @@ static void _phase1(int n,__global double *p, __global double *r,
 
   for (LOOP1) if( k) p[k] = r[k] + beta * (p[k] - omega *v[k]);
   if(!i) for (LOOP3) p[k] = r[k] + beta * (p[k] - omega *v[k]);
-}
-
-
-__kernel void gp_phase1(int n,__global double *p, __global double *r,
-			__global double *v, double beta, double omega)
-{
-   _phase1(n,p,r,v,beta,omega);
 }
 
 

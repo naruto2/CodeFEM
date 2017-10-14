@@ -428,7 +428,7 @@ void gp_phase1(int n, double *p, double *r, double *v,
   check_np(n);
 
   static cl_kernel kernel;
-  cl_load(kernel,"gp_phase1");
+  cl_load(kernel,"_phase1");
 
   static cl_mem mem_p;
   static cl_mem mem_r;
