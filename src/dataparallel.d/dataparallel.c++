@@ -88,7 +88,7 @@ static cl_mem mem_Aa= NULL;
 static cl_mem mem_col_ind = NULL;
 static cl_mem mem_row_ptr = NULL;
 
-int cl_send_A(int n,int w, double *Aa, int *col_ind, int *row_ptr)
+int gp_send_A(int n,int w, double *Aa, int *col_ind, int *row_ptr)
 {
   if ( ww < w ) {
     if(mem_Aa)

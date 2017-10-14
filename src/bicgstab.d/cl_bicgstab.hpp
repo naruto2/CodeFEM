@@ -46,7 +46,7 @@ double  gp_bicgstab(int n,int w, double*Aa,  int*col_ind,
 		    double *v,  double *rtilde,  double *dinv,
 		    int max_iter, double tol);
 
-int cl_send_A(int n,int w, double *Aa, int *col_ind, int *row_ptr);
+int gp_send_A(int n,int w, double *Aa, int *col_ind, int *row_ptr);
 
 static double norm(int n, double *x)
 {
@@ -201,7 +201,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 	col_ind[ii] = j.first;
 	ii++;
       }
-  cl_send_A(n,w,Aa,col_ind,row_ptr);
+  gp_send_A(n,w,Aa,col_ind,row_ptr);
   if ( 0 )
     return gp_bicgstab(n, w, Aa, col_ind,
 		       row_ptr, x, b,
