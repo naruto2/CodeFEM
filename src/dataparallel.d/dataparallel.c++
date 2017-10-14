@@ -295,7 +295,7 @@ void gp_copy(int n, double *y, double *x)
   check_np(n);
   
   static cl_kernel  kernel;
-  cl_load(kernel,"gp_copy");
+  cl_load(kernel,"_copy");
 
   static cl_mem mem_y;
   static cl_mem mem_x;
