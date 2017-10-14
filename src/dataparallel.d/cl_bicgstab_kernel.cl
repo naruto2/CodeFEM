@@ -4,8 +4,8 @@
 #define __local
 #define CLK_LOCAL_MEM_FENCE
 #include <math.h>
-int get_local_size(int);
-int get_local_id(int);
+int get_global_size(int);
+int get_global_id(int);
 void barrier();
 #endif
 
@@ -19,8 +19,8 @@ void barrier();
 
 __kernel void _norm(int n,__global double *x,__global double *npa)
 {
-  int   np = get_local_size(0);
-  int    i = get_local_id(0);
+  int   np = get_global_size(0);
+  int    i = get_global_id(0);
   int size = n/np;
 
   npa[i] = 0.0;
@@ -32,8 +32,8 @@ __kernel void _norm(int n,__global double *x,__global double *npa)
 __kernel void _dot(int n,__global double *y, __global double *x,
        	       __global double *npa)
 {
-  int   np = get_local_size(0);
-  int    i = get_local_id(0);
+  int   np = get_global_size(0);
+  int    i = get_global_id(0);
   int size = n/np;
 
   npa[i] = 0.0;
@@ -44,8 +44,8 @@ __kernel void _dot(int n,__global double *y, __global double *x,
 
 __kernel void _copy(int n,__global double *y, __global double *x)
 {
-  int   np = get_local_size(0);
-  int    i = get_local_id(0);
+  int   np = get_global_size(0);
+  int    i = get_global_id(0);
   int size = n/np;
 
   for (LOOP1) if( k) y[k] = x[k];
@@ -56,8 +56,8 @@ __kernel void _copy(int n,__global double *y, __global double *x)
 static void _presolve_pointjacobi(int n,__global double *x,
 	 	     __global double *dinv,   __global double *d)
 {
-  int   np = get_local_size(0);
-  int    i = get_local_id(0);
+  int   np = get_global_size(0);
+  int    i = get_global_id(0);
   int size = n/np;
 
   for (LOOP1) if( k) x[k] = dinv[k]*d[k];
@@ -83,8 +83,8 @@ __kernel void _phase0(int n, __global double *r,
 		      __global double *rtilde, __global double *b,
 		      __global double *npa)
 {
-  int   np = get_local_size(0);
-  int    i = get_local_id(0);
+  int   np = get_global_size(0);
+  int    i = get_global_id(0);
   int size = n/np;
   double tmpa;
 
@@ -107,8 +107,8 @@ __kernel void _phase0(int n, __global double *r,
 __kernel void _phase1(int n,__global double *p, __global double *r,
        		   __global double *v, double beta, double omega)
 {
-  int   np = get_local_size(0);
-  int    i = get_local_id(0);
+  int   np = get_global_size(0);
+  int    i = get_global_id(0);
   int size = n/np;
 
   for (LOOP1) if( k) p[k] = r[k] + beta * (p[k] - omega *v[k]);
@@ -121,8 +121,8 @@ __kernel void _phase2(int n, __global double *v,
 			__global int *row_ptr, __global	double *phat,
 		      __global double *rtilde, __global double *npa)
 {
-  int   np = get_local_size(0);
-  int    i = get_local_id(0);
+  int   np = get_global_size(0);
+  int    i = get_global_id(0);
   int size = n/np;
 
   npa[i] = 0.0;
@@ -142,8 +142,8 @@ __kernel void _phase2(int n, __global double *v,
 __kernel void _phase3(int n,__global double *s, __global double *r,
 		      __global double *v, double alpha, __global double *npa)
 {
-  int   np = get_local_size(0);
-  int    i = get_local_id(0);
+  int   np = get_global_size(0);
+  int    i = get_global_id(0);
   int size = n/np;
 
   npa[i] = 0.0;
@@ -161,8 +161,8 @@ __kernel void _phase3(int n,__global double *s, __global double *r,
 __kernel void _phase4(int n,__global double *x, __global double *phat,
 			double alpha)
 {
-  int   np = get_local_size(0);
-  int    i = get_local_id(0);
+  int   np = get_global_size(0);
+  int    i = get_global_id(0);
   int size = n/np;
 
   for (LOOP1) if( k) x[k] = x[k] + alpha*phat[k];
@@ -175,8 +175,8 @@ __kernel void _phase5(int n,__global double *t,__global double *Aa,
 		      __global double *shat,__global double *s,
 		      __global double *npa, __global double *npb)
 {
-  int   np = get_local_size(0);
-  int    i = get_local_id(0);
+  int   np = get_global_size(0);
+  int    i = get_global_id(0);
   int size = n/np;
 
   npa[i] = 0.0;
@@ -201,8 +201,8 @@ __kernel void _phase6(int n,__global double *x, __global double *s,
 			__global double *phat, __global double *shat,
 		      double alpha, double omega, __global double *npa)
 {
-  int   np = get_local_size(0);
-  int    i = get_local_id(0); 
+  int   np = get_global_size(0);
+  int    i = get_global_id(0); 
   int size = n/np;
 
   npa[i] = 0.0;

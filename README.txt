@@ -140,13 +140,13 @@ int main(int argc, char **argv){
 }
 
 # cd src/psc98.d
-# make time
-Problem NO : 0 real	0m1.103s
-Problem NO : 1 real	0m55.720s
-Problem NO : 2 real	0m59.835s
-Problem NO : 3 real	1m7.788s
-Problem NO : 4 real	1m19.511s
-Problem NO : 5 real	0m0.129s
+# make time                          2017-10-14
+Problem NO : 0 real	0m1.103s     0m1.157s
+Problem NO : 1 real	0m55.720s    1m0.852s
+Problem NO : 2 real	0m59.835s    1m4.855s
+Problem NO : 3 real	1m7.788s     1m8.780s
+Problem NO : 4 real	1m19.511s    1m35.627s
+Problem NO : 5 real	0m0.129s     0m0.142s
 
 
 参考文献

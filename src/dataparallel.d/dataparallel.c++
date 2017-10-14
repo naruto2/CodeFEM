@@ -130,10 +130,10 @@ void cl_bicgstab_init(int argc, char **argv)
   /* Set parameters for data parallel processing (work item) */
 
   global_item_size[0] = NP; /* np Global number of work items */
-  local_item_size[0] =  NP;
+  local_item_size[0] =  1;
 
   if ( argc > 1 ) global_item_size[0] = atoi(argv[1]);    
-  np = local_item_size[0] = global_item_size[0];
+  np = global_item_size[0];
 
   /* --> global_item_size[0] / local_item_size[0] becomes 2, which indirectly sets the number of workgroups to 2*/
 
