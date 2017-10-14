@@ -504,10 +504,10 @@ double gp_phase3(int n, double *s, double *r, double *v, double alpha)
   check_np(n);
   
   static cl_kernel kernel;
-  cl_load(kernel,"gp_phase3");
+  cl_load(kernel,"_phase3");
 
   static double *npa;
-  if (!npa) npa = (double*)malloc(1*sizeof(double));
+  if (!npa) npa = (double*)malloc(np*sizeof(double));
 
   static cl_mem mem_s = NULL;
   static cl_mem mem_r = NULL;
@@ -517,7 +517,7 @@ double gp_phase3(int n, double *s, double *r, double *v, double alpha)
   cl_mem_rw(n*sizeof(double), mem_s);
   cl_mem_r(n*sizeof(double), mem_r);
   cl_mem_r(n*sizeof(double), mem_v);
-  cl_mem_w(1*sizeof(double), mem_npa);
+  cl_mem_w(np*sizeof(double), mem_npa);
   
   cl_send(n*sizeof(double), mem_s, s);
   cl_send(n*sizeof(double), mem_r, r);
@@ -533,9 +533,9 @@ double gp_phase3(int n, double *s, double *r, double *v, double alpha)
   cl_run(kernel);
 
   cl_get(n*sizeof(double), mem_s, s);
-  cl_get(1*sizeof(double), mem_npa, npa);
-
-  return npa[0];
+  cl_get(np*sizeof(double), mem_npa, npa);
+  for (int k=1; k<np; k++) npa[0] += npa[k];
+  return sqrt(npa[0]);
 }
 
 
