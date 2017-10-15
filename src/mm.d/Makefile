@@ -1,6 +1,6 @@
 solvemtx: solvemtx.c++
-	 c++ solvemtx.c++ mmio.c++ lib/libop.a -lbicgstab -lOpenCL -o solvemtx
+	 c++ -g solvemtx.c++ mmio.c++ lib/libop.a lib/libGLU1.a -lbicgstab -lOpenCL -lf2c -o solvemtx 
 
 plotmtx: plotmtx.c++
-	 c++ plotmtx.c++ mmio.c++ lib/libop.a -o plotmtx
+	 c++ -g plotmtx.c++ mmio.c++ lib/libop.a -o plotmtx
 

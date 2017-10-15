@@ -32,7 +32,7 @@ int GLU1(sparse::matrix<double>&A)
   return (int)IER;
 }
 
-int GSLV1(sparse::matrix<double>&A, vector<double>&b)
+vector<double> GSLV1(sparse::matrix<double>&A, vector<double>&b)
 {
   integer N=A.size()-1, IER=0;
   doublereal EPS = -1.0;
@@ -50,14 +50,15 @@ int GSLV1(sparse::matrix<double>&A, vector<double>&b)
   for (int i = 1; i < b.size(); i++) B[i-1] = b[i];
   
   glu1_( a, &N, &N, &EPS, WK, IP, &IER);
-
+  if ( IER != 0 ) return b;
   gslv1_(a, &N, &N, B, IP);
 
-  for (int i = 1; i < b.size(); i++) b[i] = B[i-1];
+  vector<double> x(A.size());
+  for (int i = 1; i < x.size(); i++) x[i] = B[i-1];
 
   free(IP);
   free(WK);
   free(a);
   free(B);
-  return (int)IER;
+  return x;
 }

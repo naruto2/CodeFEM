@@ -12,5 +12,6 @@
 #include "est/sparse.hpp"
 #include "est/bicgstab.hpp"
 #include "est/navierstokes.hpp"
+#include "est/GLU1.hpp"
 
 #endif

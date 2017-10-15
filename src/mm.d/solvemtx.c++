@@ -4,6 +4,8 @@
 #include <est/sparse.hpp>
 #include <est/bicgstab.hpp>
 #include <est/op.hpp>
+#include <vector>
+#include "est/GLU1.hpp"
 
 int main(int argc, char **argv)
 {
@@ -38,8 +40,9 @@ int main(int argc, char **argv)
       b[i] += A[i][j];
     }
   }
-  x = cl_bicgstab(A,b);
-  
+  if ( getop("-solver") == "GSLV1" ) x = GSLV1(A,b);
+  else
+    x = cl_bicgstab(A,b);
   //for (k=1;k<=N;k++) printf("%d %f\n",k,x[k]);
   for (k=1;k<=N;k++) x[k] -= 1.0;
 
