@@ -1,3 +1,4 @@
+#include <math.h>
 #pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
 
 /* GLU1T.F -- translated by f2c (version 12.02.01).
