@@ -143,7 +143,7 @@ void cl_bicgstab_init(int argc, char **argv)
     
   /* Get Platform*/
   ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
-
+  if (ret) fprintf(stderr,"clGetPlatformIDs=%d\n",ret);
   /* Get Device */
   ret = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_DEFAULT, 1, &device_id,
 		       &ret_num_devices);
@@ -160,6 +160,10 @@ void cl_bicgstab_init(int argc, char **argv)
   
   /* Read kernel source code */     
   fp = fopen("/usr/include/est/cl_bicgstab_kernel.cl", "r");
+  if ( fp == NULL ) {
+    fprintf(stderr,"Error: Can't open /usr/include/est/cl_bicgstabkernel.cl\n");
+    exit(-1);
+  }
   kernel_code_size = fread(kernel_src_str, 1, MAX_SOURCE_SIZE, fp);
   fclose(fp);
   
