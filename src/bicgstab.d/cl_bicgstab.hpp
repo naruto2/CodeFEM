@@ -48,7 +48,14 @@ double  gp_bicgstab(int n,int w, double*Aa,  int*col_ind,
 
 int gp_send_A(int n,int w, double *Aa, int *col_ind, int *row_ptr);
 
-static double norm(int n, double *x)
+
+static int sp_send_A(int n,int w,double *Aa, int *col_ind, int *row_ptr)
+{
+  return 0;
+}
+
+
+static double sp_norm(int n, double *x)
 {
   double tmp=0.0;
   for (int k=1;k<n;k++) tmp += x[k]*x[k];
@@ -56,7 +63,7 @@ static double norm(int n, double *x)
 }
 
 
-static double dot(int n, double *p, double *q)
+static double sp_dot(int n, double *p, double *q)
 {
   double tmp=0.0;
   for (int k=1; k<n; k++ ) tmp += p[k]*q[k];
@@ -64,32 +71,32 @@ static double dot(int n, double *p, double *q)
 }
 
 
-static void copy(int n, double *p, double *q)
+static void sp_copy(int n, double *p, double *q)
 {
   for (int k=1;k<n;k++) p[k]=q[k];
 }
 
 
-static void presolve_pointjacobi(int n, double *x, double *dinv, double *d)
+static void sp_presolve_pointjacobi(int n, double *x, double *dinv, double *d)
 {
   for (int k=1; k<n; k++ ) x[k] = dinv[k]*d[k];
 }
 
 
-static void presolve(int n, double *x, double *dinv, double *d)
+static void sp_presolve(int n, double *x, double *dinv, double *d)
 {
   if ( dinv[1] == 0.0 ) {
-    copy(n,x,d);
+    sp_copy(n,x,d);
   }
   else {
-    presolve_pointjacobi(n,x,dinv,d);
+    sp_presolve_pointjacobi(n,x,dinv,d);
   }
 }
 
 
-static double phase0(int n, double *r, 
+static double sp_phase0(int n, double *r, 
 		     double *Aa, int *col_ind, int *row_ptr,
-		     double *x, double *rtilde, double *b, int w)
+		     double *x, double *rtilde, double *b)
 {
   double tmp=0.0;
   for (int k=1;k<n;k++ ) {
@@ -102,15 +109,15 @@ static double phase0(int n, double *r,
 }
 
 
-static void phase1(int n, double *p, double *r, double *v,
+static void sp_phase1(int n, double *p, double *r, double *v,
 		   double beta, double omega)
 {
   for(int k=1;k<n;k++) p[k] = r[k] + beta * (p[k] - omega *v[k]);
 }
 
-static double phase2(int n, double *v,
+static double sp_phase2(int n, double *v,
 		     double *Aa, int *col_ind, int *row_ptr,
-		     double *phat, double *rtilde, int w)
+		     double *phat, double *rtilde)
 {
   double tmp=0.0;
 
@@ -125,22 +132,22 @@ static double phase2(int n, double *v,
 }
 
 
-static double phase3(int n, double *s, double * r, double * v, double alpha)
+static double sp_phase3(int n, double *s, double * r, double * v, double alpha)
 {
   for(int k=1;k<n;k++) s[k] = r[k] - alpha * v[k];
-  return norm(n,s);
+  return sp_norm(n,s);
 }
 
 
-static void phase4(int n, double *x, double *phat, double alpha)
+static void sp_phase4(int n, double *x, double *phat, double alpha)
 {
   for(int k=1;k<n;k++) x[k] = x[k] + alpha*phat[k];
 }
 
 
-static double phase5(int n, double *t, 
+static double sp_phase5(int n, double *t, 
 		     double *Aa, int *col_ind, int *row_ptr,
-		     double *shat, double *s, int w)
+		     double *shat, double *s)
 {
   double tmp=0.0, tmq=0.0;
   for (int k=1;k<n;k++ ) {
@@ -153,14 +160,14 @@ static double phase5(int n, double *t,
   return tmp/tmq;
 }
 
-static double phase6(int n, double *x, double *s, double *r, double *t,
+static double sp_phase6(int n, double *x, double *s, double *r, double *t,
 		   double *phat, double *shat, double alpha, double omega)
 {
   for(int k=1;k<n;k++) {
     x[k] = x[k] + alpha*phat[k] + omega*shat[k];
     r[k] = s[k] - omega * t[k];
   }
-  return norm(n,r);
+  return sp_norm(n,r);
 }
 
 extern size_t np;
@@ -201,14 +208,49 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 	col_ind[ii] = j.first;
 	ii++;
       }
-  gp_send_A(n,w,Aa,col_ind,row_ptr);
-  if ( 0 )
-    return gp_bicgstab(n, w, Aa, col_ind,
-		       row_ptr, x, b,
-		       r, p, phat,
-		       s, shat, t,
-		       v, rtilde, dinv,
-		       max_iter,  tol);
+  double (*norm)(int n, double *x);
+  void (*copy)(int n, double *y, double *x);
+  double (*dot)(int n, double *y, double *x);
+  void   (*presolve_pointjacobi)(int n, double *x, double *dinv, double *d);
+  void   (*presolve)(int n, double *x, double *dinv, double *d);
+
+  double (*phase0)(int n, double *r,
+                 double *Aa, int *col_ind, int *row_ptr,
+                 double *x, double *rtilde, double *b, int w);
+  void (*phase1)(int n, double *p, double *r, double *v,
+               double beta, double omega);
+  double (*phase2)(int n, double *v,
+                 double *Aa, int *col_ind, int *row_ptr,
+                 double *phat, double *rtilde,int w);
+  double (*phase3)(int n, double *s, double *r, double *v, double alpha);
+  void   (*phase4)(int n, double *s, double *phat, double alpha);
+
+  double (*phase5)(int n, double *t,
+               double *Aa, int *col_ind, int *row_ptr,
+               double *shat, double *s, int w);
+  double (*phase6)(int n, double *x, double *s, double *r, double *t,
+               double *phat, double *shat, double alpha, double omega);
+  double  (*bicgstab)(int n,int w, double*Aa,  int*col_ind,
+                    int *row_ptr,  double *x,  double *b,
+                    double *r,  double *p,  double *phat,
+                    double *s,  double *shat,  double *t,
+                    double *v,  double *rtilde,  double *dinv,
+                    int max_iter, double tol);
+
+  if ( 1 ) {
+    norm = gp_norm;
+    copy = gp_copy;
+    dot = gp_dot;
+    presolve_pointjacobi = gp_presolve_pointjacobi;
+    presolve = gp_presolve;
+    phase0 = gp_phase0;
+    phase0 = gp_phase0;
+    phase0 = gp_phase0;
+    phase0 = gp_phase0;
+    phase0 = gp_phase0;
+    phase0 = gp_phase0;
+    gp_send_A(n,w,Aa,col_ind,row_ptr);
+  }
 
   double resid,rho_1,rho_2,alpha,beta,omega, normb = gp_norm(n,b);
   if (normb == 0.0) normb = 1;
