@@ -11,7 +11,7 @@ void barrier();
 
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
-#define NP 128
+#define NP 1024
 #define LOOP1 int k=i*size, end=(i+1)*size; k<end; k++
 #define LOOP2 int j=row_ptr[k]; j<row_ptr[k+1]; j++
 #define LOOP3 int k=np*size; k<n; k++

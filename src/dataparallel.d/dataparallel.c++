@@ -4,7 +4,7 @@
 #include <CL/cl.h>
 
 #define MAX_SOURCE_SIZE (0x100000)
-#define NP 128
+#define NP 1024
 
 static cl_context context = NULL;
 static cl_command_queue command_queue = NULL;
