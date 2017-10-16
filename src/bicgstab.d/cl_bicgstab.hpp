@@ -237,7 +237,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
                     double *v,  double *rtilde,  double *dinv,
                     int max_iter, double tol);
 
-  if ( 0 ) {
+  if ( np ) {
     norm = gp_norm;
     copy = gp_copy;
     dot = gp_dot;
