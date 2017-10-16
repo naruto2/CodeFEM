@@ -27,3 +27,4 @@ clean: ;
 
 obj: $(OBJS) $(COBJS)
 	ar cr lib/libglirulus.a $(OBJS) $(COBJS)
+	rm *.o
