@@ -96,7 +96,7 @@ static void sp_presolve(int n, double *x, double *dinv, double *d)
 
 static double sp_phase0(int n, double *r, 
 		     double *Aa, int *col_ind, int *row_ptr,
-		     double *x, double *rtilde, double *b)
+			double *x, double *rtilde, double *b, int w)
 {
   double tmp=0.0;
   for (int k=1;k<n;k++ ) {
@@ -117,7 +117,7 @@ static void sp_phase1(int n, double *p, double *r, double *v,
 
 static double sp_phase2(int n, double *v,
 		     double *Aa, int *col_ind, int *row_ptr,
-		     double *phat, double *rtilde)
+			double *phat, double *rtilde, int w)
 {
   double tmp=0.0;
 
@@ -147,7 +147,7 @@ static void sp_phase4(int n, double *x, double *phat, double alpha)
 
 static double sp_phase5(int n, double *t, 
 		     double *Aa, int *col_ind, int *row_ptr,
-		     double *shat, double *s)
+			double *shat, double *s, int w)
 {
   double tmp=0.0, tmq=0.0;
   for (int k=1;k<n;k++ ) {
@@ -237,60 +237,76 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
                     double *v,  double *rtilde,  double *dinv,
                     int max_iter, double tol);
 
-  if ( 1 ) {
+  if ( 0 ) {
     norm = gp_norm;
     copy = gp_copy;
     dot = gp_dot;
     presolve_pointjacobi = gp_presolve_pointjacobi;
     presolve = gp_presolve;
     phase0 = gp_phase0;
-    phase0 = gp_phase0;
-    phase0 = gp_phase0;
-    phase0 = gp_phase0;
-    phase0 = gp_phase0;
-    phase0 = gp_phase0;
+    phase1 = gp_phase1;
+    phase2 = gp_phase2;
+    phase3 = gp_phase3;
+    phase4 = gp_phase4;
+    phase5 = gp_phase5;
+    phase6 = gp_phase6;
     gp_send_A(n,w,Aa,col_ind,row_ptr);
+  } else {
+    norm = sp_norm;
+    copy = sp_copy;
+    dot = sp_dot;
+    presolve_pointjacobi = sp_presolve_pointjacobi;
+    presolve = sp_presolve;
+    phase0 = sp_phase0;
+    phase1 = sp_phase1;
+    phase2 = sp_phase2;
+    phase3 = sp_phase3;
+    phase4 = sp_phase4;
+    phase5 = sp_phase5;
+    phase6 = sp_phase6;
   }
 
-  double resid,rho_1,rho_2,alpha,beta,omega, normb = gp_norm(n,b);
+
+  
+  double resid,rho_1,rho_2,alpha,beta,omega, normb = norm(n,b);
   if (normb == 0.0) normb = 1;
 
-  if ((resid = gp_phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b,w)/normb) <= tol) {
+  if ((resid = phase0(n,r,Aa,col_ind,row_ptr,x,rtilde,b,w)/normb) <= tol) {
     tol = resid;
     max_iter = 0;
     return 0;
   }
 
   for (int i = 1; i <=max_iter; i++) {
-    rho_1 = gp_dot(n,rtilde,r);
+    rho_1 = dot(n,rtilde,r);
 
     if (rho_1 == 0) {
-      tol = gp_norm(n,r)/normb;
+      tol = norm(n,r)/normb;
       return 2;
     }
     if (i == 1)
-      gp_copy(n,p,r);
+      copy(n,p,r);
     else {
       beta = (rho_1/rho_2) * (alpha/omega);
-      gp_phase1(n,p,r,v,beta,omega);
+      phase1(n,p,r,v,beta,omega);
     }
-    gp_presolve(n,phat,dinv,p);
-    alpha = rho_1/gp_phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde,w);
+    presolve(n,phat,dinv,p);
+    alpha = rho_1/phase2(n,v,Aa,col_ind,row_ptr,phat,rtilde,w);
 
-    if ((resid = gp_phase3(n,s,r,v,alpha)/normb) < tol) {
-      gp_phase4(n,x,phat,alpha);
+    if ((resid = phase3(n,s,r,v,alpha)/normb) < tol) {
+      phase4(n,x,phat,alpha);
       tol = resid;
       return 0;
     }
 
 
-    gp_presolve(n,shat,dinv,s);
+    presolve(n,shat,dinv,s);
 
-    omega = gp_phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
+    omega = phase5(n,t,Aa,col_ind,row_ptr,shat,s,w);
 
     rho_2 = rho_1;
 
-    if ((resid = gp_phase6(n,x,s,r,t,phat,shat,alpha,omega)/normb) < tol) {
+    if ((resid = phase6(n,x,s,r,t,phat,shat,alpha,omega)/normb) < tol) {
       tol = resid;
       max_iter = i;
       return 0;
@@ -298,7 +314,7 @@ int sparse__BiCGSTAB(const sparse::matrix<double> &A, double *x, double *b,
 
 
     if (omega == 0) {
-      tol = gp_norm(n,r)/normb;
+      tol = norm(n,r)/normb;
       return 3;
     }
   }
