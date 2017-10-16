@@ -13,6 +13,7 @@ all: $(PROG)
 
 $(PROG) : $(OBJS) $(COBJS)
 	c++ $(OBJS) $(COBJS) -o $@ -lf2c
+	rm *.o
 
 .c++.o:
 	c++  -c $<
