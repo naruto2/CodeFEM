@@ -1,5 +1,11 @@
 CodeFEM - Codes for FEM
 
+* xmesh - A generator of FEM mesh.
+* cl_bicgstab() - A linier solver using OpenCL.
+* navierstokes() - A simulation of Navier-Stokes equations.
+* psc98_init(), psc98_check() - Parallel Software Contest '98 (PSC98)'s problems.
+* glirulus() - Yet Another Matrix Applications' New Engine.
+
 ### 1st.
 $ cd bin/; ./mkall; cd ..
 
