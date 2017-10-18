@@ -34,9 +34,9 @@ exit(ret); }
 static void check_np(int n)
 {
   if ( global_item_size[0] <= 0 )
-    global_item_size[0] = 0;
+    np = global_item_size[0] = 0;
   if ( NP < global_item_size[0])
-    global_item_size[0] = NP;
+    np = global_item_size[0] = NP;
   if ( n<=global_item_size[0])
     np = global_item_size[0] = n-1;
 }

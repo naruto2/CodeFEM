@@ -73,14 +73,7 @@ int glirulus_mm(sparse::matrix<double>&A,vector<double>&b)
   return 0;
 }
 
-vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
-{
-  vector<double> x;
-  x = cl_bicgstab(A,b);
-  return x;
-}
-
-int glirulus_check(sparse::matrix<double>&A,vector<double>&x,vector<double>&b)
+vector<double> residual(sparse::matrix<double>&A,vector<double>&x,vector<double>&b)
 {
   int n = A.size();
   vector<double> r(n);
@@ -93,7 +86,30 @@ int glirulus_check(sparse::matrix<double>&A,vector<double>&x,vector<double>&b)
   }
 
   for (int k=1; k<n; k++) r[k] -= b[k];
+  return r;
+}
 
+
+
+int glirulus_check(sparse::matrix<double>&A,vector<double>&x,vector<double>&b)
+{
+  vector<double> r;
+  r = residual(A,x,b);
   printf("%s L_inf%f\n",getop("-A").c_str(),L_inf(r));
   return 0;
+}
+
+
+
+vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
+{
+  vector<double> x, r;
+  x = cl_bicgstab(A,b);
+
+  r = residual(A,x,b);
+
+  if ( L_inf(r) > 0.000999 ){
+    if (A.size()<10000) x = GSLV1(A,b);
+  }
+  return x;
 }
