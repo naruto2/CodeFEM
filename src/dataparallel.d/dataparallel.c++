@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <cmath>
 #include <CL/cl.h>
+#include <est/op.hpp>
+
 
 #define MAX_SOURCE_SIZE (0x100000)
 #define NP 1024
@@ -132,7 +134,7 @@ void cl_bicgstab_init(int argc, char **argv)
   global_item_size[0] = NP; /* np Global number of work items */
   local_item_size[0] =  1;
 
-  if ( argc > 1 ) global_item_size[0] = atoi(argv[1]);    
+  if ( defop("-np") ) global_item_size[0] = atoi(getop("-np").c_str());    
   np = global_item_size[0];
 
   /* --> global_item_size[0] / local_item_size[0] becomes 2, which indirectly sets the number of workgroups to 2*/

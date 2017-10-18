@@ -18,6 +18,7 @@ double L_inf(vector<double>&x)
 int glirulus_init(int argc, char **argv)
 {
   initop(argc,argv);
+  cl_bicgstab_init(argc,argv);
   return 0;
 }
 
@@ -75,7 +76,7 @@ int glirulus_mm(sparse::matrix<double>&A,vector<double>&b)
 vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
 {
   vector<double> x;
-  x = GSLV1(A,b);
+  x = cl_bicgstab(A,b);
   return x;
 }
 

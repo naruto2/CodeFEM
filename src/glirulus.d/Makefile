@@ -12,7 +12,7 @@ COBJS=	$(CSRCS:.c=.o)
 all: $(PROG)
 
 $(PROG) : $(OBJS) $(COBJS)
-	c++ main.c++ $(OBJS) $(COBJS) -o $@ -lf2c
+	c++ main.c++ $(OBJS) $(COBJS) -o $@ -lf2c -lbicgstab -lOpenCL
 	rm *.o
 
 .c++.o:
