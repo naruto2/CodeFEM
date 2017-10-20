@@ -13,7 +13,7 @@ CodeFEM - Codes for FEM
   doc/psc98.txt is how to use psc98.
 
 * navierstokes() - A simulation of Navier-Stokes equations.
-
+  doc/navierstokes.txt is how to use navierstokes().
 
 ### 1st. How to build all library.
 $ cd bin/; ./mkall; cd ..
@@ -29,75 +29,9 @@ $ cd src/glirulus.d; make; cd ../..
 ### 4th. How to bulid psc98 command.
 $ cd src/psc98.d; make; cd ../..
   
-### 5th.
-# cp include/est/navierstokes.hpp   /usr/include/est
-# cp lib/libnavierstokes.a /usr/lib
-# cp lib/libxmesh.a /usr/lib
-# cp lib/libforeach.a /usr/lib
-# c++ main.c++ -lbicgstab -lOpenCL -lnavierstokes -lxmesh -lforeach
-# Usage: ./a.out [OPTION]
-# argv[1] = Number of the PE. s.t. ./a.out 16
+### 5th. How to build navierstokes sample.
+# cd src/navierstokes.d; make; cd ../..
 
-### This is a simulation of Navier-Stokes equations.
-/* main.c++ --- A sample source for Navier-Stokes equations. */
-#include <cstdio>
-#include <vector>
-#include <est/sparse.hpp>
-#include <est/bicgstab.hpp>
-#include <est/navierstokes.hpp>
-
-double u(double x, double y)
-{
-  if ( islabel("v0")||islabel("v1")||islabel("v2")||islabel("v3") )
-    return 0.0;
-
-  if ( islabel("e0")||islabel("e1")||islabel("e3") )
-    return 0.0;
-
-  if ( islabel("e2") )
-    return 1.0;
-
-  fprintf(stderr,"A wrong label is exist.\n");
-  abort();
-}
-
-
-double v(double x, double y)
-{
-  if ( islabel("v0")||islabel("v1")||islabel("v2")||islabel("v3") )
-    return 0.0;
-
-  if ( islabel("e0")||islabel("e1")||islabel("e2")||islabel("e3") )
-    return 0.0;
-  
-  fprintf(stderr,"A wrong label is exist.\n");
-  abort();
-}
-
-
-int main(int argc, char **argv)
-{
-  double Re, dt;
-
-  cl_bicgstab_init(argc,argv);
-  if(0!=navierstokes_init("cavity32.mesh",Re=5000,dt=0.001, u, v))
-    return 0;
-
-  sparse::matrix<double> A; vector<double> U, b;
-
-  for ( int T=0; T<= 36000000; T++) {
-    fprintf(stderr,"T");
-    navierstokes(A,U,b);
-
-    fprintf(stderr,"=");
-    U = cl_bicgstab(A,b);
-
-    fprintf(stderr,"%05d\n",T);
-    plotuv(U);
-    if ( 0 == (T%1000)) fprintuv(U);
-  }
-  return 0;
-}
 
 
 参考文献
