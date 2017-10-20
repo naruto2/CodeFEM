@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdio>
 #include "est/xmesh.hpp"
 #include "est/op.hpp"
 
@@ -10,6 +11,12 @@ int main(int argc, char **argv)
   vector<xyc> Z;
   vector<nde> N;
   ifstream ifs;
+
+  if (!defop("-f")){
+    fprintf(stderr,"Usage: xmesh -f (filename.xyc)\n");
+    fprintf(stderr,"       xmesh -f (filename.xyc) -o (output.mesh)\n");
+    return 0;
+  }
   
   if ( defop("-f") ) {
     if (getop("-f") == "-" ) {

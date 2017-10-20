@@ -2,8 +2,8 @@
 xmesh - 有限要素格子データの生成フィルタ 
 
 使い方
-$ xmesh -f [filename]
-$ xmesh -f [filename] -o [output]
+$ xmesh -f (filename.xyc)
+$ xmesh -f (filename.xyc) -o (output.mesh)
 
 解説
 xmesh は節点-座標対応表 (以下 xyc ファイルとする) から
