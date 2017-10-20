@@ -3,7 +3,7 @@ CodeFEM - Codes for FEM
 * xmesh - A generator of FEM mesh.
   doc/xmesh.txt is how to use xmesh command.
 
-* glirulus() - Yet Another Matrix Applications' New Engine.
+* glirulus, glirulus() - Yet Another Matrix Applications' New Engine.
   doc/glirulus.txt is how to use glirulus command and glirulus() function.
 
 * cl_bicgstab() - A linier solver using OpenCL.
@@ -11,8 +11,7 @@ CodeFEM - Codes for FEM
 
 * navierstokes() - A simulation of Navier-Stokes equations.
 
-* psc98_init(), psc98_check() - Parallel Software Contest '98 (PSC98)'s problem
-s.
+* psc98_init(), psc98_check() - Parallel Software Contest '98 (PSC98)'s problems.
 
 
 ### 1st.
