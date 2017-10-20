@@ -9,12 +9,12 @@ CodeFEM - Codes for FEM
 * cl_bicgstab() - A linier solver using OpenCL.
   doc/cl_bicgstab.txt is how to use cl_bicgstab().
 
+* psc98 - Parallel Software Contest '98 (PSC98)'s problems.
+
 * navierstokes() - A simulation of Navier-Stokes equations.
 
-* psc98_init(), psc98_check() - Parallel Software Contest '98 (PSC98)'s problems.
 
-
-### 1st.
+### 1st. How to build all library.
 $ cd bin/; ./mkall; cd ..
 
 ### 2nd. How to build xmesh command.
@@ -23,7 +23,10 @@ $ cd src/xmesh.d; make
 ### 3rd. How to bulid glirulus command.
 $ cd src/glirulus.d; make
 
-### 4th.
+### 4th. How to bulid psc98 command.
+$ cd src/psc98.d; make
+
+### 5th.
 # cp include/est/navierstokes.hpp   /usr/include/est
 # cp lib/libnavierstokes.a /usr/lib
 # cp lib/libxmesh.a /usr/lib
@@ -92,40 +95,6 @@ int main(int argc, char **argv)
   }
   return 0;
 }
-
-
-### 5th.
-# cp include/est/psc98.hpp   /usr/include/est
-# cp lib/libpsc98.a /usr/lib
-# c++ cl_main.c++ -lpsc98 -lbicgstab -lOpenCL -o cl_a.out
-# Usage: ./cl_a.out [OPTION]
-# argv[1] = Number of the PE. s.t. ./a.out 16
-
-### Those are Parallel Software Contest '98 (PSC98)'s problems.
-/* cl_main.c++ --- The problem solver of PSC98 by OpenCL. */
-#include <vector>
-#include <est/sparse.hpp>
-#include <est/bicgstab.hpp>
-#include <est/psc98.hpp>
-
-int main(int argc, char **argv){
-  cl_bicgstab_init(argc,argv);
-
-  sparse::matrix<double> A; vector<double> x, b;
-  psc98_init(A,b);
-  x = cl_bicgstab(A,b);
-  psc98_check(x);
-  return 0;
-}
-
-# cd src/psc98.d
-# make time                          2017-10-14
-Problem NO : 0 real	0m1.103s     0m1.157s
-Problem NO : 1 real	0m55.720s    1m0.852s
-Problem NO : 2 real	0m59.835s    1m4.855s
-Problem NO : 3 real	1m7.788s     1m8.780s
-Problem NO : 4 real	1m19.511s    1m35.627s
-Problem NO : 5 real	0m0.129s     0m0.142s
 
 
 参考文献

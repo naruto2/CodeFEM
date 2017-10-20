@@ -1,0 +1,45 @@
+コマンド
+psc98 - パラレル ソフトウェア コンテスト '98 ベンチマーク
+
+使い方
+$ export PSC98=([012345]); time psc98 (PE)
+
+psc98コマンドは、cl_bicgstab()ルーチンのベンチマークプログラムです。
+
+環境変数 PSC98にセットするのは、問題番号
+コマンドラインオプション (PE)は、並列台数です。
+
+以下のソースにおいて、cl_bicgstab_init(), cl_bicgstab()を差し替えることで、
+ご自身の連立一次方程式ソルバーを用いることが出来ます。
+
+/* psc98.c++ --- The problem solver of PSC98 by OpenCL. */
+#include <vector>
+#include <est/sparse.hpp>
+#include <est/bicgstab.hpp>
+#include <est/psc98.hpp>
+
+int main(int argc, char **argv){
+  cl_bicgstab_init(argc,argv);
+
+  sparse::matrix<double> A; vector<double> x, b;
+  psc98_init(A,b);
+  x = cl_bicgstab(A,b);
+  psc98_check(x);
+  return 0;
+}
+	  
+ベンチマーク結果
+
+$ cd src/psc98.d
+$ make time
+Problem NO : 0 real 0m1.157s
+Problem NO : 1 real 1m0.852s
+Problem NO : 2 real 1m4.855s
+Problem NO : 3 real 1m8.780s
+Problem NO : 4 real 1m35.627s
+Problem NO : 5 real 0m0.142s
+(2017-10-14計測)
+GPU:    NVIDIA Geforce GTS450
+CPU:    PhenomIIx6 3.2GHz
+Memory: 8G bytes
+OS:     Linux version 4.13.6-1-ARCH
