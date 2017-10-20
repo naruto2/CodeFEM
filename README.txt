@@ -1,20 +1,29 @@
 CodeFEM - Codes for FEM
 
 * xmesh - A generator of FEM mesh.
-* cl_bicgstab() - A linier solver using OpenCL.
-* navierstokes() - A simulation of Navier-Stokes equations.
-* psc98_init(), psc98_check() - Parallel Software Contest '98 (PSC98)'s problems.
+  doc/xmesh.txt is how to use xmesh command.
+
 * glirulus() - Yet Another Matrix Applications' New Engine.
+  doc/glirulus.txt is how to use glirulus command and glirulus() function.
+
+* cl_bicgstab() - A linier solver using OpenCL.
+
+* navierstokes() - A simulation of Navier-Stokes equations.
+
+* psc98_init(), psc98_check() - Parallel Software Contest '98 (PSC98)'s problem
+s.
+
 
 ### 1st.
 $ cd bin/; ./mkall; cd ..
 
-### 2nd.
+### 2nd. How to build xmesh command.
 $ cd src/xmesh.d; make
 
-### xmesh is a generator of FEM mesh.
+### 3rd. How to bulid glirulus command.
+$ cd src/glirulus.d; make
 
-### 3rd.
+### 4th.
 # mkdir /usr/include/est
 # cp include/est/sparse.hpp   /usr/include/est
 # cp include/est/bicgstab.hpp /usr/include/est
@@ -50,7 +59,7 @@ int main(int argc, char **argv)
 # http://kud.dip.jp/cl_bicgstab/
 
 
-### 4th.
+### 5th.
 # cp include/est/navierstokes.hpp   /usr/include/est
 # cp lib/libnavierstokes.a /usr/lib
 # cp lib/libxmesh.a /usr/lib
@@ -121,7 +130,7 @@ int main(int argc, char **argv)
 }
 
 
-### 5th.
+### 6th.
 # cp include/est/psc98.hpp   /usr/include/est
 # cp lib/libpsc98.a /usr/lib
 # c++ cl_main.c++ -lpsc98 -lbicgstab -lOpenCL -o cl_a.out

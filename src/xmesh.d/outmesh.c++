@@ -5,7 +5,7 @@ using namespace std;
 #include "est/xmesh.hpp"
 
 static char *label(vector<xyc>&Z,int i)
-{ static char *normal = (char*)"inner";
+{ static char *normal = (char*)"";
   return Z[i].label==NULL? normal:Z[i].label;
 }
 

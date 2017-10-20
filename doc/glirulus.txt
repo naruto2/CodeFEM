@@ -1,0 +1,43 @@
+glirulus() - Yet Another Matrix Applications' New Engine
+
+ファンクション glirulus()は行列の性質を判断して、 連立一次方程式の求解に
+最善を尽くす。解法の自動選択の流れ図に従い、
+TDMA法、点ヤコビ前処理つきBi-CGSTAB法、
+Bi-CGSTAB法、 ガウスの消去法のうちの何れかを用いる。
+このことにより、 時間さえかければ,
+MatrixMarketの実正方行列の殆どを解くことが出来る。
+
+glirulus()による解法の自動選択の流れ図
+
+[三重対角行列か?] Yes->[[TDMA法]
+ No|
+   V
+[対角成分にゼロは無いか?]Yes->[点ヤコビビ前処理つきBi-CGSTAB法]
+ No|                             |
+   |                             V
+   |                          [残差は十分小さいか?]Yes->[[計算完了]
+   |                           No|
+   |                             V
+   |			      [ガウスの消去法]
+   V　
+[Bi-CGSTAB法]　
+   |
+   V
+[残差は十分小さいか?]Yes->[計算完了]
+ No|
+   V
+[ガウスの消去法]   
+
+
+--
+
+コマンド glirulus - MatrixMarket形式の連立一次方程式求解
+
+$ glirulus -A (filename.mtx) [-b (filename_rhs1.mtx)] [-o (filename_x1.mtx)]
+
+コマンド glirulusは glirulus()エンジンを用いたコマンドインターフェースです。
+オプション-AでMatrixmarket形式の実正方行列 filename.mtx(=Aとする)と、
+オプション-bでMatrixmarket形式の一次元ベクトル filename_rhs1.mtx(=bとする)
+を引数に与えると、
+連立方程式 Ax=b の解xを
+オプション-oで指定したファイル filename_x1.mtxに保存する。
