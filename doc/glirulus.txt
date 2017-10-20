@@ -31,8 +31,8 @@ glirulus()による解法の自動選択の流れ図
 /* sample.c++ -- glirulus()のサンプルソース */
 #include <cstdio>
 #include <vector>
-#include <est/sparse.hpp>
-#include <est/glirulus.hpp>
+#include "est/sparse.hpp"
+#include "est/glirulus.hpp"
 
 int main(int argc, char **argv)
 {

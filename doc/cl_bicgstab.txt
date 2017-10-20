@@ -37,8 +37,8 @@ cl_bicgstab()単体でも用いることができる。
 /* sample.c++ --- cl_bicgstab()を用いたサンプルソール */
 #include <cstdio>
 #include <vector>
-#include <est/sparse.hpp>
-#include <est/bicgstab.hpp>
+#include "est/sparse.hpp"
+#include "est/bicgstab.hpp"
 
 int main(int argc, char **argv)
 {
