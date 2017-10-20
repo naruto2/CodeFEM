@@ -1,0 +1,68 @@
+cl_bicgstab() - Bi-CGSTAB法による連立一次方程式ソルバー (OpenCL版)
+
+ファンクション cl_bicgstab()は、Bi-STABCGS法を使った連立一次方程式
+ソルバーである。
+
+OpenCLを用いて、並列化を行っている。
+
+ファンクション glirulus()に統合されているが、コマンドラインオプションで、
+cl_bicgstab()ルーチンのみを用いることもできる。
+
+glirulus()を用いることで、ユーザーは意識することなく cl_bicgstab()を
+利用しているのであるが、ベンチマーク用途のため、
+コマンドラインオプションで、cl_bicgstab()ルーチンのみを用いるには、
+-solverオプションで、切り替えを行う。
+
+$ a.out -solver cl_bicgstab
+
+glirulus()あるいは cl_bicgsab()を用いるプログラムは、以下のコマンドライン
+オプションも利用可能である。
+
+$ a.out -np (Number of Processor Elements)
+
+以上をまとめると、
+
+$ a.out [-solver (algorithm)] [-np (PE)]
+
+algorithmに用いることのできる文字列は次の通り、
+
+-solver cl_bicgstab
+     Bi-CGSTSB法
+-solver GSLV1
+     ガウスの消去法
+
+ユーザープログラムに組み込む際には、glirulus()を用いることをお勧めするが、
+cl_bicgstab()単体でも用いることができる。
+
+/* sample.c++ --- cl_bicgstab()を用いたサンプルソール */
+#include <cstdio>
+#include <vector>
+#include <est/sparse.hpp>
+#include <est/bicgstab.hpp>
+
+int main(int argc, char **argv)
+{
+  cl_bicgstab_init(argc,argv);
+
+  sparse::matrix<double> A(3);
+    vector<double> b(3), x;
+
+  A[1][1] = 2.0; A[1][2] = 1.0; b[1] = 3.0;
+                 A[2][2] = 1.0; b[2] = 1.0;
+
+  x = cl_bicgstab(A,b);
+  printf("x[1]=%f\n",x[1]);
+  printf("x[2]=%f\n",x[2]);
+  return 0;
+}
+
+
+cl_bicgstab()は三重対角行列に対しては、TDMA法を用いる。
+行列の対角成分にゼロが無いときは、点ヤコビ前処理を自動で行う。
+
+また、-npオプションで 0を指定した場合は、CPU単体で計算を行う。
+-npオプションは  0 <= -np <= 1024 の範囲で効果がある。
+この範囲を越える場合は、 -np 1024 と同等である。
+
+# The performance analysis of cl_bicgstab() (in Japanese) is available.
+# http://kud.dip.jp/cl_bicgstab/
