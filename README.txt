@@ -10,6 +10,7 @@ CodeFEM - Codes for FEM
   doc/cl_bicgstab.txt is how to use cl_bicgstab().
 
 * psc98 - Parallel Software Contest '98 (PSC98)'s problems.
+  doc/psc98.txt is how to use psc98.
 
 * navierstokes() - A simulation of Navier-Stokes equations.
 
@@ -27,7 +28,7 @@ $ cd src/glirulus.d; make; cd ../..
 
 ### 4th. How to bulid psc98 command.
 $ cd src/psc98.d; make; cd ../..
-
+  
 ### 5th.
 # cp include/est/navierstokes.hpp   /usr/include/est
 # cp lib/libnavierstokes.a /usr/lib
