@@ -1,4 +1,4 @@
-xmeshにヘルプメッセージをつける
+xmeshにヘルプメッセージをつける... done 2017-10-20
 
 kanto.xycから super-triangeを取り除くべく、データを調整する。
 
