@@ -1,8 +1,8 @@
 #include <cstdio>
 #include <vector>
-#include <est/sparse.hpp>
-#include <est/bicgstab.hpp>
-#include <est/navierstokes.hpp>
+#include "est/sparse.hpp"
+#include "est/bicgstab.hpp"
+#include "est/navierstokes.hpp"
 
 double u(double x, double y)
 {

@@ -14,8 +14,8 @@
 #include "dij.hpp"
 #include "hxij.hpp"
 #include "hyij.hpp"
-#include <est/sparse.hpp>
-#include <est/bicgstab.hpp>
+#include "est/sparse.hpp"
+#include "est/bicgstab.hpp"
 #include "est/xmesh.hpp"
 #include "est/foreach.hpp"
 #include "est/solver.hpp"

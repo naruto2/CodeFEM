@@ -1,9 +1,8 @@
-a.out: main.c++
-	(cd ../bicgstab.d; make obj)
-	c++ -g main.c++ -lnavierstokes -lbicgstab -lxmesh -lforeach -lOpenCL
+navierstokes: main.c++
+	c++ -g main.c++ -Llib -lnavierstokes -lbicgstab -lxmesh -lforeach -lOpenCL -lop -o navierstokes
 
 clean: ;
-	rm -f a.out lib/libnavierstokes.a
+	rm -f navierstokes lib/libnavierstokes.a
 
 obj: ;
 	c++ -c navierstokes.c++ 
