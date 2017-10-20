@@ -35,26 +35,26 @@ namespace sparse {
     FILE *pp;
     long i, j, n=A.size();
 
-    pp = popen("gnuplot","w");
-    fprintf(pp,"unset border\n");
-    fprintf(pp,"unset xtics\n");
-    fprintf(pp,"set xrange [0:%d]\n",n);
-    fprintf(pp,"set yrange [%d:0]\n",n);
-    fprintf(pp,"set size square\n");
+    pp = fopen("xgraph.dat","w");
+    //fprintf(pp,"unset border\n");
+    //fprintf(pp,"unset xtics\n");
+    //fprintf(pp,"set xrange [0:%d]\n",n);
+    //fprintf(pp,"set yrange [%d:0]\n",n);
+    //fprintf(pp,"set size square\n");
     
     for(i=1;i<n;i++){
       for( auto it : A[i]){
 	j = it.first;
-	if ( A[i][j] != 0 ) fprintf(pp,"set label \"%.4f\" at %d, %d;\n",A[i][j],j,i);
+	if ( A[i][j] != 0 ) fprintf(pp,"%d %d\n",j,-i);
+	  //fprintf(pp,"set label \"%.4f\" at %d, %d;\n",A[i][j],j,i);
       }
     }
-    fprintf(pp,"plot '-' with lines title \"\"\n");
-    fprintf(pp,"1 1\n");
-    fprintf(pp,"%d %d\n",n-1,n-1);
-    fprintf(pp,"e\n\n");
+    //fprintf(pp,"plot '-' with lines title \"\"\n");
+    //fprintf(pp,"1 1\n");
+    //fprintf(pp,"%d %d\n",n-1,n-1);
+    //fprintf(pp,"e\n\n");
     fflush(pp);
-    sleep(60*3);
-    pclose(pp);
+    fclose(pp);
   };
 
 }

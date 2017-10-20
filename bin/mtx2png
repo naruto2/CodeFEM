@@ -1,0 +1,19 @@
+#!/bin/sh
+
+if [ "$1"rm = rm ];then
+   rm -f plot.pdf plot.ppm xgraph.dat
+   exit
+fi
+
+
+   
+
+
+
+plotmtx -f $1
+xgraph xgraph.dat -pdf -p 1
+pdftoppm plot.pdf > plot.ppm
+convert plot.ppm $1.png
+
+
+

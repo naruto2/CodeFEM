@@ -1,9 +1,9 @@
 #include <cstdio>
 #include <cmath>
 #include "mmio.h"
-#include <est/sparse.hpp>
-#include <est/bicgstab.hpp>
-#include <est/op.hpp>
+#include "est/sparse.hpp"
+#include "est/bicgstab.hpp"
+#include "est/op.hpp"
 
 
 void matrix2png(sparse::matrix<double>&A, const char *fname)
