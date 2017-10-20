@@ -1,7 +1,7 @@
 #include <cstdio>
-#include <est/sparse.hpp>
+#include "est/sparse.hpp"
 #include <vector>
-#include "glirulus.hpp"
+#include "est/glirulus.hpp"
 
 int main(int argc, char **argv)
 {

@@ -1,3 +1,7 @@
+a.out: sample.c++
+	c++ sample.c++ -Llib -lbicgstab -lop -lOpenCL
+
+
 obj: bicgstab.c++ bicgstab.hpp ../dataparallel.d/dataparallel.c++
 	rm -f lib/libbicgstab.a
 	c++ -g -c bicgstab.c++ ../dataparallel.d/dataparallel.c++
@@ -8,5 +12,3 @@ obj: bicgstab.c++ bicgstab.hpp ../dataparallel.d/dataparallel.c++
 clean: ;
 	rm -f *.o a.out
 
-a.out: ;
-	c++ sample.c++ -lbicgstab -lOpenCL

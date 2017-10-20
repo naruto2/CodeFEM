@@ -1,0 +1,5 @@
+xmeshにヘルプメッセージをつける
+
+kanto.xycから super-triangeを取り除くべく、データを調整する。
+
+

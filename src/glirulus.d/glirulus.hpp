@@ -3,12 +3,7 @@
 
 #include <cstdio>
 #include <cmath>
-#include "mmio.h"
-#include <est/sparse.hpp>
-#include <est/bicgstab.hpp>
-#include <est/op.hpp>
 #include <vector>
-#include "est/GLU1.hpp"
 
 double L_inf(vector<double>&x);
 int glirulus_init(int argc, char **argv);

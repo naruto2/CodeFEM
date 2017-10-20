@@ -1,7 +1,7 @@
 #include <vector>
-#include <est/sparse.hpp>
-#include <est/bicgstab.hpp>
-#include <est/psc98.hpp>
+#include "est/sparse.hpp"
+#include "est/bicgstab.hpp"
+#include "est/psc98.hpp"
 
 
 int main(int argc, char **argv){

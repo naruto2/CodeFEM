@@ -16,15 +16,17 @@ CodeFEM - Codes for FEM
 
 ### 1st. How to build all library.
 $ cd bin/; ./mkall; cd ..
+# mkdir -p /usr/include/est
+# cp src//dataparallel.d/cl_bicgstab_kernel.cl /usr/include/est
 
 ### 2nd. How to build xmesh command.
-$ cd src/xmesh.d; make
+$ cd src/xmesh.d; make; cd ../..
 
 ### 3rd. How to bulid glirulus command.
-$ cd src/glirulus.d; make
+$ cd src/glirulus.d; make; cd ../..
 
 ### 4th. How to bulid psc98 command.
-$ cd src/psc98.d; make
+$ cd src/psc98.d; make; cd ../..
 
 ### 5th.
 # cp include/est/navierstokes.hpp   /usr/include/est

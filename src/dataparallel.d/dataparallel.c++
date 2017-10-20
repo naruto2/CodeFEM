@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <CL/cl.h>
-#include <est/op.hpp>
+#include "est/op.hpp"
 
 
 #define MAX_SOURCE_SIZE (0x100000)

@@ -1,6 +1,5 @@
 psc98: psc98.c++ lib/libbicgstab.a lib/libpsc98.a
-	(cd ../bicgstab.d; make obj)
-	c++ psc98.c++  -lpsc98 -lbicgstab -lOpenCL lib/libop.a -o psc98
+	c++ psc98.c++  -Llib -lpsc98 -lbicgstab -lop -lOpenCL -o psc98
 
 clean: ;
 	rm -f psc98 *.o lib/libpsc98.a

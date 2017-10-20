@@ -23,14 +23,14 @@ OBJS = $(SRCS:.c++=.o)
 .SUFFIXES: .c++ .o
 
 CPPFLAGS =
-LDFLAGS = lib/*.a
+LDFLAGS = -Llib -lop
 
 .PHONY: all clean
 
 all: $(PROG)
 
 $(PROG) : $(OBJS)
-	c++ main.c++ $(OBJS) -o $@ $(LDFLAGS)
+	c++ xmesh.c++ $(OBJS) -o $@ $(LDFLAGS)
 
 .c++.o:
 	c++ $(CPPFLAGS) -c $< 
@@ -40,15 +40,6 @@ obj: $(OBJS)
 	rm *.o
 
 clean :
-	rm -f $(OBJS) $(PROG) lib/libxmesh.a kanto.msh pt.msh test
+	rm -f $(OBJS) $(PROG) lib/libxmesh.a 
 
-install: $(PROG)
-	mv $(PROG) /usr/bin
 
-test : $(PROG)
-	rm -f kanto.msh pt.msh
-	./xmesh kanto.xyc -o kanto.msh
-	./xmesh pt.xyc -o pt.msh
-	diff kanto_org.msh kanto.msh
-	diff pt_org.msh pt.msh
-	touch test

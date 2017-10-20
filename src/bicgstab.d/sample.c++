@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <vector>
-#include <est/sparse.hpp>
-#include <est/bicgstab.hpp>
+#include "est/sparse.hpp"
+#include "est/bicgstab.hpp"
 
 int main(int argc, char **argv)
 {
