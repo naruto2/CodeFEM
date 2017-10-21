@@ -7,6 +7,8 @@ yosen.o: yosen.c
 clean: ;
 	rm -f a.out *.o
 
-obj: ;
-	echo -n
+obj:  Elu.c++
+	c++ -c Elu.c++
+	ar cr lib/libEigen.a Elu.o
+	rm -f Elu.o
 

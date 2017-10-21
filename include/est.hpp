@@ -14,5 +14,6 @@
 #include "est/navierstokes.hpp"
 #include "est/GLU1.hpp"
 #include "est/glirulus.hpp"
+#include "est/Eigen.hpp"
 
 #endif

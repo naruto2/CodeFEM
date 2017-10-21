@@ -73,14 +73,14 @@ Vector Vgmres(Smatrix &A, Vector &b);
 Vector Vogita(Smatrix &A, Vector &b);
 
 extern "C" {
-  void genmat(int,int*,double*,double*);
-  void chkval(FILE*,int,double*);
+  //void genmat(int,int*,double*,double*);
+  //void chkval(FILE*,int,double*);
 }
-void psc98(Smatrix &A, Vector &b);
-void checkpsc98(Vector &x);
+//void psc98(Smatrix &A, Vector &b);
+//void checkpsc98(Vector &x);
 
 #include "Esolvers.h"
 #include "Vsolvers.h"
 #include "Dsolvers.h"
-#include "psc98.h"
+//#include "psc98.h"
 #include "MatrixMarket.h"

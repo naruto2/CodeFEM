@@ -74,7 +74,7 @@ vector<double> vcl_bicgstab(sparse::matrix<double>& A, vector<double>& b)
   matrix2gpumatrix(A,Agpu);
   vector2gpuvector(b,bgpu);
 
-  viennacl::linalg::bicgstab_tag  custom_bicgstab(1e-7,100000000000000);
+  viennacl::linalg::bicgstab_tag  custom_bicgstab(1e-7,10000000);
 
   if ( getop("-pre") == "jacobi") {
     viennacl::linalg::jacobi_precond< gpumatrix >
@@ -112,12 +112,16 @@ vector<double> vcl_gmres(sparse::matrix<double>& A, vector<double>& b)
   matrix2gpumatrix(A,Agpu);
   vector2gpuvector(b,bgpu);
 
-  viennacl::linalg::jacobi_precond< gpumatrix >  vcl_jacobi(Agpu,viennacl::linalg::jacobi_tag());
-  viennacl::linalg::gmres_tag  custom_gmres(1e-5,10000000,50);
+  viennacl::linalg::gmres_tag  custom_gmres(1e-7,10000000,50);
 
-  xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_gmres, vcl_jacobi);
-
+  if ( getop("-pre") == "jacobi") {
+    viennacl::linalg::jacobi_precond< gpumatrix >
+      vcl_jacobi(Agpu,viennacl::linalg::jacobi_tag());
+    xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_gmres, vcl_jacobi);
+  }
+  else
+    xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_gmres);
   gpuvector2vector(xgpu,x);
-
+  viennacl::backend::finish();
   return x;
 }

@@ -9,7 +9,7 @@ int main(int argc, char **argv){
   
   sparse::matrix<double> A; vector<double> x, b;
   psc98_init(A,b);
-  x = vcl_bicgstab(A,b);
+  x = vcl_gmres(A,b);
   psc98_check(x);
   return 0;
 }
