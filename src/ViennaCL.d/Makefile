@@ -1,6 +1,6 @@
 a.out: main.c++
 	make obj
-	c++ -Wall main.c++ -Llib -lpsc98 -lViennaCL -lm -lOpenCL
+	c++ -Wall main.c++ -Llib -lpsc98 -lViennaCL -lop -lm -lOpenCL
 
 time: a.out
 	export PSC98=0; time ./a.out

@@ -9,8 +9,7 @@
 #include "bicgstabinf.hpp"
 #include "gmresinf.hpp"
 #include "togpu.hpp"
-
-
+#include "est/op.hpp"
 
 vector<double> vcl_cg(sparse::matrix<double>& A, vector<double>& b)
 {
@@ -74,14 +73,28 @@ vector<double> vcl_bicgstab(sparse::matrix<double>& A, vector<double>& b)
   matrix2gpumatrix(A,Agpu);
   vector2gpuvector(b,bgpu);
 
-
-  viennacl::linalg::jacobi_precond< gpumatrix >  vcl_jacobi(Agpu,viennacl::linalg::jacobi_tag());
-
-  
   viennacl::linalg::bicgstab_tag  custom_bicgstab(1e-7,100000000000000);
 
-  xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_bicgstab, vcl_jacobi);
+  if ( getop("-pre") == "jacobi") {
+    viennacl::linalg::jacobi_precond< gpumatrix >
+      vcl_jacobi(Agpu,viennacl::linalg::jacobi_tag());
+  
+    xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_bicgstab, vcl_jacobi);
+  }
+  if ( getop("-pre") == "ilut" ) {
+    viennacl::linalg::ilut_tag ilut_conf(10, 1e-7);
+    //10 entries, rel. tol. 1e-7
 
+    viennacl::linalg::ilut_precond< viennacl::compressed_matrix<double> >
+      vcl_ilut(Agpu, ilut_conf);
+
+    xgpu = viennacl::linalg::solve(Agpu,
+				   bgpu,
+				   custom_bicgstab,
+				   vcl_ilut);
+  }
+  else
+    xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_bicgstab);
 
   gpuvector2vector(xgpu,x);
 
