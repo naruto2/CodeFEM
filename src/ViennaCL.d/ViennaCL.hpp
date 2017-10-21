@@ -1,150 +1,108 @@
-#include <stdio.h>
-
 #ifndef _EST_VIENNACL_HPP_
 #define _EST_VIENNACL_HPP_
-
 #define VIENNACL_WITH_OPENCL
 
-#include <iostream>
-#include <viennacl/scalar.hpp>
-#include <viennacl/vector.hpp>
-#include <viennacl/matrix.hpp>
-#include <viennacl/compressed_matrix.hpp>
-#include <viennacl/linalg/cg.hpp>
-#include <viennacl/linalg/row_scaling.hpp>
 #include <viennacl/linalg/jacobi_precond.hpp>
+#include <viennacl/linalg/ichol.hpp>
+#include <viennacl/linalg/detail/ilu/chow_patel_ilu.hpp>
+#include "cginf.hpp"
+#include "bicgstabinf.hpp"
+#include "gmresinf.hpp"
+#include "togpu.hpp"
 
 
-using viennacl::linalg::ilut_precond;
-using viennacl::linalg::jacobi_precond;
-using viennacl::linalg::row_scaling;
-using viennacl::compressed_matrix;
-using viennacl::linalg::cg_tag;
-//using viennacl::linalg::solve;
-using viennacl::linalg::ilut_tag;
-using viennacl::linalg::jacobi_tag;
-using viennacl::linalg::row_scaling_tag;
-
-typedef compressed_matrix<double>  SparseMatrix;
-typedef std::vector< std::map< unsigned int, double> > cpumatrix;
-//typedef std::vector<double> vector;
-typedef viennacl::compressed_matrix<double> gpumatrix;
-typedef viennacl::vector<double> gpuvector;
-typedef ilut_precond< SparseMatrix >  ILU;
-typedef row_scaling< SparseMatrix > Scaling;
-typedef jacobi_precond< SparseMatrix > Jacobi;
-
-
-vector<double> gpucg(matrix& A, vector<double>& b)
+vector<double> gpucg(sparse::matrix<double>& A, vector<double>& b)
 {
   int n = A.size();
   vector<double> x(n);
-  gpumatrix Agpu(n,0); gpuvector bgpu(n), xgpu(n);
-  cpumatrix Acpu(n);
+  viennacl::compressed_matrix<double> Agpu(n,0);
+  viennacl::vector<double>     bgpu(n), xgpu(n);
 
-  for (unsigned int i=0; i<A.size(); i++) {
-    for ( auto it : A[i] ){
-      int j = it.first;
-      Acpu[i][j] = A[i][j];
-    }
-  }
-  
-  copy(Acpu, Agpu);
-  copy(b.begin(), b.end(), bgpu.begin());
+  matrix2gpumatrix(A,Agpu);
+  vector2gpuvector(b,bgpu);
 
-  ILU     vcl_ilut(Agpu, ilut_tag(8,1e-3));
-  Scaling vcl_row_scaling(Agpu, row_scaling_tag(2));
-  Jacobi  vcl_jacobi(Agpu,jacobi_tag());
-  cg_tag  custom_cg(1e-5,1000000);
+  viennacl::linalg::jacobi_precond< gpumatrix >  vcl_jacobi(Agpu,viennacl::linalg::jacobi_tag());
+
+  viennacl::linalg::cg_tag  custom_cg(1e-5,1000000);
 
   xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_cg, vcl_jacobi);
 
-  copy(xgpu.begin(), xgpu.end(), x.begin());
+  gpuvector2vector(xgpu,x);
+
   return x;
 }
 
-#include <viennacl/linalg/bicgstab.hpp>
 
-using viennacl::linalg::bicgstab_tag;
-
-vector<double> gpubicgstab(matrix& A, vector<double>& b)
+vector<double> gpucgilut(sparse::matrix<double>& A, vector<double>& b)
 {
   int n = A.size();
   vector<double> x(n);
-  gpumatrix Agpu(n,0); gpuvector bgpu(n), xgpu(n);
-  cpumatrix Acpu(n);
+  viennacl::compressed_matrix<double> Agpu(n,0);
+  viennacl::vector<double>     bgpu(n), xgpu(n);
 
-  Acpu.clear();
-  Acpu.resize(n);
-
+  matrix2gpumatrix(A,Agpu);
+  vector2gpuvector(b,bgpu);
+  viennacl::linalg::cg_tag  custom_cg(1e-5,1000000);
   
-  for (unsigned int i=0; i<A.size(); i++) {
-    for ( auto it : A[i] ){
-      int j = it.first;
-      Acpu[i][j] = A[i][j];
-    }
-  }
+  // viennacl::linalg::ichol0_tag ichol0_conf;
+  // typedef viennacl::linalg::ichol0_precond<
+  // viennacl::compressed_matrix<double> >  vcl_ilut_t;
+  // vcl_ilut_t vcl_ilut(Agpu,ichol0_conf);
+  // viennacl::linalg::jacobi_precond< gpumatrix >  vcl_jacobi(Agpu,viennacl::linalg::jacobi_tag());
 
-  copy(Acpu, Agpu);
-  copy(b.begin(), b.end(), bgpu.begin());
-  //ILU          vcl_ilut(Agpu, ilut_tag(256,1e-14));
-  //Scaling vcl_row_scaling(Agpu, row_scaling_tag(2));
-  Jacobi  vcl_jacobi(Agpu,jacobi_tag());
-  bicgstab_tag custom_bicgstab(1e-6,100000);
+  viennacl::linalg::chow_patel_tag icc_conf;
+  typedef viennacl::linalg::chow_patel_icc_precond<
+    viennacl::compressed_matrix<double> > vcl_icc_t;
+  vcl_icc_t vcl_icc(Agpu,icc_conf);
+  
+  xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_cg,vcl_icc);
 
-  //viennacl::linalg::ilu0_tag ilu0_config;
-  //viennacl::linalg::ilu0_precond< SparseMatrix > vcl_ilut(Agpu, ilu0_config);
-  printf("hello\n");
+  gpuvector2vector(xgpu,x);
+
+  return x;
+}
+
+
+vector<double> vcl_bicgstab(sparse::matrix<double>& A, vector<double>& b)
+{
+  int n = A.size();
+  vector<double> x(n);
+  viennacl::compressed_matrix<double> Agpu(n,0);
+  viennacl::vector<double>     bgpu(n), xgpu(n);
+  A[0][0] = 1.0;
+  matrix2gpumatrix(A,Agpu);
+  vector2gpuvector(b,bgpu);
+
+  viennacl::linalg::jacobi_precond< gpumatrix >  vcl_jacobi(Agpu,viennacl::linalg::jacobi_tag());
+
+  viennacl::linalg::bicgstab_tag  custom_bicgstab(1e-5,1000000);
+
   xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_bicgstab, vcl_jacobi);
-  printf("world\n");
-  copy(xgpu.begin(), xgpu.end(), x.begin());
+
+  gpuvector2vector(xgpu,x);
+
   return x;
 }
 
 
-#include <viennacl/linalg/gmres.hpp>
-
-using viennacl::linalg::gmres_tag;
-
-vector<double> gpugmres(matrix& A, vector<double>& b)
+vector<double> gpugmres(sparse::matrix<double>& A, vector<double>& b)
 {
   int n = A.size();
   vector<double> x(n);
-  gpumatrix Agpu(n,0); gpuvector bgpu(n), xgpu(n);
-  cpumatrix Acpu(n);
+  viennacl::compressed_matrix<double> Agpu(n,0);
+  viennacl::vector<double>     bgpu(n), xgpu(n);
 
-  Acpu.clear();
-  Acpu.resize(n);
+  matrix2gpumatrix(A,Agpu);
+  vector2gpuvector(b,bgpu);
 
-  
-  for (unsigned int i=0; i<A.size(); i++) {
-    for ( auto it : A[i] ){
-      int j = it.first;
-      Acpu[i][j] = A[i][j];
-    }
-  }
+  viennacl::linalg::jacobi_precond< gpumatrix >  vcl_jacobi(Agpu,viennacl::linalg::jacobi_tag());
+  viennacl::linalg::gmres_tag  custom_gmres(1e-5,10000000,50);
 
-  copy(Acpu, Agpu);
-  copy(b.begin(), b.end(), bgpu.begin());
-  //ILU          vcl_ilut(Agpu, ilut_tag(256,1e-14));
-  //Scaling vcl_row_scaling(Agpu, row_scaling_tag(2));
-  //Jacobi  vcl_jacobi(Agpu,jacobi_tag());
-  //bicgstab_tag custom_bicgstab(1e-12,1000000);
-  viennacl::linalg::block_ilu_precond<SparseMatrix, viennacl::linalg::ilu0_tag> vcl_block_ilu0(Agpu, viennacl::linalg::ilu0_tag());
-  gmres_tag custom_gmres_tag(1e-8, 100000, 40);
-  //viennacl::linalg::ilu0_tag ilu0_config;
-  //viennacl::linalg::ilu0_precond< SparseMatrix > vcl_ilut(Agpu, ilu0_config);
-  
-  xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_gmres_tag, vcl_block_ilu0);
-  std::cout << "No. of iters: " << custom_gmres_tag.iters() << std::endl;
-  std::cout << "Est. error: " << custom_gmres_tag.error() << std::endl;
-  
-  copy(xgpu.begin(), xgpu.end(), x.begin());
+  xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_gmres, vcl_jacobi);
+
+  gpuvector2vector(xgpu,x);
+
   return x;
 }
-
-
 
 #endif
-
-

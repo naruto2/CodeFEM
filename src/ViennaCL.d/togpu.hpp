@@ -3,7 +3,7 @@ typedef viennacl::compressed_matrix<double>            gpumatrix;
 typedef viennacl::vector<double>                       gpuvector;
 
 
-void matrix2gpumatrix(matrix &A, gpumatrix &Agpu)
+void matrix2gpumatrix(sparse::matrix<double> &A, gpumatrix &Agpu)
 {
   int n = A.size();
 
