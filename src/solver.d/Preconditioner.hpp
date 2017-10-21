@@ -1,4 +1,5 @@
 #include <vector>
+#include "est/sparse.hpp"
 
 using namespace std;
 
@@ -9,7 +10,7 @@ using namespace std;
 class Preconditioner{
 public:
 
-  mutable matrix A, L;
+  mutable sparse::matrix<double> A, L;
   mutable vector<double> d;
   mutable int solver = 0;
   
@@ -22,7 +23,7 @@ public:
   }
 
 
-  void jacobi(matrix& pA) {
+  void jacobi(sparse::matrix<double>& pA) {
     A = pA;
   }
 
@@ -38,7 +39,7 @@ public:
   vector<double>& icsolve(vector<double>& b) const{
     int n = b.size();
     static vector<double> x(n), y(n);
-    L.sync();
+
 
     for(int i = 0; i < n; ++i){
       double rly = b[i];
@@ -70,13 +71,13 @@ public:
     return solve(p);
   }
   
-  void ic(matrix& Ap) {
+  void ic(sparse::matrix<double>& Ap) {
     solver = 1;
     A = Ap;
     int n = A.size();
     L.resize(n);
     d.resize(n);
-    A.sync();
+
     IncompleteCholeskyDecomp2(A, L, d, n);
   }
   

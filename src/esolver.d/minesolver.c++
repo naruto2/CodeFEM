@@ -1,3 +1,4 @@
+#include "est/sparse.hpp"
 #include "est/solver.hpp"
 #include "lu.h"
 

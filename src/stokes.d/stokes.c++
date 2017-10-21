@@ -7,6 +7,7 @@
 #include <future>
 #include <thread>
 #include <unistd.h>
+#include "est/sparse.hpp"
 #include "est/op.hpp"
 #include "est/xmesh.hpp"
 #include "est/matrix.hpp"

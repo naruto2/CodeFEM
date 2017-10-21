@@ -1,5 +1,6 @@
 #include <cmath>
 #include <vector>
+#include "est/sparse.hpp"
 #include "est/solver.hpp"
 
 

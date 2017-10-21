@@ -1,10 +1,11 @@
+#include "est/sparse.hpp"
 #include "est/solver.hpp"
 #include "est/esolver.hpp"
 #include "est/psc98.hpp"
 
 int main(int argc, char ** argv) {
-  matrix A, A1, A2; vector<double> b, b1, b2, x;
-  getprob(A,b);
+  sparse::matrix<double> A, A1, A2; vector<double> b, b1, b2, x;
+  psc98_init(A,b);
 #if 0
   A.resize(3);
   b.resize(A.size());
@@ -25,7 +26,7 @@ int main(int argc, char ** argv) {
   x = cheby(M,A,b,mine,maxe);
 
   //for ( int i=0; i< x.size(); i++) printf("%f\n",x[i]); return 0;
-  check(x);
+  psc98_check(x);
   return 0;
 }
 

@@ -7,6 +7,7 @@
 #include <future>
 #include <thread>
 #include <unistd.h>
+#include "est/sparse.hpp"
 #include "est/op.hpp"
 #include "est/xmesh.hpp"
 #include "est/matrix.hpp"
@@ -19,7 +20,7 @@ using namespace std;
 vector<xyc> ncpolynomial1(vector<xyc> Z, vector<nde> &N );
 void estiva_forgammap1(long *x);
 int estiva_forgammap1_loop(long *x, const char *name, vector<xyc> &Z);
-void printmatrix(matrix &A, const char *name);  
+void printmatrix(sparse::matrix<double> &A, const char *name);  
 void printvector(vector<double> &b, const char *name);
 void plotncpolynomial1(vector<xyc> Mid, vector<double> x);
 void setanimefilename(const char *fname);
@@ -34,14 +35,14 @@ void contop(int &argc0, char** &argv0);
 int kbhit(void);
 
 vector<double> S_(vector<xyc> &Z, vector<nde> &N);
-matrix M__(vector<xyc> &Mid, vector<nde> &N, vector<double> &S);
-matrix K__(vector<xyc> &Mid, vector<xyc> &Z, vector<nde> &N, vector<double> &S);
-matrix Hx__(vector<xyc> &Mid, vector<xyc> &Z, vector<nde> &N);
-matrix Hy__(vector<xyc> &Mid, vector<xyc> &Z, vector<nde> &N);
-void A__(matrix &A, vector<xyc> &Mid, vector<nde> &N, matrix &M, double tau, matrix &K, matrix &Hx, matrix &Hy);
-void Rhs(vector<double> &b, vector<xyc> &Mid, vector<nde> &N,matrix &M,double t,vector<double> &Fx,vector<double> &Fy,
+sparse::matrix<double> M__(vector<xyc> &Mid, vector<nde> &N, vector<double> &S);
+sparse::matrix<double> K__(vector<xyc> &Mid, vector<xyc> &Z, vector<nde> &N, vector<double> &S);
+sparse::matrix<double> Hx__(vector<xyc> &Mid, vector<xyc> &Z, vector<nde> &N);
+sparse::matrix<double> Hy__(vector<xyc> &Mid, vector<xyc> &Z, vector<nde> &N);
+void A__(sparse::matrix<double> &A, vector<xyc> &Mid, vector<nde> &N, sparse::matrix<double> &M, double tau, sparse::matrix<double> &K, sparse::matrix<double> &Hx, sparse::matrix<double> &Hy);
+void Rhs(vector<double> &b, vector<xyc> &Mid, vector<nde> &N,sparse::matrix<double> &M,double t,vector<double> &Fx,vector<double> &Fy,
 	 vector<double> &Ux, vector<double> &Uy, vector<double> &x);
-void boundary_condition(vector<nde> &N, vector<xyc> &Mid, matrix &A, vector<double> &b);
+void boundary_condition(vector<nde> &N, vector<xyc> &Mid, sparse::matrix<double> &A, vector<double> &b);
 
   
 	 
@@ -66,14 +67,14 @@ int main(int argc, char ** argv)
   unsigned long   n = S.size()-1;
   unsigned long NUM = 2*m+n;
 
-  matrix M = M__(Mid, N, S);
-  matrix K = K__(Mid, Z, N, S);
-  matrix Hx= Hx__(Mid, Z, N);
-  matrix Hy= Hy__(Mid, Z, N);
+  sparse::matrix<double> M = M__(Mid, N, S);
+  sparse::matrix<double> K = K__(Mid, Z, N, S);
+  sparse::matrix<double> Hx= Hx__(Mid, Z, N);
+  sparse::matrix<double> Hy= Hy__(Mid, Z, N);
   double t = 0.001;
   if ( defop("-t") ) t = atof(getop("-t").c_str());
   vector<double> Fx(m+1), Fy(m+1), Ux(m+1), Uy(m+1), x(NUM+1), b(NUM+1);
-  matrix A;  
+  sparse::matrix<double> A;  
   unsigned long i, k;
 
   for ( k = 1; k<=60; k++ ) {
@@ -100,7 +101,7 @@ int main(int argc, char ** argv)
       */
 
 
-      matrix B;
+      sparse::matrix<double> B;
       B.clear();
       B.resize(2*NUM+1);
 

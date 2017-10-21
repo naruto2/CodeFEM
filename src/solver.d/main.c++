@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include "est/sparse.hpp"
 #include "est/solver.hpp"
 #include "est/psc98.hpp"
 
@@ -13,15 +14,15 @@ int main(int argc, char **argv){
   cout << B << endl;
   return 0;
 #endif
-  matrix A;
+  sparse::matrix<double> A;
   vector<double> b;
-  getprob(A,b);
+  psc98_init(A,b);
   Preconditioner M, M2;
 
   M.ic(A); 
   //  vector<double> x = cheby(M,A,b,19.738218,129105.765540);
   vector<double> x = cg(M,A,b);
-  check(x);
+  psc98_check(x);
   return 0;
 }
 

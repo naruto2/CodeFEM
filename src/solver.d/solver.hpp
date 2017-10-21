@@ -17,12 +17,12 @@ typedef double Real;
 typedef matrix Matrix;
 typedef vector<double> Vector;
 
-int IncompleteCholeskyDecomp2(matrix &A, matrix &L, vector<double> &d, int n);
+int IncompleteCholeskyDecomp2(sparse::matrix<double> &A, sparse::matrix<double> &L, vector<double> &d, int n);
 
 class Preconditioner{
 public:
 
-  mutable matrix A, L;
+  mutable sparse::matrix<double> A, L;
   mutable vector<double> d;
   mutable int solver = 0;
   vector<double>& nsolve(vector<double>& p)const;
@@ -31,30 +31,30 @@ public:
   vector<double>& icsolve(vector<double>& b) const;
   vector<double> & solve(vector<double>& b) const;
   vector<double>& trans_solve(vector<double>& p) const;
-  void ic(matrix& Ap){
+  void ic(sparse::matrix<double>& Ap){
     solver = 1;
     A = Ap;
     int n = A.size();
     L.resize(n);
     d.resize(n);
-    A.sync();
+
     IncompleteCholeskyDecomp2(A, L, d, n);
   }
 };
 
-vector<double> cg(Preconditioner& M, matrix& A, vector<double>& b);
-vector<double> ir(Preconditioner& M, matrix& A, vector<double>& b);
-vector<double> cgs(Preconditioner& M, matrix& A, vector<double>& b);
-vector<double> bicgstab(Preconditioner& M, matrix& A, vector<double>& b);
-vector<double> bicg(Preconditioner& M, matrix& A, vector<double>& b);
-vector<double> qmr(Preconditioner& M, Preconditioner& M2, matrix& A, vector<double>& b);
-vector<double> gmres(Preconditioner& M, matrix& A, vector<double>& b);
-vector<double> cheby(Preconditioner& M, matrix& A, vector<double>& b, double mine, double maxe);
-vector<double> jacobi(Preconditioner& M, matrix& A, vector<double>& b);
+vector<double> cg(Preconditioner& M, sparse::matrix<double>& A, vector<double>& b);
+vector<double> ir(Preconditioner& M, sparse::matrix<double>& A, vector<double>& b);
+vector<double> cgs(Preconditioner& M, sparse::matrix<double>& A, vector<double>& b);
+vector<double> bicgstab(Preconditioner& M, sparse::matrix<double>& A, vector<double>& b);
+vector<double> bicg(Preconditioner& M, sparse::matrix<double>& A, vector<double>& b);
+vector<double> qmr(Preconditioner& M, Preconditioner& M2, sparse::matrix<double>& A, vector<double>& b);
+vector<double> gmres(Preconditioner& M, sparse::matrix<double>& A, vector<double>& b);
+vector<double> cheby(Preconditioner& M, sparse::matrix<double>& A, vector<double>& b, double mine, double maxe);
+vector<double> jacobi(Preconditioner& M, sparse::matrix<double>& A, vector<double>& b);
 
-void blockmatrix(matrix &A, matrix &B);
+void blockmatrix(sparse::matrix<double> &A, sparse::matrix<double> &B);
 
-vector<double> solve(matrix &A, vector<double> &b);
+vector<double> solve(sparse::matrix<double> &A, vector<double> &b);
 
 #endif
 

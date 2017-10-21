@@ -1,3 +1,4 @@
+#include "est/sparse.hpp"
 /*!
  * 不完全コレスキー分解(incomplete Cholesky decomposition)
  *  - 対称行列A(n×n)を下三角行列(L:Lower triangular matrix)と対角行列の積(LDL^T)に分解する
@@ -62,7 +63,7 @@ int IncompleteCholeskyDecomp(matrix &A, matrix  &L, vector<double> &d, int n)
  * @param[in] n 行列の大きさ
  * @return 1:成功,0:失敗
  */
-int IncompleteCholeskyDecomp2(matrix &A, matrix &L, vector<double> &d, int n)
+int IncompleteCholeskyDecomp2(sparse::matrix<double> &A, sparse::matrix<double> &L, vector<double> &d, int n)
 {
   if(n <= 0) return 0;
 
@@ -93,3 +94,4 @@ int IncompleteCholeskyDecomp2(matrix &A, matrix &L, vector<double> &d, int n)
 
   return 1;
 }
+

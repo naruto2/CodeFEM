@@ -2,6 +2,9 @@ a.out: main.c++
 	make obj
 	c++ -Wall main.c++ -Llib -lpsc98 -lViennaCL -lop -lm -lOpenCL
 
+amg: amg.c++
+	c++ amg.c++ -Llib -lpsc98 -o amg
+
 time: a.out
 	export PSC98=0; time ./a.out
 	export PSC98=1; time ./a.out
@@ -22,7 +25,7 @@ honsenrun: honsen
 	export PSC98=5; time ./honsen
 
 clean: ;
-	rm -f a.out honsen yosen.o honsen.o ViennaCL.o lib/libViennaCL.a
+	rm -f a.out amg honsen amg.o yosen.o honsen.o ViennaCL.o lib/libViennaCL.a 
 
 obj: ;
 	c++ -c ViennaCL.c++
