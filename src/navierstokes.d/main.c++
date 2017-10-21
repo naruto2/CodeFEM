@@ -57,7 +57,8 @@ int main(int argc, char **argv)
     else U = vcl_bicgstab(A,b);
     fprintf(stderr,"%05d\n",T);
 
-    while ((res = glirulus_check(A,U,b)) > 0.0000009) {
+    for (int k=0; k<32; k++ ) {
+      if ( (res = glirulus_check(A,U,b)) < 0.0000004 ) break;
       fprintf(stderr,"res= %f\n",res);
       U = cl_bicgstab(A,b);
     }
