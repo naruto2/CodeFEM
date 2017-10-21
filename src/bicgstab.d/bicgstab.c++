@@ -9,6 +9,7 @@ vector<double> TDMA(sparse::matrix<double>&A, vector<double>&b);
 
 
 vector<double> cl_bicgstab(sparse::matrix<double>& A, vector<double>& b){
+  A[0][0] = 1.0; b[0] = 0.0;
   static vector<double>x(b.size());
   int max_iter = 1000000;
   double tol = 0.0000001;

@@ -65,11 +65,12 @@ vector<double> vcl_cgilut(sparse::matrix<double>& A, vector<double>& b)
 
 vector<double> vcl_bicgstab(sparse::matrix<double>& A, vector<double>& b)
 {
+  A[0][0] = 1.0; b[0] = 0.0;
   int n = A.size();
   vector<double> x(n);
   viennacl::compressed_matrix<double> Agpu(n,0);
   viennacl::vector<double>     bgpu(n), xgpu(n);
-  A[0][0] = 1.0;
+
   matrix2gpumatrix(A,Agpu);
   vector2gpuvector(b,bgpu);
 
@@ -95,9 +96,8 @@ vector<double> vcl_bicgstab(sparse::matrix<double>& A, vector<double>& b)
   }
   else
     xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_bicgstab);
-
   gpuvector2vector(xgpu,x);
-
+  viennacl::backend::finish();
   return x;
 }
 

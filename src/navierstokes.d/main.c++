@@ -1,8 +1,11 @@
 #include <cstdio>
 #include <vector>
+#include "est/op.hpp"
 #include "est/sparse.hpp"
 #include "est/bicgstab.hpp"
+#include "est/ViennaCL.hpp"
 #include "est/navierstokes.hpp"
+#include "est/glirulus.hpp"
 
 double u(double x, double y)
 {
@@ -35,9 +38,10 @@ double v(double x, double y)
 
 int main(int argc, char **argv)
 {
-  double Re, dt;
+  double Re, dt, res;
 
-  cl_bicgstab_init(argc,argv);
+  //cl_bicgstab_init(argc,argv);
+  glirulus_init(argc,argv);
   if(0!=navierstokes_init("cavity32.mesh",Re=5000,dt=0.001, u, v))
     return 0;
 
@@ -47,12 +51,20 @@ int main(int argc, char **argv)
     fprintf(stderr,"T");
     navierstokes(A,U,b);
 
-    fprintf(stderr,"=");
-    U = cl_bicgstab(A,b);
+    fprintf(stderr,"= ");
 
+    if (T==0) U = cl_bicgstab(A,b);
+    else U = vcl_bicgstab(A,b);
     fprintf(stderr,"%05d\n",T);
-    plotuv(U);
-    if ( 0 == (T%1000)) fprintuv(U);
+
+    while ((res = glirulus_check(A,U,b)) > 0.0000009) {
+      fprintf(stderr,"res= %f\n",res);
+      U = cl_bicgstab(A,b);
+    }
+    fprintf(stderr,"res= %f\n",res);
+
+    //plotuv(U);
+    if ( 0 == (T%100)) fprintuv(U);
   }
   return 0;
 }

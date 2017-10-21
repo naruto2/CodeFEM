@@ -91,12 +91,10 @@ vector<double> residual(sparse::matrix<double>&A,vector<double>&x,vector<double>
 
 
 
-int glirulus_check(sparse::matrix<double>&A,vector<double>&x,vector<double>&b)
+double glirulus_check(sparse::matrix<double>&A,vector<double>&x,vector<double>&b)
 {
-  vector<double> r;
-  r = residual(A,x,b);
-  printf("%s L_inf%f\n",getop("-A").c_str(),L_inf(r));
-  return 0;
+  vector<double> r = residual(A,x,b);
+  return L_inf(r);
 }
 
 

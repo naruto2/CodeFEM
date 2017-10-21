@@ -2,6 +2,6 @@ PSC98の計測
 libViennaCL.a をつくる ... done 2017-10-21
 反復回数を増やす ... done 2017-10-21
 前処理の自動選択
-
+navierstokesで試す
 
 
