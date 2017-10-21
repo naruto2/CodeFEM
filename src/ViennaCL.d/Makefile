@@ -1,7 +1,9 @@
 a.out: main.c++
-	c++ -Wall --std=c++11 main.c++  -lm lib/libpsc98.a -lOpenCL
+	make obj
+	c++ -Wall main.c++ -Llib -lpsc98 -lViennaCL -lm -lOpenCL
 
-run: a.out
+time: a.out
+	export PSC98=0; time ./a.out
 	export PSC98=1; time ./a.out
 	export PSC98=2; time ./a.out
 	export PSC98=3; time ./a.out
@@ -20,7 +22,8 @@ honsenrun: honsen
 	export PSC98=5; time ./honsen
 
 clean: ;
-	rm -f a.out honsen yosen.o honsen.o
+	rm -f a.out honsen yosen.o honsen.o ViennaCL.o lib/libViennaCL.a
 
 obj: ;
-	touch lib
+	c++ -c ViennaCL.c++
+	ar cr lib/libViennaCL.a ViennaCL.o

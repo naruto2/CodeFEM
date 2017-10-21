@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "est/sparse.hpp"
 #include "est/psc98.hpp"
-#include "ViennaCL.hpp"
+#include "est/ViennaCL.hpp"
 
 int main(int argc, char **argv){
 
