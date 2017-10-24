@@ -1,2 +1,4 @@
 初期条件(初期境界条件)をなんとかする。
 - 一番最初が、vcl_bicgstab()では解けない問題
+
+vcl_bicgsttab(), cl_bicgstab()共にmax_iterを A.size()にする。
