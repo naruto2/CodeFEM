@@ -30,3 +30,4 @@ clean: ;
 obj: ;
 	c++ -c ViennaCL.c++
 	ar cr lib/libViennaCL.a ViennaCL.o
+	rm -f ViennaCL.o

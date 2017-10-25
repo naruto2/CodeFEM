@@ -2,8 +2,8 @@
 #include <CL/cl.h>
 #include <stdio.h>
 #include <vector>
-#include <est/sparse.hpp>
-#include <est/bicgstab.hpp>
+#include "est/sparse.hpp"
+#include "est/bicgstab.hpp"
 
 double cl_norm(int n, double *x);
 void   cl_copy(int n, double *y, double *x);

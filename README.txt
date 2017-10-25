@@ -1,5 +1,7 @@
 CodeFEM - Codes for FEM
 
+This depends on OpenCL eigen viennacl f2c
+
 * xmesh - A generator of FEM mesh.
   doc/xmesh.txt is how to use xmesh command.
 
@@ -15,7 +17,7 @@ CodeFEM - Codes for FEM
 * navierstokes() - A simulation of Navier-Stokes equations.
   doc/navierstokes.txt is how to use navierstokes().
 
-### 1st. How to build all library.
+### 1st. How to build all libraries.
 $ cd bin/; ./mkall; cd ..
 # mkdir -p /usr/include/est
 # cp src//dataparallel.d/cl_bicgstab_kernel.cl /usr/include/est
