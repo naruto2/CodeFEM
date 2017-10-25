@@ -150,6 +150,11 @@ void cl_bicgstab_init(int argc, char **argv)
   ret = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_DEFAULT, 1, &device_id,
 		       &ret_num_devices);
 
+  if (ret == CL_DEVICE_NOT_FOUND && ret_num_devices == 0) 
+    ret = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_CPU, 1, &device_id,
+			 &ret_num_devices);
+  if (ret) abort();
+  
   /* Create Context */
   context = clCreateContext( NULL, 1, &device_id, NULL, NULL, &ret);
 
