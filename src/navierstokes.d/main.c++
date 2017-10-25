@@ -53,10 +53,13 @@ int main(int argc, char **argv)
     navierstokes(A,U,b);
 
     fprintf(stderr,"= ");
+    fprintf(stderr,"%05d\n",T);
+    U = glirulus(A,b);
 
+#if 0
     if (T==0) U = Elu(A,b);
     else U = vcl_bicgstab(A,b);
-    fprintf(stderr,"%05d\n",T);
+
 
     for (int k=0; k<32; k++ ) {
       if ( (res = glirulus_check(A,U,b)) < 0.0000004 ) break;
@@ -65,8 +68,8 @@ int main(int argc, char **argv)
       else U = Elu(A,b);
     }
     fprintf(stderr,"res= %f\n",res);
-
-    //plotuv(U);
+#endif 
+    plotuv(U);
     if ( 0 == (T%100)) fprintuv(U);
   }
   return 0;

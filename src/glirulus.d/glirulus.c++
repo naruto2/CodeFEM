@@ -3,6 +3,8 @@
 #include "mmio.h"
 #include "est/sparse.hpp"
 #include "est/bicgstab.hpp"
+#include "est/ViennaCL.hpp"
+#include "est/Eigen.hpp"
 #include "est/op.hpp"
 #include <vector>
 #include "est/GLU1.hpp"
@@ -98,16 +100,29 @@ double glirulus_check(sparse::matrix<double>&A,vector<double>&x,vector<double>&b
 }
 
 
+int isReallyNaN(double x) {
+  return x != x;    // xがNaNであればtrue, それ以外ではfalse
+}
 
 vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
 {
-  vector<double> x, r;
-  x = cl_bicgstab(A,b);
+  double res;
+  vector<double> x;
+  x = vcl_bicgstab(A,b);
 
-  r = residual(A,x,b);
-
-  if ( L_inf(r) > 0.000999 ){
-    if (A.size()<10000) x = GSLV1(A,b);
+  for ( int i=0; i<x.size(); i++)
+    if ( isReallyNaN(x[i])) {
+      x = cl_bicgstab(A,b);
+      break;
+    }
+  res = glirulus_check(A,x,b);
+  if(defop("-v")) fprintf(stderr,"res= %f\n",res);
+  for (int k=0; k<8; k++ ) {
+    if ( res < 0.0000004 ) break;
+    if (k<4) x = cl_bicgstab(A,b);
+    else x = Elu(A,b);
+    res = glirulus_check(A,x,b);
+    if(defop("-v")) fprintf(stderr,"res= %f\n",res);
   }
   return x;
 }

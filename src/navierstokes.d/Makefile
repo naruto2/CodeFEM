@@ -1,5 +1,5 @@
 navierstokes: main.c++
-	c++ -g main.c++ -Llib -lnavierstokes -lbicgstab -lxmesh -lforeach -lOpenCL -lop -lViennaCL -lglirulus -lEigen -lf2c -o navierstokes
+	c++ -g main.c++ -Llib -lnavierstokes -lbicgstab -lxmesh -lforeach -lOpenCL -lop -lglirulus -lViennaCL -lEigen -lf2c -o navierstokes
 
 clean: ;
 	rm -f navierstokes lib/libnavierstokes.a
