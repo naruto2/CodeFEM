@@ -4,6 +4,6 @@ for i in *.gz; do
     (echo set terminal \"png\"; echo set output \"$i.png\"; gzip -cd $i )|gnuplot
 done
 
-ffmpeg -r 1 -i %05d.gz.png -vcodec libx264 -r 60 $1
+ffmpeg -r 10 -i %05d.gz.png -vcodec libx264 -r 60 $1
 
 rm -f *.png

@@ -2,6 +2,8 @@ CodeFEM - Codes for FEM
 
 This depends on OpenCL eigen viennacl f2c
 
+If you have no GPU, try amdapp-sdk(CPU's OpenCL).
+
 * xmesh - A generator of FEM mesh.
   doc/xmesh.txt is how to use xmesh command.
 
