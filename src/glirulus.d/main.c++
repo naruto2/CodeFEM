@@ -2,9 +2,12 @@
 #include "est/sparse.hpp"
 #include <vector>
 #include "est/glirulus.hpp"
+#include "est/ViennaCL.hpp"
+#include "est/bicgstab.hpp"
 
 int main(int argc, char **argv)
 {
+  double res;
   glirulus_init(argc,argv);
     
   sparse::matrix<double> A;  vector<double> b,x;
@@ -13,5 +16,8 @@ int main(int argc, char **argv)
 
   x = glirulus(A,b);
 
-  return glirulus_check(A,x,b);
+  res = glirulus_check(A,x,b);
+  
+  fprintf(stderr,"L_inf %f\n",res);
+  return 0; 
 }
