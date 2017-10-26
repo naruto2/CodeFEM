@@ -76,50 +76,28 @@ vector<double> vcl_bicgstab(sparse::matrix<double>& A, vector<double>& b)
   
   if ( diag && isTridiagonal(A) ) return TDMA(A,b);
 
-  vector<double> x(n);
   viennacl::compressed_matrix<double> Agpu(n-1,0);
-  viennacl::vector<double>     bgpu(n-1), xgpu(n-1);
+  viennacl::vector<double>   bgpu(n-1), xgpu(n-1);
   
   matrix2gpumatrix(A,Agpu);
   vector2gpuvector(b,bgpu);
 
   viennacl::linalg::bicgstab_tag  custom_bicgstab(1e-14,A.size()/16);
 
-  
-
-  
-  //custom_bicgstab.abs_tolerance(1e-13);
-#if 0
-  if ( getop("-pre") == "jacobi") {
+  if (diag) {
     viennacl::linalg::jacobi_precond< gpumatrix >
       vcl_jacobi(Agpu,viennacl::linalg::jacobi_tag());
-  
-    xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_bicgstab, vcl_jacobi);
-  }
-  if ( getop("-pre") == "ilut" ) {
-    viennacl::linalg::ilut_tag ilut_conf(10, 1e-7);
-    //10 entries, rel. tol. 1e-7
-
-    viennacl::linalg::ilut_precond< viennacl::compressed_matrix<double> >
-      vcl_ilut(Agpu, ilut_conf);
-
-    xgpu = viennacl::linalg::solve(Agpu,
-				   bgpu,
-				   custom_bicgstab,
-				   vcl_ilut);
-  }
-  else
+    xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_bicgstab,vcl_jacobi);
+  } else
     xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_bicgstab);
-#endif
-  viennacl::linalg::jacobi_precond< gpumatrix >  vcl_jacobi(Agpu,viennacl::linalg::jacobi_tag());
-  
-  xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_bicgstab,vcl_jacobi);
-  
-  viennacl::linalg::bicgstab_tag iters;
-  fprintf(stderr,"iter=%d\n",custom_bicgstab.iters());
-  fprintf(stderr,"max_iterations=%d\n",custom_bicgstab.max_iterations());
-  
+
+  vector<double> x(n);
   gpuvector2vector(xgpu,x);
+
+  if ( defop("-v" ) ) {
+      fprintf(stderr,"iter=%d ",custom_bicgstab.iters());
+      fprintf(stderr,"max_iterations=%d\n",custom_bicgstab.max_iterations());
+    }
   viennacl::backend::finish();
   return x;
 }
