@@ -1,6 +1,5 @@
 a.out: main.c++
-	make obj
-	c++ -Wall main.c++ psc98old.c++ -Llib -lpsc98 -lViennaCL -lop -lm -lOpenCL -lbicgstab
+	c++ -Wall main.c++ -Llib -lpsc98 -lViennaCL -lop -lm  -lbicgstab -lOpenCL
 
 amg: amg.c++
 	c++ amg.c++ -Llib -lpsc98 -o amg
