@@ -65,26 +65,30 @@ vector<double> vcl_cgilut(sparse::matrix<double>& A, vector<double>& b)
   return x;
 }
 
+#include "est/TDMA.hpp"
 
 vector<double> vcl_bicgstab(sparse::matrix<double>& A, vector<double>& b)
 {
-  int n = A.size();
+  int n = A.size(), diag = 1;
+
+  for ( int k=1, n=A.size(); k<n; k++)
+    if (A[k][k] == 0.0) { diag = 0; break; }
+  
+  if ( diag && isTridiagonal(A) ) return TDMA(A,b);
+
   vector<double> x(n);
   viennacl::compressed_matrix<double> Agpu(n-1,0);
   viennacl::vector<double>     bgpu(n-1), xgpu(n-1);
-
-
-  printf("CL_DEVICE_DOUBLE_FP_CONFIG=%d\n",CL_DEVICE_DOUBLE_FP_CONFIG);
-
-  if(viennacl :: ocl :: current_device().double_support())
-    printf("double support()\n");
   
   matrix2gpumatrix(A,Agpu);
   vector2gpuvector(b,bgpu);
 
-  viennacl::linalg::bicgstab_tag  custom_bicgstab(1e-16,10000,10000);
+  viennacl::linalg::bicgstab_tag  custom_bicgstab(1e-14,A.size()/16);
 
-  custom_bicgstab.abs_tolerance(1e-16);
+  
+
+  
+  //custom_bicgstab.abs_tolerance(1e-13);
 #if 0
   if ( getop("-pre") == "jacobi") {
     viennacl::linalg::jacobi_precond< gpumatrix >
@@ -114,8 +118,6 @@ vector<double> vcl_bicgstab(sparse::matrix<double>& A, vector<double>& b)
   viennacl::linalg::bicgstab_tag iters;
   fprintf(stderr,"iter=%d\n",custom_bicgstab.iters());
   fprintf(stderr,"max_iterations=%d\n",custom_bicgstab.max_iterations());
-  fprintf(stderr,"max_iterations_before_restart=%d\n",custom_bicgstab.max_iterations_before_restart());
-  fprintf(stderr,"error=%f\n",custom_bicgstab.error());
   
   gpuvector2vector(xgpu,x);
   viennacl::backend::finish();

@@ -1,5 +1,5 @@
 a.out: main.c++
-	c++ -Wall main.c++ -Llib -lpsc98 -lViennaCL -lop -lm  -lbicgstab -lOpenCL
+	c++ -Wall main.c++ -Llib -lpsc98 -lViennaCL -lop -lm  -lbicgstab -lTDMA -lOpenCL
 
 amg: amg.c++
 	c++ amg.c++ -Llib -lpsc98 -o amg
