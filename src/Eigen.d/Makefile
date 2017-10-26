@@ -5,7 +5,7 @@ yosen.o: yosen.c
 	cc -c yosen.c
 
 clean: ;
-	rm -f a.out *.o
+	rm -f a.out *.o lib/libEigen.a
 
 obj:  Elu.c++
 	c++ -c Elu.c++

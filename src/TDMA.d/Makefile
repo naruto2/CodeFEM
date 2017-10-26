@@ -1,6 +1,8 @@
 clean: ;
-	rm -f a.out
+	rm -f a.out lib/libTDMA.a
 
 obj: ;
-	echo -n
+	c++ -c TDMA.c++
+	ar cr lib/libTDMA.a TDMA.o
+	rm -f TDMA.o
 

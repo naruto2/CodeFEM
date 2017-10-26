@@ -15,5 +15,6 @@
 #include "est/GLU1.hpp"
 #include "est/glirulus.hpp"
 #include "est/Eigen.hpp"
+#include "est/TDMA.hpp"
 
 #endif

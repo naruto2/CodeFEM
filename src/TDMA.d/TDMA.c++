@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <vector>
 #include "est/sparse.hpp"
-#include "est/bicgstab.hpp"
 
 
 int isTridiagonal(sparse::matrix<double>&A)
