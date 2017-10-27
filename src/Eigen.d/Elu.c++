@@ -2,11 +2,28 @@
 #include "est/sparse.hpp"
 #include "est/psc98.hpp"
 #include "est/op.hpp"
+#include "est/TDMA.hpp"
 #include "solvers.h"
 
 
 vector<double> Elu(sparse::matrix<double>&A, vector<double>&b)
 {
+  int diag = 1;
+
+  for ( int k=1, n=A.size(); k<n; k++)
+    if (A[k][k] == 0.0) { diag = 0; break; }
+
+  if ( diag && isTridiagonal(A) ) return TDMA(A,b);
+
+
+  if ( A.size() > 16000 ) {
+    fprintf(stderr,"Warning: Elu() can't solve 16000<n matrix\n");
+    vector<double> x(A.size());
+    for(int k=0;k<A.size();k++) x[k] = b[k];
+    return x;
+  }
+
+
   for ( int i=1; i<A.size(); i++)
     for ( auto it: A[i]) { int j = it.first;
       Tri(i,j,A[i][j]);

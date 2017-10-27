@@ -108,7 +108,15 @@ vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
 {
   double res;
   vector<double> x;
-  x = vcl_bicgstab(A,b);
+  if      ( getop("-solver") == "Elu" )         x = Elu(A,b);
+  else if ( getop("-solver") == "cl_bicgstab")  x = cl_bicgstab(A,b);
+  else if ( getop("-solver") == "vcl_bicgstab") x = vcl_bicgstab(A,b);
+
+  res = glirulus_check(A,x,b);
+  if(defop("-v")) fprintf(stderr,"res= %f\n",res);
+  if ( res < 0.0000004 ) return x;
+
+  if ( getop("-solver") != "vcl_bicgstab" ) x = vcl_bicgstab(A,b);
 
   for ( int i=0; i<x.size(); i++)
     if ( isReallyNaN(x[i])) {
@@ -117,6 +125,7 @@ vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
     }
   res = glirulus_check(A,x,b);
   if(defop("-v")) fprintf(stderr,"res= %f\n",res);
+
   for (int k=0; k<4; k++ ) {
     if ( res < 0.0000004 ) break;
     if (k<2) x = cl_bicgstab(A,b);
