@@ -63,3 +63,17 @@ $ glirulus -A (filename.mtx) [-b (filename_rhs1.mtx)] [-o (filename_x1.mtx)]
 を引数に与えると、
 連立方程式 Ax=b の解xを
 オプション-oで指定したファイル filename_x1.mtxに保存する。
+
+
+glirulus()のベンチマーク結果
+Problem NO : 0 real 0m0.785s
+Problem NO : 1 real 0m17.691s
+Problem NO : 2 real 0m12.274s
+Problem NO : 3 real 0m40.222s
+Problem NO : 4 real 1m17.535s
+Problem NO : 5 real 0m0.155s
+(2017-10-27計測)
+GPU:    NVIDIA Geforce GTS450
+CPU:    PhenomIIx6 3.2GHz
+Memory: 8G bytes
+OS:     Linux version 4.13.6-1-ARCH

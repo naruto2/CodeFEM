@@ -82,7 +82,7 @@ vector<double> vcl_bicgstab(sparse::matrix<double>& A, vector<double>& b)
   matrix2gpumatrix(A,Agpu);
   vector2gpuvector(b,bgpu);
 
-  viennacl::linalg::bicgstab_tag  custom_bicgstab(1e-14,A.size()/8);
+  viennacl::linalg::bicgstab_tag  custom_bicgstab(1e-15,A.size()/8);
 
   if (diag) {
     viennacl::linalg::jacobi_precond< gpumatrix >
