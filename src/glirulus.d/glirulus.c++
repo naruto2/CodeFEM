@@ -117,9 +117,9 @@ vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
     }
   res = glirulus_check(A,x,b);
   if(defop("-v")) fprintf(stderr,"res= %f\n",res);
-  for (int k=0; k<8; k++ ) {
+  for (int k=0; k<4; k++ ) {
     if ( res < 0.0000004 ) break;
-    if (k<4) x = cl_bicgstab(A,b);
+    if (k<2) x = cl_bicgstab(A,b);
     else x = Elu(A,b);
     res = glirulus_check(A,x,b);
     if(defop("-v")) fprintf(stderr,"res= %f\n",res);
