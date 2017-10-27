@@ -6,27 +6,53 @@
 #include <viennacl/linalg/jacobi_precond.hpp>
 #include <viennacl/linalg/ichol.hpp>
 #include <viennacl/linalg/detail/ilu/chow_patel_ilu.hpp>
+#include <viennacl/linalg/cg.hpp>
 #include <viennacl/linalg/bicgstab.hpp>
 #include "est/sparse.hpp"
-#include "cginf.hpp"
+//#include "cginf.hpp"
 //#include "bicgstabinf.hpp"
 #include "gmresinf.hpp"
 #include "togpu.hpp"
 #include "est/op.hpp"
+#include "est/TDMA.hpp"
+
+int isSymmetric(sparse::matrix<double>& A)
+{
+  int n = A.size();
+  for ( int i = 1; i<n; i++) 
+    for ( auto it: A[i] ) {
+      int j = it.first;
+      if ( it.second != A[j][i] ) return 0;
+    }
+  return 1;
+}
+
 
 vector<double> vcl_cg(sparse::matrix<double>& A, vector<double>& b)
 {
-  int n = A.size();
+  int n = A.size(), diag = 1;
   vector<double> x(n);
-  viennacl::compressed_matrix<double> Agpu(n,0);
-  viennacl::vector<double>     bgpu(n), xgpu(n);
+
+  for ( int k=1, n=A.size(); k<n; k++)
+    if (A[k][k] == 0.0) { diag = 0; break; }
+  
+  if ( diag && isTridiagonal(A) ) return TDMA(A,b);
+
+  if ( !isSymmetric(A) ) {
+    fprintf(stderr,"Warning: vcl_cg() can't solve not symmetic matrix\n");
+    return x;
+  }
+
+  viennacl::compressed_matrix<double> Agpu(n-1,0);
+  viennacl::vector<double>     bgpu(n-1), xgpu(n-1);
 
   matrix2gpumatrix(A,Agpu);
   vector2gpuvector(b,bgpu);
 
-  viennacl::linalg::jacobi_precond< gpumatrix >  vcl_jacobi(Agpu,viennacl::linalg::jacobi_tag());
+  viennacl::linalg::jacobi_precond< gpumatrix >
+    vcl_jacobi(Agpu,viennacl::linalg::jacobi_tag());
 
-  viennacl::linalg::cg_tag  custom_cg(1e-5,1000000);
+  viennacl::linalg::cg_tag  custom_cg(1e-14,A.size()/8);
   
   xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_cg, vcl_jacobi);
 
@@ -65,7 +91,7 @@ vector<double> vcl_cgilut(sparse::matrix<double>& A, vector<double>& b)
   return x;
 }
 
-#include "est/TDMA.hpp"
+
 
 vector<double> vcl_bicgstab(sparse::matrix<double>& A, vector<double>& b)
 {

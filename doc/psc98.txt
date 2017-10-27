@@ -2,7 +2,7 @@
 psc98 - パラレル ソフトウェア コンテスト '98 ベンチマーク
 
 使い方
-$ export PSC98=([012345]); time psc98 (PE)
+$ export PSC98=([012345]); time psc98 [-np (PE)]
 
 psc98コマンドは、cl_bicgstab()ルーチンのベンチマークプログラムです。
 

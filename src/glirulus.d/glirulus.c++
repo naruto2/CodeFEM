@@ -107,16 +107,19 @@ int isReallyNaN(double x) {
 vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
 {
   double res;
-  vector<double> x;
-  if      ( getop("-solver") == "Elu" )         x = Elu(A,b);
-  else if ( getop("-solver") == "cl_bicgstab")  x = cl_bicgstab(A,b);
+  int n = A.size();
+  vector<double> x(n);
+  if      ( getop("-solver") == "Elu"         ) x = Elu(A,b);
+  else if ( getop("-solver") == "cl_bicgstab" ) x = cl_bicgstab(A,b);
   else if ( getop("-solver") == "vcl_bicgstab") x = vcl_bicgstab(A,b);
-
+  else if ( getop("-solver") == "vcl_cg"      ) x = vcl_cg(A,b);
+  
   res = glirulus_check(A,x,b);
   if(defop("-v")) fprintf(stderr,"res= %f\n",res);
   if ( res < 0.0000004 ) return x;
 
-  if ( getop("-solver") != "vcl_bicgstab" ) x = vcl_bicgstab(A,b);
+  if      ( isSymmetric(A) )                     x = vcl_cg(A,b);
+  else if ( getop("-solver") != "vcl_bicgstab" ) x = vcl_bicgstab(A,b);
 
   for ( int i=0; i<x.size(); i++)
     if ( isReallyNaN(x[i])) {
