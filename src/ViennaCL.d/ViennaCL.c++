@@ -39,7 +39,7 @@ vector<double> vcl_cg(sparse::matrix<double>& A, vector<double>& b)
   if ( diag && isTridiagonal(A) ) return TDMA(A,b);
 
   if ( !isSymmetric(A) ) {
-    fprintf(stderr,"Warning: vcl_cg() can't solve not symmetic matrix\n");
+    fprintf(stderr,"Warning: vcl_cg() can't solve asymmetic matrix\n");
     return x;
   }
 
@@ -132,17 +132,18 @@ vector<double> vcl_bicgstab(sparse::matrix<double>& A, vector<double>& b)
 
 vector<double> vcl_gmres(sparse::matrix<double>& A, vector<double>& b)
 {
-  int n = A.size();
+  fprintf(stderr,"GMRES\n");
+  int n = A.size(), diag=1;
   vector<double> x(n);
-  viennacl::compressed_matrix<double> Agpu(n,0);
-  viennacl::vector<double>     bgpu(n), xgpu(n);
+  viennacl::compressed_matrix<double> Agpu(n-1,0);
+  viennacl::vector<double>     bgpu(n-1), xgpu(n-1);
 
   matrix2gpumatrix(A,Agpu);
   vector2gpuvector(b,bgpu);
 
-  viennacl::linalg::gmres_tag  custom_gmres(1e-7,10000000,50);
+  viennacl::linalg::gmres_tag  custom_gmres(1e-8,A.size()/8,50);
 
-  if ( getop("-pre") == "jacobi") {
+  if ( diag ) {
     viennacl::linalg::jacobi_precond< gpumatrix >
       vcl_jacobi(Agpu,viennacl::linalg::jacobi_tag());
     xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_gmres, vcl_jacobi);

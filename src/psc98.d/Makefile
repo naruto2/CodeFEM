@@ -14,12 +14,12 @@ obj: ;
 	rm *.o
 
 time: ;
-	export PSC98=0; time ./psc98 1024
-	export PSC98=1; time ./psc98 1024
-	export PSC98=2; time ./psc98 1024
-	export PSC98=3; time ./psc98 1024
-	export PSC98=4; time ./psc98 1024
-	export PSC98=5; time ./psc98 1024
+	export PSC98=0; time ./psc98 -solver vcl_gmres
+	export PSC98=1; time ./psc98 -solver vcl_gmres
+	export PSC98=2; time ./psc98 -solver vcl_gmres
+	export PSC98=3; time ./psc98 -solver vcl_gmres
+	export PSC98=4; time ./psc98 -solver vcl_gmres
+	export PSC98=5; time ./psc98 -solver vcl_gmres
 
 lib/libbicgstab.a: ;
 	(cd ../bicgstab.d; make obj)

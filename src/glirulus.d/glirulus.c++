@@ -104,37 +104,58 @@ int isReallyNaN(double x) {
   return x != x;    // xがNaNであればtrue, それ以外ではfalse
 }
 
+int enough(sparse::matrix<double>&A, vector<double>&x, vector<double>&b)
+{
+  double res = glirulus_check(A,x,b);
+  if(defop("-v")) fprintf(stderr,"res= %f\n",res);
+  if ( res < 0.0000004 ) return 1;
+  return 0;
+}
+
+
+
 vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
 {
   double res;
   int n = A.size();
   vector<double> x(n);
-  if      ( getop("-solver") == "Elu"         ) x = Elu(A,b);
-  else if ( getop("-solver") == "cl_bicgstab" ) x = cl_bicgstab(A,b);
+
+  if      ( getop("-solver") == "vcl_cg"      ) x = vcl_cg(A,b);
   else if ( getop("-solver") == "vcl_bicgstab") x = vcl_bicgstab(A,b);
-  else if ( getop("-solver") == "vcl_cg"      ) x = vcl_cg(A,b);
+  else if ( getop("-solver") == "vcl_gmres"   ) x = vcl_gmres(A,b);
+  else if ( getop("-solver") == "cl_bicgstab" ) x = cl_bicgstab(A,b);
+  else if ( getop("-solver") == "Elu"         ) x = Elu(A,b);
+
+  if ( enough(A,x,b) ) return x;
+
+ Default:
   
-  res = glirulus_check(A,x,b);
-  if(defop("-v")) fprintf(stderr,"res= %f\n",res);
-  if ( res < 0.0000004 ) return x;
+  if      ( isSymmetric(A) && getop("-solver") != "vcl_cg"       ) x = vcl_cg(A,b);
+  else if (                   getop("-solver") != "vcl_bicgstab" ) x = vcl_bicgstab(A,b);
 
-  if      ( isSymmetric(A) )                     x = vcl_cg(A,b);
-  else if ( getop("-solver") != "vcl_bicgstab" ) x = vcl_bicgstab(A,b);
+  if ( enough(A,x,b) ) return x;
 
-  for ( int i=0; i<x.size(); i++)
-    if ( isReallyNaN(x[i])) {
-      x = cl_bicgstab(A,b);
-      break;
-    }
-  res = glirulus_check(A,x,b);
-  if(defop("-v")) fprintf(stderr,"res= %f\n",res);
+ Recover:
+  
+  for ( int i=0; i<x.size(); i++) if ( isReallyNaN(x[i])) { x = cl_bicgstab(A,b); break; }
 
-  for (int k=0; k<4; k++ ) {
-    if ( res < 0.0000004 ) break;
-    if (k<2) x = cl_bicgstab(A,b);
-    else x = Elu(A,b);
-    res = glirulus_check(A,x,b);
-    if(defop("-v")) fprintf(stderr,"res= %f\n",res);
-  }
+  if ( enough(A,x,b) ) return x;
+
+  x = cl_bicgstab(A,b);
+
+  if ( enough(A,x,b) ) return x;
+  
+  x = cl_bicgstab(A,b);
+
+  if ( enough(A,x,b) ) return x;
+  
+  x = Elu(A,b);
+
+  if ( enough(A,x,b) ) return x;
+
+ Final:
+  
+  x = vcl_gmres(A,b);
+
   return x;
 }
