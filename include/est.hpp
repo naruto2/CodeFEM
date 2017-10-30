@@ -16,5 +16,6 @@
 #include "est/glirulus.hpp"
 #include "est/Eigen.hpp"
 #include "est/TDMA.hpp"
+#include "est/perfectpivot.hpp"
 
 #endif

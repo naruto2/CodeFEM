@@ -8,6 +8,7 @@
 #include "est/op.hpp"
 #include <vector>
 #include "est/GLU1.hpp"
+#include "est/perfectpivot.hpp"
 
 double L_inf(vector<double>&x)
 {
@@ -125,6 +126,7 @@ vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
   else if ( getop("-solver") == "vcl_gmres"   ) x = vcl_gmres(A,b);
   else if ( getop("-solver") == "cl_bicgstab" ) x = cl_bicgstab(A,b);
   else if ( getop("-solver") == "Elu"         ) x = Elu(A,b);
+  else if ( getop("-solver") == "perfectpivot") x = perfectpivot(A,b);
 
   if ( enough(A,x,b) ) return x;
 
@@ -150,6 +152,10 @@ vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
   if ( enough(A,x,b) ) return x;
   
   x = Elu(A,b);
+
+  if ( enough(A,x,b) ) return x;
+
+  x = perfectpivot(A,x);
 
   if ( enough(A,x,b) ) return x;
 

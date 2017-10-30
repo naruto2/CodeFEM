@@ -6,6 +6,7 @@
 #include "est/psc98.hpp"
 #include "est/glirulus.hpp"
 #include "est/ViennaCL.hpp"
+#include "est/perfectpivot.hpp"
 
 
 int main(int argc, char **argv){

@@ -9,11 +9,10 @@ glirulus() - Yet Another Matrix Applications' New Engine
  4.[GMRES(vcl)]    ... 前処理つきGMRES法、あるい、GMRES法(ViennaCL版)、
  5.[Bi-CGSTAB]     ... 前処理つきBi-CGSTAB法あるいは、Bi-CGSTAB法(cl_bicgstab())、
  6.[LU]            ... LU分解(Eigen Elu())、
- 7.[PerfectPivot]  ... 完全軸選択によるガウスの消去法(未実装)、
+ 7.[PerfectPivot]  ... 完全軸選択によるガウスの消去法(perfectpivot())、
 
 のうちの何れかを用いる。このことにより、 
 MatrixMarketの実正方行列の殆どを解くことが出来る。
-7.は未実装の為、流れ図に含まれていません。
 2.3.5.はTDMA法を内包していて、3重対角行列か否かを判定している。
 
 glirulus()による解法の自動選択の流れ図(画面を大きくして下さい)
@@ -66,6 +65,11 @@ glirulus()による解法の自動選択の流れ図(画面を大きくして下
    |		     V                                 V
    |		  [Default:へ]                      [Default:へ]
    V
+[-solver perfectpivot]Yes->[マトリクスのサイズ<16000か?]Yes->[perfectpivot 残差は小さいか?]Yes->[完了]
+   |		            No|                               No|
+   |		              V                                 V
+   |		           [Default:へ]                      [Default:へ]
+   V
 [Default: 対称行列で vcl_cg指定無しか?]Yes->[PreCG(vcl)あるいはCG(vcl) 残差は小さいか?]Yes->[完了]
  No|                                         No|
    |                                           V
@@ -88,6 +92,11 @@ glirulus()による解法の自動選択の流れ図(画面を大きくして下
 Yes|
    V
 [マトリクスのサイズ<16000か?]Yes->[LU 残差は小さいか?]Yes->[完了]
+ No|                               No|
+   |	                             V
+   |				  [Final: へ]
+   V
+[マトリクスのサイズ<16000か?]Yes->[perfectpivot 残差は小さいか?]Yes->[完了]
  No|                               No|
    |	                             V
    |				  [Final: へ]

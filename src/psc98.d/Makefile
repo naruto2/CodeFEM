@@ -1,5 +1,5 @@
 psc98: psc98.c++ lib/libbicgstab.a lib/libpsc98.a
-	c++ psc98.c++  -Llib -lpsc98 -lOpenCL -lglirulus -lViennaCL -lbicgstab -lEigen -lTDMA -lop -o psc98
+	c++ psc98.c++  -Llib -lpsc98 -lOpenCL -lglirulus -lViennaCL -lbicgstab -lEigen -lTDMA -lop -lperfectpivot -o psc98
 
 clean: ;
 	rm -f psc98 *.o lib/libpsc98.a
