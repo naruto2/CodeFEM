@@ -17,7 +17,7 @@ vector<double> Elu(sparse::matrix<double>&A, vector<double>&b)
 
 
   if ( A.size() > 16000 ) {
-    fprintf(stderr,"Warning: Elu() can't solve 16000<n matrix\n");
+    fprintf(stderr,"Warning: Elu() can't solve n < 16000 matrix\n");
     vector<double> x(A.size());
     for(int k=0;k<A.size();k++) x[k] = b[k];
     return x;

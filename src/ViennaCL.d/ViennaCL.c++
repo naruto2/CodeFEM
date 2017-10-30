@@ -121,8 +121,8 @@ vector<double> vcl_bicgstab(sparse::matrix<double>& A, vector<double>& b)
   gpuvector2vector(xgpu,x);
 
   if ( defop("-v" ) ) {
-      fprintf(stderr,"iter=%d ",custom_bicgstab.iters());
-      fprintf(stderr,"max_iterations=%d\n",custom_bicgstab.max_iterations());
+    //fprintf(stderr,"iter=%d ",custom_bicgstab.iters());
+    //fprintf(stderr,"max_iterations=%d\n",custom_bicgstab.max_iterations());
     }
   viennacl::backend::finish();
   return x;
@@ -132,7 +132,6 @@ vector<double> vcl_bicgstab(sparse::matrix<double>& A, vector<double>& b)
 
 vector<double> vcl_gmres(sparse::matrix<double>& A, vector<double>& b)
 {
-  fprintf(stderr,"GMRES\n");
   int n = A.size(), diag=1;
   vector<double> x(n);
   viennacl::compressed_matrix<double> Agpu(n-1,0);

@@ -149,6 +149,11 @@ static double f(double x){
 vector<double> perfectpivot(sparse::matrix<double>&a, vector<double>&b)
 {
   vector<double> x(b.size());
+  if ( a.size() > 16000) {
+    fprintf(stderr,"Warning: perfectpivot() can't solver n < 16000 matrix\n");
+    return x;
+  }
+
   int err = 0;
 
   sparse::matrix<double>aa(a.size()-1);
@@ -164,7 +169,7 @@ vector<double> perfectpivot(sparse::matrix<double>&a, vector<double>&b)
   for ( int i=1; i<b.size(); i++ ) bb[i-1] = b[i];
 
   err = gausselim(aa,bb,xx);
-  if(err) abort();
+  //if(err) abort();
 
   for ( int i=1; i<b.size(); i++ ) x[i] = xx[i-1];
 

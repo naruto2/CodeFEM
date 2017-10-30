@@ -18,6 +18,5 @@ int main(int argc, char **argv)
 
   res = glirulus_check(A,x,b);
   
-  fprintf(stderr,"L_inf %f\n",res);
   return 0; 
 }

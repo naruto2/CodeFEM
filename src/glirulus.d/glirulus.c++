@@ -108,11 +108,26 @@ int isReallyNaN(double x) {
 int enough(sparse::matrix<double>&A, vector<double>&x, vector<double>&b)
 {
   double res = glirulus_check(A,x,b);
-  if(defop("-v")) fprintf(stderr,"res= %f\n",res);
-  if ( res < 0.0000004 ) return 1;
+  if(defop("-v")) fprintf(stderr,"res: %f ",res);
+  if ( res < 0.0000004 ) { if(defop("-v")) fprintf(stderr,"Ok\n"); return 1;}
+  if(defop("-v")) fprintf(stderr,"Ng\n");
   return 0;
 }
 
+#include <time.h>
+#define SOLVER(method) if(solver(#method, x, method, A, b)) return x
+
+int solver(const char *name, vector<double>&x,
+	   vector<double> method(sparse::matrix<double>&A, vector<double>&b),
+	   sparse::matrix<double>&A, vector<double>&b)
+{
+  if(defop("-v")) fprintf(stderr,"solver: %s \t\t",name);
+  clock_t start = clock();
+  x = method(A,b);
+  clock_t   end = clock();
+  if(defop("-v")) fprintf(stderr,"time: %f ",(double)(end-start)/CLOCKS_PER_SEC);
+  return enough(A,x,b);
+}
 
 
 vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
@@ -121,47 +136,31 @@ vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
   int n = A.size();
   vector<double> x(n);
 
-  if      ( getop("-solver") == "vcl_cg"      ) x = vcl_cg(A,b);
-  else if ( getop("-solver") == "vcl_bicgstab") x = vcl_bicgstab(A,b);
-  else if ( getop("-solver") == "vcl_gmres"   ) x = vcl_gmres(A,b);
-  else if ( getop("-solver") == "cl_bicgstab" ) x = cl_bicgstab(A,b);
-  else if ( getop("-solver") == "Elu"         ) x = Elu(A,b);
-  else if ( getop("-solver") == "perfectpivot") x = perfectpivot(A,b);
-
-  if ( enough(A,x,b) ) return x;
+  if      ( getop("-solver") == "vcl_cg"      ) {SOLVER(vcl_cg);}
+  else if ( getop("-solver") == "vcl_bicgstab") {SOLVER(vcl_bicgstab);}
+  else if ( getop("-solver") == "vcl_gmres"   ) {SOLVER(vcl_gmres);}
+  else if ( getop("-solver") == "cl_bicgstab" ) {SOLVER(cl_bicgstab);}
+  else if ( getop("-solver") == "Elu"         ) {SOLVER(Elu);}
+  else if ( getop("-solver") == "perfectpivot") {SOLVER(perfectpivot);}
 
  Default:
   
-  if      ( isSymmetric(A) && getop("-solver") != "vcl_cg"       ) x = vcl_cg(A,b);
-  else if (                   getop("-solver") != "vcl_bicgstab" ) x = vcl_bicgstab(A,b);
-
-  if ( enough(A,x,b) ) return x;
+  if      ( isSymmetric(A) && getop("-solver") != "vcl_cg"       ) {SOLVER(vcl_cg);}
+  else if (                   getop("-solver") != "vcl_bicgstab" ) {SOLVER(vcl_bicgstab);}
 
  Recover:
   
-  for ( int i=0; i<x.size(); i++) if ( isReallyNaN(x[i])) { x = cl_bicgstab(A,b); break; }
+  for ( int i=0; i<x.size(); i++) if ( isReallyNaN(x[i])) { SOLVER(cl_bicgstab); break; }
 
-  if ( enough(A,x,b) ) return x;
-
-  x = cl_bicgstab(A,b);
-
-  if ( enough(A,x,b) ) return x;
-  
-  x = cl_bicgstab(A,b);
-
-  if ( enough(A,x,b) ) return x;
-  
-  x = Elu(A,b);
-
-  if ( enough(A,x,b) ) return x;
-
-  x = perfectpivot(A,x);
-
-  if ( enough(A,x,b) ) return x;
+  SOLVER(cl_bicgstab);
+  SOLVER(Elu);
+  SOLVER(perfectpivot);
 
  Final:
   
-  x = vcl_gmres(A,b);
+  SOLVER(vcl_gmres);
 
-  return x;
+  if(defop("-v")) fprintf(stderr,"ouch, some parameters need tunings.\n");
+  
+  goto Default;
 }
