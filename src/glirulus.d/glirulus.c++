@@ -145,12 +145,15 @@ vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
 
  Default:
   
-  if      ( isSymmetric(A) && getop("-solver") != "vcl_cg"       ) {SOLVER(vcl_cg);}
-  else if (                   getop("-solver") != "vcl_bicgstab" ) {SOLVER(vcl_bicgstab);}
+  if ( isSymmetric(A) && getop("-solver") != "vcl_cg"       )
+    {SOLVER(vcl_cg);}
+  if (                   getop("-solver") != "vcl_bicgstab" )
+    {SOLVER(vcl_bicgstab);}
 
  Recover:
   
-  for ( int i=0; i<x.size(); i++) if ( isReallyNaN(x[i])) { SOLVER(cl_bicgstab); break; }
+  for ( int i=0; i<x.size(); i++) if ( isReallyNaN(x[i]))
+				    {SOLVER(cl_bicgstab); break;}
 
   SOLVER(cl_bicgstab);
   SOLVER(Elu);
