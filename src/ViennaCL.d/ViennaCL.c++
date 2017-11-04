@@ -62,29 +62,34 @@ vector<double> vcl_cg(sparse::matrix<double>& A, vector<double>& b)
 }
 
 
-vector<double> vcl_cgilut(sparse::matrix<double>& A, vector<double>& b)
+vector<double> vcl_cg_icc(sparse::matrix<double>& A, vector<double>& b)
 {
-  int n = A.size();
+  int n = A.size(), diag=1;
   vector<double> x(n);
-  viennacl::compressed_matrix<double> Agpu(n,0);
-  viennacl::vector<double>     bgpu(n), xgpu(n);
+
+  for ( int k=1, n=A.size(); k<n; k++)
+    if (A[k][k] == 0.0) { diag = 0; break; }
+  
+  if ( diag && isTridiagonal(A) ) return TDMA(A,b);
+
+  if ( !isSymmetric(A) ) {
+    fprintf(stderr,"Warning: vcl_cg_icc() can't solve asymmetic matrix\n");
+    return x;
+  }
+
+  viennacl::compressed_matrix<double> Agpu(n-1,0);
+  viennacl::vector<double>     bgpu(n-1), xgpu(n-1);
 
   matrix2gpumatrix(A,Agpu);
   vector2gpuvector(b,bgpu);
-  viennacl::linalg::cg_tag  custom_cg(1e-5,1000000);
-  
-  // viennacl::linalg::ichol0_tag ichol0_conf;
-  // typedef viennacl::linalg::ichol0_precond<
-  // viennacl::compressed_matrix<double> >  vcl_ilut_t;
-  // vcl_ilut_t vcl_ilut(Agpu,ichol0_conf);
-  // viennacl::linalg::jacobi_precond< gpumatrix >  vcl_jacobi(Agpu,viennacl::linalg::jacobi_tag());
 
+  viennacl::linalg::cg_tag  custom_cg(1e-14,A.size());
   viennacl::linalg::chow_patel_tag icc_conf;
-  typedef viennacl::linalg::chow_patel_icc_precond<
-    viennacl::compressed_matrix<double> > vcl_icc_t;
+  typedef viennacl::linalg::chow_patel_icc_precond
+    < viennacl::compressed_matrix<double> > vcl_icc_t;
   vcl_icc_t vcl_icc(Agpu,icc_conf);
   
-  xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_cg,vcl_icc);
+  xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_cg, vcl_icc);
 
   gpuvector2vector(xgpu,x);
 
