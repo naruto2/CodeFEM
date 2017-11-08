@@ -79,7 +79,7 @@ int glirulus_mm(sparse::matrix<double>&A,vector<double>&b)
   return 0;
 }
 
-vector<double> residual(sparse::matrix<double>&A,vector<double>&x,vector<double>&b)
+vector<double> residual(sparse::matrix<double>&A,vector<double>&x,const vector<double>&b)
 {
   int n = A.size();
   vector<double> r(n);
@@ -97,7 +97,7 @@ vector<double> residual(sparse::matrix<double>&A,vector<double>&x,vector<double>
 
 
 
-double glirulus_check(sparse::matrix<double>&A,vector<double>&x,vector<double>&b)
+double glirulus_check(sparse::matrix<double>&A,vector<double>&x,const vector<double>&b)
 {
   vector<double> r = residual(A,x,b);
   return L_inf(r);
@@ -108,7 +108,7 @@ int isReallyNaN(double x) {
   return x != x;    // xがNaNであればtrue, それ以外ではfalse
 }
 
-int enough(sparse::matrix<double>&A, vector<double>&x, vector<double>&b)
+int enough(sparse::matrix<double>&A, vector<double>&x, const vector<double>&b)
 {
   double res = glirulus_check(A,x,b);
   if(defop("-v")) fprintf(stderr,"res: %f ",res);

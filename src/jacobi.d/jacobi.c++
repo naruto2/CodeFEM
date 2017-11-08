@@ -2,6 +2,8 @@
 #include <cmath>
 #include "est/sparse.hpp"
 
+int enough(sparse::matrix<double>&A, vector<double>&x, const vector<double>&b);
+  
 
 double dot(const vector<double>&x, const vector<double>&y){
   double S = 0.0;
@@ -90,7 +92,7 @@ Jacobi(Matrix &A, Vector &x, const Vector &b,
   if (normb == 0.0) 
     normb = 1;
 
-  if ((resid = norm(r) / normb) <= tol) {
+  if ((resid = norm(r) / normb) <= tol && enough(A,x,b) ) {
     tol = resid;
     printf("resid=%f,normb=%f\n",resid,normb);
     max_iter = 0;
@@ -119,7 +121,7 @@ Jacobi(Matrix &A, Vector &x, const Vector &b,
     
     r = x;    
 
-    if ((resid = norm(b - A*x) / normb) <= tol) {
+    if ((resid = norm(b - A*x) / normb) <= tol && enough(A,x,b) ) {
       tol = resid;
       max_iter = k;
       return 0;     

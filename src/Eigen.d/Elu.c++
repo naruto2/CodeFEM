@@ -8,7 +8,7 @@
 vector<double> jacobi(sparse::matrix<double>&A,
 		      vector<double>&x,vector<double>&b);
 
-int enough(sparse::matrix<double>&A, vector<double>&x, vector<double>&b);
+int enough(sparse::matrix<double>&A, vector<double>&x, const vector<double>&b);
 
 vector<double> Elu(sparse::matrix<double>&A, vector<double>&b)
 {
