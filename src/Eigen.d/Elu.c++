@@ -5,6 +5,10 @@
 #include "est/TDMA.hpp"
 #include "solvers.h"
 
+vector<double> jacobi(sparse::matrix<double>&A,
+		      vector<double>&x,vector<double>&b);
+
+int enough(sparse::matrix<double>&A, vector<double>&x, vector<double>&b);
 
 vector<double> Elu(sparse::matrix<double>&A, vector<double>&b)
 {
@@ -38,6 +42,8 @@ vector<double> Elu(sparse::matrix<double>&A, vector<double>&b)
   
   vector<double> x(A.size());
   for(int k=0;k<A.size();k++) x[k] = xx[k];
+
+  if(!enough(A,x,b)) jacobi(A,x,b);
   return x;
 }
 

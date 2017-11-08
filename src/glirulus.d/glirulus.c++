@@ -10,6 +10,9 @@
 #include "est/GLU1.hpp"
 #include "est/perfectpivot.hpp"
 
+vector<double> jacobi(sparse::matrix<double>&A, vector<double>&x,
+		      vector<double>&b);
+
 double L_inf(vector<double>&x)
 {
   int N = x.size();
@@ -139,7 +142,11 @@ vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
   if      ( getop("-solver") == "vcl_cg"      ) {SOLVER(vcl_cg);}
   else if ( getop("-solver") == "vcl_cg_icc"  ) {SOLVER(vcl_cg_icc);}
   else if ( getop("-solver") == "vcl_bicgstab") {SOLVER(vcl_bicgstab);}
+  else if ( getop("-solver") == "vcl_bicgstab_illut")
+    {SOLVER(vcl_bicgstab_ilut);}
   else if ( getop("-solver") == "vcl_gmres"   ) {SOLVER(vcl_gmres);}
+  else if ( getop("-solver") == "vcl_gmres_ilut")
+    {SOLVER(vcl_gmres_ilut);}
   else if ( getop("-solver") == "cl_bicgstab" ) {SOLVER(cl_bicgstab);}
   else if ( getop("-solver") == "Elu"         ) {SOLVER(Elu);}
   else if ( getop("-solver") == "perfectpivot") {SOLVER(perfectpivot);}
@@ -150,6 +157,8 @@ vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
     {SOLVER(vcl_cg_icc);}
   if ( isSymmetric(A) && getop("-solver") != "vcl_cg"       )
     {SOLVER(vcl_cg);}
+  if (                   getop("-solver") != "vcl_bicgstab_ilut" )
+    {SOLVER(vcl_bicgstab_ilut);}
   if (                   getop("-solver") != "vcl_bicgstab" )
     {SOLVER(vcl_bicgstab);}
 
@@ -163,7 +172,8 @@ vector<double> glirulus(sparse::matrix<double>&A,vector<double>&b)
   SOLVER(perfectpivot);
 
  Final:
-  
+
+  SOLVER(vcl_gmres_ilut);
   SOLVER(vcl_gmres);
 
   if(defop("-v")) fprintf(stderr,"ouch, some parameters need tunings.\n");
