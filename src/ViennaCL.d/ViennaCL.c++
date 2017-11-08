@@ -134,6 +134,38 @@ vector<double> vcl_bicgstab(sparse::matrix<double>& A, vector<double>& b)
 }
 
 
+vector<double> vcl_bicgstab_ilut(sparse::matrix<double>& A, vector<double>& b)
+{
+  int n = A.size(), diag = 1;
+
+  for ( int k=1, n=A.size(); k<n; k++)
+    if (A[k][k] == 0.0) { diag = 0; break; }
+  
+  if ( diag && isTridiagonal(A) ) return TDMA(A,b);
+
+  viennacl::compressed_matrix<double> Agpu(n-1,0);
+  viennacl::vector<double>   bgpu(n-1), xgpu(n-1);
+  
+  matrix2gpumatrix(A,Agpu);
+  vector2gpuvector(b,bgpu);
+
+  viennacl::linalg::bicgstab_tag  custom_bicgstab(1e-15,A.size());
+
+  viennacl::linalg::ilut_tag ilut_conf(10, 1e-5);
+
+  typedef viennacl::linalg::ilut_precond<
+    viennacl::compressed_matrix<double> >  vcl_ilut_t;
+ 
+  vcl_ilut_t vcl_ilut(Agpu, ilut_conf);
+ 
+  xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_bicgstab,vcl_ilut);
+
+  vector<double> x(n);
+  gpuvector2vector(xgpu,x);
+  viennacl::backend::finish();
+  return x;
+}
+
 
 vector<double> vcl_gmres(sparse::matrix<double>& A, vector<double>& b)
 {
@@ -154,6 +186,39 @@ vector<double> vcl_gmres(sparse::matrix<double>& A, vector<double>& b)
   }
   else
     xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_gmres);
+  gpuvector2vector(xgpu,x);
+  viennacl::backend::finish();
+  return x;
+}
+
+
+vector<double> vcl_gmres_ilut(sparse::matrix<double>& A, vector<double>& b)
+{
+  int n = A.size(), diag=1;
+
+  for ( int k=1, n=A.size(); k<n; k++)
+    if (A[k][k] == 0.0) { diag = 0; break; }
+  
+  vector<double> x(n);
+  if (diag==0) return x;
+
+  viennacl::compressed_matrix<double> Agpu(n-1,0);
+  viennacl::vector<double>     bgpu(n-1), xgpu(n-1);
+
+  matrix2gpumatrix(A,Agpu);
+  vector2gpuvector(b,bgpu);
+
+  viennacl::linalg::gmres_tag  custom_gmres(1e-8,A.size(),128);
+
+  viennacl::linalg::ilut_tag ilut_conf(128, 1e-5);
+
+  typedef viennacl::linalg::ilut_precond<
+    viennacl::compressed_matrix<double> >  vcl_ilut_t;
+ 
+  vcl_ilut_t vcl_ilut(Agpu, ilut_conf);
+
+  xgpu = viennacl::linalg::solve(Agpu, bgpu, custom_gmres, vcl_ilut);
+
   gpuvector2vector(xgpu,x);
   viennacl::backend::finish();
   return x;
