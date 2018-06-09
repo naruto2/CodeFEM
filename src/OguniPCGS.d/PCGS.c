@@ -32,12 +32,22 @@ typedef struct {
   integer     *nl;
   integer  a_dim1;
   integer ia_dim1;
+  doublereal  *dd;
 } Amatrix;
 
 
-static void subroutine_LV1(doublereal *dd, 
-			   doublereal  *s, 
-			   doublereal  th, Amatrix A)
+static void cp(doublereal *r__, doublereal *r0, integer n)
+{
+  integer i__, i__1;
+  i__1 = n;
+
+  for (i__ = 1; i__ <= i__1; ++i__)
+    r0[i__] = r__[i__];
+}
+
+
+static doublereal *incompleteMLUdecomposition(doublereal *dd, doublereal  *s, 
+					      doublereal  th, Amatrix A)
 {
   integer i__, i__1, i__2, i__3, j, k, nn;
   doublereal ss, sw;
@@ -50,7 +60,8 @@ static void subroutine_LV1(doublereal *dd,
   integer     *nl = A.nl;
   integer  a_dim1 = A.a_dim1;
   integer ia_dim1 = A.ia_dim1;
-  
+
+
   dd[1] = 1. / (*s * d__[1]);
   i__1 = *n;
   for (i__ = 2; i__ <= i__1; i__++) {
@@ -73,11 +84,11 @@ static void subroutine_LV1(doublereal *dd,
     }
     dd[i__] = 1. / ss;
   }
+  return dd;
 }
 
 
-static void subroutine_LV2(doublereal *dd, 
-			   Amatrix A)
+static doublereal *incompleteLUdecomposition(doublereal *dd, Amatrix A)
 {
   integer i__, i__1, i__2, i__3, j, k, nn;
   doublereal ss, sw;
@@ -90,6 +101,7 @@ static void subroutine_LV2(doublereal *dd,
   integer     *nl = A.nl;
   integer  a_dim1 = A.a_dim1;
   integer ia_dim1 = A.ia_dim1;
+
   
   dd[1] = 1. / d__[1];
       i__1 = *n;
@@ -107,10 +119,10 @@ static void subroutine_LV2(doublereal *dd,
 	}
 	dd[i__] = 1. / ss;
       }
+      return dd;
 }
 
-static void subroutine_LV3(doublereal *q,  doublereal *x,
-			   Amatrix A)
+static void multiply(doublereal *q,  Amatrix A, doublereal *x)
 {    
   integer i__, i__1, i__2, j;
   
@@ -136,6 +148,62 @@ static void subroutine_LV3(doublereal *q,  doublereal *x,
     }
   }
 }
+static doublereal dot(doublereal *r__, doublereal *r__1, integer n)
+{
+  doublereal c1 = 0.;
+  integer i__, i__1 = n;
+
+  for (i__ = 1; i__ <= i__1; ++i__) {
+    c1 += r__[i__] * r__1[i__];
+  }
+}
+
+
+static void minus(doublereal *r__, doublereal *b, doublereal *q, integer n)
+{
+  integer i__, i__1;
+
+  i__1 = n;
+  for (i__ = 1; i__ <= i__1; ++i__) {
+    r__[i__] = b[i__] - q[i__];
+  }
+}
+
+static void presolve(doublereal *r__, Amatrix A, doublereal *r__1)
+{    
+  integer i__, i__1, i__2, j;
+  doublereal sw;
+  
+  doublereal *d__ = A.d__;
+  doublereal   *a = A.a;
+  integer     *ia = A.ia;
+  integer      *m = A.m;
+  integer      *n = A.n;
+  integer     *nl = A.nl;
+  integer  a_dim1 = A.a_dim1;
+  integer ia_dim1 = A.ia_dim1;
+  doublereal *dd  = A.dd;
+  
+  i__1 = *n;
+    for (i__ = 1; i__ <= i__1; ++i__) {
+	i__2 = m[i__];
+	for (j = 1; j <= i__2; ++j) {
+	    r__[i__] -= a[i__ + j * a_dim1] * r__1[ia[i__ + j * ia_dim1]];
+	}
+	r__[i__] *= dd[i__];
+    }
+
+    for (i__ = *n; i__ >= 1; --i__) {
+	sw = 0.;
+	i__1 = *nl + m[i__ + *n];
+	for (j = *nl + 1; j <= i__1; ++j) {
+	    sw += a[i__ + j * a_dim1] * r__1[ia[i__ + j * ia_dim1]];
+	}
+	r__[i__] -= dd[i__] * sw;
+    }
+}
+
+
 
 
 /* Subroutine */ int pcgs_(doublereal *d__, doublereal *a, integer *ia, 
@@ -252,47 +320,20 @@ static void subroutine_LV3(doublereal *q,  doublereal *x,
     A.ia_dim1 = ia_dim1;
     
     if (*s != 0.f) 
-      subroutine_LV1(dd, s, th, A);
+      incompleteMLUdecomposition(dd, s, th, A);
     else 
-      subroutine_LV2(dd, A);
+      incompleteLUdecomposition(dd, A);
 
-    subroutine_LV3(q, x, A);
+    A.dd = dd;
     
+    multiply(q, A, x);
+    minus(r__, b, q, *n);
+    presolve(r__, A, r__);
+    cp(r__,r0,*n);
+    cp(r__,p, *n);
+    cp(r__,e, *n);
+    c1 = dot(r__, r__, *n);
 
-    i__1 = *n;
-    for (i__ = 1; i__ <= i__1; ++i__) {
-/* L40: */
-	r__[i__] = b[i__] - q[i__];
-    }
-    i__1 = *n;
-    for (i__ = 1; i__ <= i__1; ++i__) {
-	i__2 = m[i__];
-	for (j = 1; j <= i__2; ++j) {
-/* L52: */
-	    r__[i__] -= a[i__ + j * a_dim1] * r__[ia[i__ + j * ia_dim1]];
-	}
-/* L50: */
-	r__[i__] *= dd[i__];
-    }
-    for (i__ = *n; i__ >= 1; --i__) {
-	sw = 0.;
-	i__1 = *nl + m[i__ + *n];
-	for (j = *nl + 1; j <= i__1; ++j) {
-/* L62: */
-	    sw += a[i__ + j * a_dim1] * r__[ia[i__ + j * ia_dim1]];
-	}
-/* L60: */
-	r__[i__] -= dd[i__] * sw;
-    }
-    c1 = 0.;
-    i__1 = *n;
-    for (i__ = 1; i__ <= i__1; ++i__) {
-	r0[i__] = r__[i__];
-	p[i__] = r__[i__];
-	e[i__] = r__[i__];
-/* L70: */
-	c1 += r__[i__] * r__[i__];
-    }
 /*  ITERATION PHASE */
     i__1 = *itr;
     for (k = 1; k <= i__1; ++k) {
