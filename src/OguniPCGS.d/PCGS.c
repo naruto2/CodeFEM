@@ -73,6 +73,37 @@ static void subroutine_LV1(doublereal *dd, doublereal *d__,
 }
 
 
+static void subroutine_LV2(doublereal *dd, doublereal *d__,
+			   doublereal  th, Amatrix A)
+{
+  integer i__, i__1, i__2, i__3, j, k, nn;
+  doublereal ss, sw;
+
+  doublereal   *a = A.a;
+  integer     *ia = A.ia;
+  integer      *m = A.m;
+  integer      *n = A.n;
+  integer     *nl = A.nl;
+  integer  a_dim1 = A.a_dim1;
+  integer ia_dim1 = A.ia_dim1;
+  
+  dd[1] = 1. / d__[1];
+      i__1 = *n;
+      for (i__ = 2; i__ <= i__1; ++i__) {
+	ss = d__[i__];
+	i__2 = m[i__];
+	for (k = 1; k <= i__2; ++k) {
+	  nn = ia[i__ + k * ia_dim1];
+	  i__3 = *nl + m[nn + *n];
+	  for (j = *nl + 1; j <= i__3; ++j) {
+	    if (ia[nn + j * ia_dim1] == i__) {
+	      ss -= a[i__ + k * a_dim1] * a[nn + j * a_dim1] * dd[nn];
+	    }
+	  }
+	}
+	dd[i__] = 1. / ss;
+      }
+}
 
 /* Subroutine */ int pcgs_(doublereal *d__, doublereal *a, integer *ia, 
 	integer *n, integer *n1, integer *nl, doublereal *b, doublereal *eps, 
@@ -188,46 +219,31 @@ static void subroutine_LV1(doublereal *dd, doublereal *d__,
     
     if (*s != 0.f) {
       
-      subroutine_LV1(dd,  d__, s,  th, A);
+      subroutine_LV1(dd, d__, s, th, A);
       
     } else {
 
-      dd[1] = 1. / d__[1];
-      i__1 = *n;
-      for (i__ = 2; i__ <= i__1; ++i__) {
-	ss = d__[i__];
-	i__2 = m[i__];
-	for (k = 1; k <= i__2; ++k) {
-	  nn = ia[i__ + k * ia_dim1];
-	  i__3 = *nl + m[nn + *n];
-	  for (j = *nl + 1; j <= i__3; ++j) {
-	    if (ia[nn + j * ia_dim1] == i__) {
-	      ss -= a[i__ + k * a_dim1] * a[nn + j * a_dim1] * dd[nn];
-	    }
-	  }
-	}
-	dd[i__] = 1. / ss;
-      }
+      subroutine_LV2(dd, d__, th, A);
     }
 
 
-
-
+    
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
 	q[i__] = d__[i__] * x[i__];
 	i__2 = m[i__];
 	for (j = 1; j <= i__2; ++j) {
-/* L32: */
 	    q[i__] += a[i__ + j * a_dim1] * x[ia[i__ + j * ia_dim1]];
 	}
 	i__2 = *nl + m[i__ + *n];
 	for (j = *nl + 1; j <= i__2; ++j) {
-/* L34: */
 	    q[i__] += a[i__ + j * a_dim1] * x[ia[i__ + j * ia_dim1]];
 	}
-/* L30: */
     }
+
+
+    
+
     i__1 = *n;
     for (i__ = 1; i__ <= i__1; ++i__) {
 /* L40: */
