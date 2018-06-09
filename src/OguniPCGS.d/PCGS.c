@@ -204,6 +204,14 @@ static void presolve(doublereal *r__, Amatrix A, doublereal *r__1)
 }
 
 
+static void alpha_calculation(doublereal *h__, doublereal *e,
+			      doublereal alpha, doublereal *q, integer n)
+{
+  integer i__, i__2 = n;
+  for (i__ = 1; i__ <= i__2; ++i__) {
+    h__[i__] = e[i__] + alpha * q[i__];
+  }
+}
 
 
 /* Subroutine */ int pcgs_(doublereal *d__, doublereal *a, integer *ia, 
@@ -307,8 +315,6 @@ static void presolve(doublereal *r__, Amatrix A, doublereal *r__1)
     r__[0] = 0.;
     w[0] = 0.;
 
-/*  INCOMPLETE LU DECOMPOSITION */
-
     Amatrix A;
     A.d__=d__;
     A.a  =  a;
@@ -327,58 +333,23 @@ static void presolve(doublereal *r__, Amatrix A, doublereal *r__1)
     A.dd = dd;
     
     multiply(q, A, x);
-    minus(r__, b, q, *n);
+    alpha_calculation(r__,  b, -1.0, q, *n);
     presolve(r__, A, r__);
-    cp(r__,r0,*n);
-    cp(r__,p, *n);
-    cp(r__,e, *n);
+    cp(r__, r0, *n);
+    cp(r__, p,  *n);
+    cp(r__, e,  *n);
     c1 = dot(r__, r__, *n);
 
 /*  ITERATION PHASE */
     i__1 = *itr;
     for (k = 1; k <= i__1; ++k) {
-	i__2 = *n;
-	for (i__ = 1; i__ <= i__2; ++i__) {
-	    q[i__] = d__[i__] * p[i__];
-	    i__3 = m[i__];
-	    for (j = 1; j <= i__3; ++j) {
-/* L85: */
-		q[i__] += a[i__ + j * a_dim1] * p[ia[i__ + j * ia_dim1]];
-	    }
-	    i__3 = *nl + m[*n + i__];
-	    for (j = *nl + 1; j <= i__3; ++j) {
-/* L87: */
-		q[i__] += a[i__ + j * a_dim1] * p[ia[i__ + j * ia_dim1]];
-	    }
-/* L80: */
-	}
-	i__2 = *n;
-	for (i__ = 1; i__ <= i__2; ++i__) {
-	    i__3 = m[i__];
-	    for (j = 1; j <= i__3; ++j) {
-/* L95: */
-		q[i__] -= a[i__ + j * a_dim1] * q[ia[i__ + j * ia_dim1]];
-	    }
-/* L90: */
-	    q[i__] = dd[i__] * q[i__];
-	}
-	for (i__ = *n; i__ >= 1; --i__) {
-	    sw = 0.;
-	    i__2 = *nl + m[i__ + *n];
-	    for (j = *nl + 1; j <= i__2; ++j) {
-/* L105: */
-		sw += a[i__ + j * a_dim1] * q[ia[i__ + j * ia_dim1]];
-	    }
-/* L100: */
-	    q[i__] -= dd[i__] * sw;
-	}
-	c2 = 0.;
-	i__2 = *n;
-	for (i__ = 1; i__ <= i__2; ++i__) {
-/* L110: */
-	    c2 += q[i__] * r0[i__];
-	}
-	if (c2 == 0.f) {
+
+      multiply(q,A,p);
+      presolve(q,A,q);
+
+      c2 = dot(q,r0,*n);
+      
+      if (c2 == 0.f) {
 	    *ier = 3;
 	    *itr = k;
 	    goto L300;
@@ -387,86 +358,42 @@ static void presolve(doublereal *r__, Amatrix A, doublereal *r__1)
 	c3 = 0.;
 	x1 = 0.;
 	x2 = 0.;
-	i__2 = *n;
-	for (i__ = 1; i__ <= i__2; ++i__) {
-	    h__[i__] = e[i__] - alpha * q[i__];
-/* L120: */
+	alpha_calculation(h__, e, -alpha, q, *n);
+	alpha_calculation(w, e, 1.0, h__, *n);
+	multiply(q,A,w);
+	presolve(q,A,q);
+	alpha_calculation(r__, r__, -alpha, q, *n);
+
+	for (i__ = 1; i__ <= *n; ++i__) {
+	  y = x[i__];
+	  x[i__] += alpha * w[i__];
+	  c3 += r__[i__] * r0[i__];
+	  x1 += y * y;
+	  d__1 = x[i__] - y;
+	  x2 += d__1 * d__1;
 	}
-	i__2 = *n;
-	for (i__ = 1; i__ <= i__2; ++i__) {
-/* L130: */
-	    w[i__] = e[i__] + h__[i__];
-	}
-	i__2 = *n;
-	for (i__ = 1; i__ <= i__2; ++i__) {
-	    q[i__] = d__[i__] * w[i__];
-	    i__3 = m[i__];
-	    for (j = 1; j <= i__3; ++j) {
-/* L142: */
-		q[i__] += a[i__ + j * a_dim1] * w[ia[i__ + j * ia_dim1]];
-	    }
-	    i__3 = *nl + m[i__ + *n];
-	    for (j = *nl + 1; j <= i__3; ++j) {
-/* L144: */
-		q[i__] += a[i__ + j * a_dim1] * w[ia[i__ + j * ia_dim1]];
-	    }
-/* L140: */
-	}
-	i__2 = *n;
-	for (i__ = 1; i__ <= i__2; ++i__) {
-	    i__3 = m[i__];
-	    for (j = 1; j <= i__3; ++j) {
-/* L155: */
-		q[i__] -= a[i__ + j * a_dim1] * q[ia[i__ + j * ia_dim1]];
-	    }
-/* L150: */
-	    q[i__] = dd[i__] * q[i__];
-	}
-	for (i__ = *n; i__ >= 1; --i__) {
-	    sw = 0.;
-	    i__2 = *nl + m[i__ + *n];
-	    for (j = *nl + 1; j <= i__2; ++j) {
-/* L165: */
-		sw += a[i__ + j * a_dim1] * q[ia[i__ + j * ia_dim1]];
-	    }
-/* L160: */
-	    q[i__] -= dd[i__] * sw;
-	}
-	i__2 = *n;
-	for (i__ = 1; i__ <= i__2; ++i__) {
-	    y = x[i__];
-	    r__[i__] -= alpha * q[i__];
-	    x[i__] += alpha * w[i__];
-	    c3 += r__[i__] * r0[i__];
-	    x1 += y * y;
-/* L170: */
-/* Computing 2nd power */
-	    d__1 = x[i__] - y;
-	    x2 += d__1 * d__1;
-	}
+
 	if (x1 != 0.f) {
-	    res = sqrt(x2 / x1);
-	    if (res <= *eps) {
-		*itr = k;
-		*ier = 0;
-		goto L300;
-	    }
+	  res = sqrt(x2 / x1);
+	  if (res <= *eps) {
+	    *itr = k;
+	    *ier = 0;
+	    goto L300;
+	  }
 	}
 	if (c1 == 0.f) {
-	    *ier = 4;
-	    *itr = k;
-	    goto L300;
+	  *ier = 4;
+	  *itr = k;
+	  goto L300;
 	}
 	beta = c3 / c1;
 	c1 = c3;
-	i__2 = *n;
-	for (i__ = 1; i__ <= i__2; ++i__) {
-	    e[i__] = r__[i__] + beta * h__[i__];
-	    p[i__] = e[i__] + beta * (h__[i__] + beta * p[i__]);
-/* L180: */
-	}
 
-/* L200: */
+	alpha_calculation(e, r__, beta, h__, *n);
+	for (i__ = 1; i__ <= *n; ++i__) {
+	  p[i__] = e[i__] + beta * (h__[i__] + beta * p[i__]);
+	}
+	
     }
     *ier = 1;
     s_wsle(&io___18);
@@ -474,10 +401,7 @@ static void presolve(doublereal *r__, Amatrix A, doublereal *r__1)
     e_wsle();
 L300:
     *eps = res;
-    if (th != 1.) {
-	*s = th;
-    }
+    if (th != 1.) 
+      *s = th;
     return 0;
-/*  END OF PCGS */
-} /* pcgs_ */
-
+}
