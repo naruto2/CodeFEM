@@ -13,6 +13,7 @@
 #include <stdlib.h> /* For exit() */
 #include <f2c.h>
 
+void do_lio(integer* , integer *, char *, integer);
 
 /* Table of constant values */
 
@@ -23,6 +24,7 @@ static integer c__5 = 5;
 
 
 typedef struct {
+  doublereal *d__;
   doublereal   *a;
   integer     *ia;
   integer      *m;
@@ -33,13 +35,14 @@ typedef struct {
 } Amatrix;
 
 
-static void subroutine_LV1(doublereal *dd, doublereal *d__,
+static void subroutine_LV1(doublereal *dd, 
 			   doublereal  *s, 
 			   doublereal  th, Amatrix A)
 {
   integer i__, i__1, i__2, i__3, j, k, nn;
   doublereal ss, sw;
 
+  doublereal *d__ = A.d__;
   doublereal   *a = A.a;
   integer     *ia = A.ia;
   integer      *m = A.m;
@@ -73,12 +76,13 @@ static void subroutine_LV1(doublereal *dd, doublereal *d__,
 }
 
 
-static void subroutine_LV2(doublereal *dd, doublereal *d__,
-			   doublereal  th, Amatrix A)
+static void subroutine_LV2(doublereal *dd, 
+			   Amatrix A)
 {
   integer i__, i__1, i__2, i__3, j, k, nn;
   doublereal ss, sw;
 
+  doublereal *d__ = A.d__;
   doublereal   *a = A.a;
   integer     *ia = A.ia;
   integer      *m = A.m;
@@ -104,6 +108,35 @@ static void subroutine_LV2(doublereal *dd, doublereal *d__,
 	dd[i__] = 1. / ss;
       }
 }
+
+static void subroutine_LV3(doublereal *q,  doublereal *x,
+			   Amatrix A)
+{    
+  integer i__, i__1, i__2, j;
+  
+  doublereal *d__ = A.d__;
+  doublereal   *a = A.a;
+  integer     *ia = A.ia;
+  integer      *m = A.m;
+  integer      *n = A.n;
+  integer     *nl = A.nl;
+  integer  a_dim1 = A.a_dim1;
+  integer ia_dim1 = A.ia_dim1;
+  
+  i__1 = *n;
+  for (i__ = 1; i__ <= i__1; ++i__) {
+    q[i__] = d__[i__] * x[i__];
+    i__2 = m[i__];
+    for (j = 1; j <= i__2; ++j) {
+      q[i__] += a[i__ + j * a_dim1] * x[ia[i__ + j * ia_dim1]];
+    }
+    i__2 = *nl + m[i__ + *n];
+    for (j = *nl + 1; j <= i__2; ++j) {
+      q[i__] += a[i__ + j * a_dim1] * x[ia[i__ + j * ia_dim1]];
+    }
+  }
+}
+
 
 /* Subroutine */ int pcgs_(doublereal *d__, doublereal *a, integer *ia, 
 	integer *n, integer *n1, integer *nl, doublereal *b, doublereal *eps, 
@@ -209,6 +242,7 @@ static void subroutine_LV2(doublereal *dd, doublereal *d__,
 /*  INCOMPLETE LU DECOMPOSITION */
 
     Amatrix A;
+    A.d__=d__;
     A.a  =  a;
     A.ia = ia;
     A.m  =  m;
@@ -217,31 +251,12 @@ static void subroutine_LV2(doublereal *dd, doublereal *d__,
     A.a_dim1  = a_dim1;
     A.ia_dim1 = ia_dim1;
     
-    if (*s != 0.f) {
-      
-      subroutine_LV1(dd, d__, s, th, A);
-      
-    } else {
+    if (*s != 0.f) 
+      subroutine_LV1(dd, s, th, A);
+    else 
+      subroutine_LV2(dd, A);
 
-      subroutine_LV2(dd, d__, th, A);
-    }
-
-
-    
-    i__1 = *n;
-    for (i__ = 1; i__ <= i__1; ++i__) {
-	q[i__] = d__[i__] * x[i__];
-	i__2 = m[i__];
-	for (j = 1; j <= i__2; ++j) {
-	    q[i__] += a[i__ + j * a_dim1] * x[ia[i__ + j * ia_dim1]];
-	}
-	i__2 = *nl + m[i__ + *n];
-	for (j = *nl + 1; j <= i__2; ++j) {
-	    q[i__] += a[i__ + j * a_dim1] * x[ia[i__ + j * ia_dim1]];
-	}
-    }
-
-
+    subroutine_LV3(q, x, A);
     
 
     i__1 = *n;

@@ -13,6 +13,9 @@
 #include <stdlib.h> /* For exit() */
 #include <f2c.h>
 
+void do_lio(integer* , integer *, char *, integer);
+
+
 /* Table of constant values */
 
 static integer c__9 = 9;
