@@ -36,13 +36,12 @@ typedef struct {
 } Amatrix;
 
 
-static void cp(doublereal *r__, doublereal *r0, integer n)
+static void cp(doublereal *r, doublereal *x, integer n)
 {
-  integer i__, i__1;
-  i__1 = n;
+  integer i;
 
-  for (i__ = 1; i__ <= i__1; ++i__)
-    r0[i__] = r__[i__];
+  for (i = 1; i <= n; i++)
+    x[i] = r[i];
 }
 
 
@@ -122,6 +121,7 @@ static doublereal *incompleteLUdecomposition(doublereal *dd, Amatrix A)
       return dd;
 }
 
+
 static void multiply(doublereal *q,  Amatrix A, doublereal *x)
 {    
   integer i__, i__1, i__2, j;
@@ -148,29 +148,23 @@ static void multiply(doublereal *q,  Amatrix A, doublereal *x)
     }
   }
 }
-static doublereal dot(doublereal *r__, doublereal *r__1, integer n)
-{
-  doublereal c1 = 0.;
-  integer i__, i__1 = n;
 
-  for (i__ = 1; i__ <= i__1; ++i__) {
-    c1 += r__[i__] * r__1[i__];
-  }
+
+static doublereal dot(doublereal *p, doublereal *q, integer n)
+{
+  doublereal c = 0.0;
+  integer i;
+
+  for (i = 1; i <= n; i++)
+    c += p[i] * q[i];
+
+  return c;
 }
 
-
-static void minus(doublereal *r__, doublereal *b, doublereal *q, integer n)
-{
-  integer i__, i__1;
-
-  i__1 = n;
-  for (i__ = 1; i__ <= i__1; ++i__) {
-    r__[i__] = b[i__] - q[i__];
-  }
-}
 
 static void presolve(doublereal *r__, Amatrix A, doublereal *r__1)
 {    
+
   integer i__, i__1, i__2, j;
   doublereal sw;
   
@@ -204,13 +198,13 @@ static void presolve(doublereal *r__, Amatrix A, doublereal *r__1)
 }
 
 
-static void alpha_calculation(doublereal *h__, doublereal *e,
+static void alpha_calculation(doublereal *h, doublereal *e,
 			      doublereal alpha, doublereal *q, integer n)
 {
-  integer i__, i__2 = n;
-  for (i__ = 1; i__ <= i__2; ++i__) {
-    h__[i__] = e[i__] + alpha * q[i__];
-  }
+  integer i;
+
+  for (i = 1; i <= n; i++)
+    h[i] = e[i] + alpha * q[i];
 }
 
 
