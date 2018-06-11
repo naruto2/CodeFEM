@@ -124,7 +124,7 @@ static doublereal *incompleteLUdecomposition(doublereal *dd, Amatrix A)
 
 static void multiply(doublereal *q,  Amatrix A, doublereal *x)
 {    
-  integer i__, i__1, i__2, j;
+  integer i, j, k;
   
   doublereal *d__ = A.d__;
   doublereal   *a = A.a;
@@ -135,16 +135,15 @@ static void multiply(doublereal *q,  Amatrix A, doublereal *x)
   integer  a_dim1 = A.a_dim1;
   integer ia_dim1 = A.ia_dim1;
   
-  i__1 = *n;
-  for (i__ = 1; i__ <= i__1; ++i__) {
-    q[i__] = d__[i__] * x[i__];
-    i__2 = m[i__];
-    for (j = 1; j <= i__2; ++j) {
-      q[i__] += a[i__ + j * a_dim1] * x[ia[i__ + j * ia_dim1]];
+  for (i = 1; i <= *n; i++) {
+    q[i] = d__[i] * x[i];
+    k = m[i];
+    for (j = 1; j <= k; j++) {
+      q[i] += a[i + j * a_dim1] * x[ia[i + j * ia_dim1]];
     }
-    i__2 = *nl + m[i__ + *n];
-    for (j = *nl + 1; j <= i__2; ++j) {
-      q[i__] += a[i__ + j * a_dim1] * x[ia[i__ + j * ia_dim1]];
+    k = *nl + m[i + *n];
+    for (j = *nl + 1; j <= k; j++) {
+      q[i] += a[i + j * a_dim1] * x[ia[i + j * ia_dim1]];
     }
   }
 }
