@@ -1,125 +1,104 @@
+#include <iostream>
 #include <stdio.h>
 #include <malloc.h>
 #include <CL/cl.h>
 #include "opencl.h"
 
-cl_device_id gDevice;
-cl_command_queue gCommandQueue;
-cl_context gContext;
 
-cl_program gProgram;
-cl_kernel gKernel;
+cl_uint ret_num_platforms;
+cl_uint ret_num_devices;
+cl_platform_id platform_id;
+cl_device_id device_id;
+cl_context context;
+cl_command_queue command_queue;
+cl_program program;
 
-cl_mem gResult;
-cl_mem gOrigin;
 
-/*
-OpenCLを使用するために必要なものを作ります。
-*/
-void OpenCL::initialize(int platformIdx, int deviceIdx)
+void OpenCL::init(void)
 {
-#if 0
-  // プラットフォーム取得
-	cl_uint platformNumber = 0;
-	cl_platform_id platformIds[8];
-	checkError(clGetPlatformIDs(8, platformIds, &platformNumber));
-	cl_platform_id platform = platformIds[platformIdx];
+  //Read a Kernel code
+  FILE* fp = fopen("kernel.cl", "r");
+  if(!fp){
+    std::cerr << "Failed to load kernel" << std::endl;
+    exit(-1);
+  }
+#define MAX_SOURCE_SIZE (0x100000)
+  char* source_str = (char*)malloc(MAX_SOURCE_SIZE);
+  std::size_t source_size = fread(source_str, 1, MAX_SOURCE_SIZE, fp);
+  fclose(fp);
 
-	// デバイス取得
-	cl_uint deviceNumber = 0;
-	cl_device_id deviceIds[8];
-	checkError(clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 8, deviceIds, &deviceNumber));
-	gDevice = deviceIds[deviceIdx];
+  //Get the platforms
+  cl_int ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
 
-	// コンテキスト（メモリ確保などに使用）とコマンドキュー（カーネルの実行などに使用）を作成
-	gContext = clCreateContext(NULL, 1, &gDevice, NULL, NULL, NULL);
+  //Get the device
+  ret = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_DEFAULT, 1,
+		       &device_id, &ret_num_devices);
 
+  //Create context
+  context = clCreateContext(NULL, 1, &device_id, NULL, NULL, &ret);
+
+  //Create Command Queue
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-	gCommandQueue = clCreateCommandQueue(gContext, gDevice, 0, NULL);
+  command_queue = clCreateCommandQueue(context, device_id, 0, &ret);
 #pragma GCC diagnostic warning "-Wdeprecated-declarations"
-	
-	// カーネルプログラムのコンパイル
-	gProgram = compileProgram((char*)"kernel.cl");
-	gKernel = createKernel(gProgram, (char*)"detectLine");
 
-	// デバイスで使用するメモリオブジェクトを確保
-	gResult = clCreateBuffer(gContext, CL_MEM_READ_WRITE, sizeof(char) * 640 * 480, NULL, NULL);
-	gOrigin = clCreateBuffer(gContext, CL_MEM_READ_WRITE, sizeof(char) * 640 * 480 * 3, NULL, NULL);
+  //Create Program Object
+  program = clCreateProgramWithSource(context, 1, (const char**)&source_str,
+				      (const size_t*)&source_size, &ret);
+
+  //Compile of kernel's source code
+  ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
+  if ( ret != CL_SUCCESS ) {
+    if ( ret == CL_INVALID_PROGRAM )
+      printf("clBuildProgram error: CL_INVALID_PROGRAM\n");
+    if ( ret == CL_INVALID_VALUE )
+      printf("clBuildProgram error: CL_INVALID_VALUE\n");
+    if ( ret == CL_INVALID_DEVICE )
+      printf("clBuildProgram error: CL_INVALID_DEVICE\n");
+    if ( ret == CL_INVALID_BINARY )
+      printf("clBuildProgram error: CL_INVALID_BINARY\n");
+    if ( ret == CL_INVALID_BUILD_OPTIONS )
+      printf("clBuildProgram error: CL_INVALID_BUILD_OPTIONS\n");
+    if ( ret == CL_INVALID_OPERATION )
+      printf("clBuildProgram error: CL_INVALID_OPERATION\n");
+    if ( ret == CL_COMPILER_NOT_AVAILABLE )
+      printf("clBuildProgram error: CL_COMPILER_NOT_AVAILABLE\n");
+    if ( ret == CL_BUILD_PROGRAM_FAILURE )
+      printf("clBuildProgram error: CL_BUILD_PROGRAM_FAILURE2\n");
+    if ( ret == CL_OUT_OF_HOST_MEMORY )
+      printf("clBuildProgram error: CL_OUT_OF_HOST_MEMORY\n");
+
+    char errorlog[1000];
+    size_t errorlogsize;
+    clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG,
+			  1000,errorlog,&errorlogsize);
+    puts(errorlog);
+    exit(0);
+  }
+  free(source_str);
 }
 
-/*
-OpenCLカーネルを呼び出して計算を実行します。
-*/
-void OpenCL::detectLine(unsigned char* result, unsigned char* origin)
+
+cl_kernel IsKernelFunction(std::string function)
 {
-	cl_int2 size = { 640, 480 };
-	// ホストからデバイスにメモリ転送
-	checkError(clEnqueueWriteBuffer(gCommandQueue, gOrigin, CL_TRUE, 0, sizeof(char) * 640 * 480 * 3, origin, 0, NULL, NULL));
-	// メモリオブジェクトをカーネル関数の引数にセット
-	checkError(clSetKernelArg(gKernel, 0, sizeof(cl_mem), &gResult));
-	checkError(clSetKernelArg(gKernel, 1, sizeof(cl_mem), &gOrigin));
-	checkError(clSetKernelArg(gKernel, 2, sizeof(cl_int2), &size));
-	// カーネルの並列実行数を設定
-	size_t workSize[2] = { 640, 480 };
-	// カーネルの呼び出し
-	checkError(clEnqueueNDRangeKernel(gCommandQueue, gKernel, 2, NULL, workSize, NULL, 0, NULL, NULL));
-	// デバイスからホストにメモリ転送
-	checkError(clEnqueueReadBuffer(gCommandQueue, gResult, CL_TRUE, 0, sizeof(char) * 640 * 480, result, 0, NULL, NULL));
-#endif
+  cl_int ret;
+  return clCreateKernel(program, function.c_str(), &ret);
 }
 
-void OpenCL::release()
+
+cl_mem vec[32];
+
+
+cl_mem *array_function(size_t size, void *a, int n)
 {
-	clFinish(gCommandQueue);
-	clReleaseMemObject(gResult);
-	clReleaseMemObject(gOrigin);
-	clReleaseCommandQueue(gCommandQueue);
-	clReleaseContext(gContext);
-}
+  static int k;
+  cl_int ret;
 
-/*
-OpenCLのカーネルプログラムをコンパイルして、生成されたプログラムオブジェクトを返します。
-*/
-cl_program OpenCL::compileProgram(char* fileName)
-{
-	// プログラムの読み込み
-	FILE* fp;
-	fp = fopen(fileName, "r");
-	if (fp == NULL)
-	{
-		printf("%s load failed\n", fileName);
-		return NULL;
-	}
-
-	fseek(fp, 0, SEEK_END);
-	const int filesize = ftell(fp);
-
-	fseek(fp, 0, 0);
-	char* sourceString = (char*)malloc(filesize);
-	size_t sourceSize = fread(sourceString, sizeof(char), filesize, fp);
-	fclose(fp);
-
-	// プログラムのコンパイル
-	cl_program program = clCreateProgramWithSource(gContext, 1, (const char**)&sourceString, (const size_t*)&sourceSize, NULL);
-	cl_int err = clBuildProgram(program, 1, &gDevice, NULL, NULL, NULL);
-	// コンパイルに失敗した場合はエラー内容を表示
-	if (err != CL_SUCCESS)
-	{
-		size_t logSize;
-		clGetProgramBuildInfo(program, gDevice, CL_PROGRAM_BUILD_LOG, 0, NULL, &logSize);
-		char* buildLog = (char*)malloc((logSize + 1));
-		clGetProgramBuildInfo(program, gDevice, CL_PROGRAM_BUILD_LOG, logSize, buildLog, NULL);
-		printf("%s", buildLog);
-		free(buildLog);
-	}
-	free(sourceString);
-	return program;
-}
-
-/*
-プログラムオブジェクトからカーネルオブジェクトを作ります。
-*/
-cl_kernel OpenCL::createKernel(cl_program program, char* kernelName)
-{
-	return clCreateKernel(program, kernelName, NULL);
+  vec[k] = clCreateBuffer(context, CL_MEM_READ_WRITE,
+			  n * size, NULL, &ret);
+  ret = clEnqueueWriteBuffer(command_queue, vec[k], CL_TRUE,
+			     0, n * size, a,
+			     0, NULL, NULL);
+  k++;
+  return &vec[k-1];
 }
