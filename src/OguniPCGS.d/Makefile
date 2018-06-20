@@ -11,3 +11,8 @@ fout: ;
 
 clean: ;
 	rm -f a.out
+
+psc: ;
+	cc -c PCGS.c
+	c++ -c PCGS_cpp.c++ psc98.c++
+	c++ psc98.o PCGS_cpp.o PCGS.o lib/*.a -lf2c -lm
